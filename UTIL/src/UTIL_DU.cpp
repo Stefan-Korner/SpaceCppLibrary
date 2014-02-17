@@ -78,7 +78,7 @@ UTIL::DU::DU(const void* p_buffer, size_t p_bufferSize, bool p_copyBuffer):
 }
 
 //-----------------------------------------------------------------------------
-UTIL::DU::DU(const DU& p_du):
+UTIL::DU::DU(const UTIL::DU& p_du):
   m_buffer(NULL),
   m_constBuffer(NULL),
   m_bufferSize(p_du.m_usedBufferSize),
@@ -97,7 +97,7 @@ UTIL::DU::DU(const DU& p_du):
 }
 
 //-----------------------------------------------------------------------------
-const UTIL::DU::DU& UTIL::DU::operator=(const UTIL::DU::DU& p_du)
+const UTIL::DU& UTIL::DU::operator=(const UTIL::DU& p_du)
 //-----------------------------------------------------------------------------
 {
   init(p_du);
@@ -174,7 +174,7 @@ UTIL::DU::init(const void* p_buffer, size_t p_bufferSize, bool p_copyBuffer)
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::DU::init(const UTIL::DU::DU& p_du)
+void UTIL::DU::init(const UTIL::DU& p_du)
 //-----------------------------------------------------------------------------
 {
   if(&p_du != this)
@@ -264,7 +264,7 @@ void UTIL::DU::resize(size_t p_bufferSize) throw(Exception)
       // empty buffer --> allocate fresh buffer
       m_buffer = new uint8_t[p_bufferSize];
       memset(m_buffer, 0, p_bufferSize);
-      m_constBuffer == NULL;
+      m_constBuffer = NULL;
       m_bufferSize = p_bufferSize;
       m_usedBufferSize = p_bufferSize;
     }
@@ -280,7 +280,7 @@ void UTIL::DU::resize(size_t p_bufferSize) throw(Exception)
     m_buffer = new uint8_t[p_bufferSize];
     memcpy(m_buffer, oldBuffer, m_bufferSize);
     memset(m_buffer + m_bufferSize, 0, p_bufferSize - m_bufferSize);
-    m_constBuffer == NULL;
+    m_constBuffer = NULL;
     m_bufferSize = p_bufferSize;
     m_usedBufferSize = p_bufferSize;
     delete[] oldBuffer;
@@ -425,13 +425,11 @@ std::string UTIL::DU::dumpStr(const char* p_prefix,
     length = 65536;
   }
   char dumpBuffer[11];   // temporary buffer for conversion from num to hex
-  uint32_t addr = (uint32_t) dataBuffer;
   for(uint32_t i = 0; i < length; i += 16)
   {
     if(p_withAbsoluteAddress)
     {
-      sprintf(dumpBuffer,  "\n%08x ", addr);
-      addr += 16;
+      sprintf(dumpBuffer, "\n%p ", (dataBuffer + i));
     }
     else
     {
