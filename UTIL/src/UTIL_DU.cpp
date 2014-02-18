@@ -429,7 +429,10 @@ std::string UTIL::DU::dumpStr(const char* p_prefix,
   {
     if(p_withAbsoluteAddress)
     {
-      sprintf(dumpBuffer, "\n%p ", (dataBuffer + i));
+      // the dump method is only for debugging purpose,
+      // it is OK to limit the printed address to 8 hex digits (32 bit)
+      uint32_t addr = (uint32_t) ((uint64_t) (dataBuffer + i));
+      sprintf(dumpBuffer, "\n%08x ", addr);
     }
     else
     {
