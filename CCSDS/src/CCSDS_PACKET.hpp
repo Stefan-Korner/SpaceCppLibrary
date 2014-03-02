@@ -61,44 +61,29 @@ namespace CCSDS
       virtual ~Packet();
 
       // access methods (convenience methods)
-      virtual void versionNumber(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t versionNumber() const
-        throw(UTIL::DU::Exception);
-      virtual void packetType(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t packetType() const
-        throw(UTIL::DU::Exception);
+      virtual void versionNumber(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t versionNumber() const throw(UTIL::Exception);
+      virtual void packetType(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t packetType() const throw(UTIL::Exception);
       virtual void dataFieldHeaderFlag(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t dataFieldHeaderFlag() const
-        throw(UTIL::DU::Exception);
+        throw(UTIL::Exception);
+      virtual uint32_t dataFieldHeaderFlag() const throw(UTIL::Exception);
       virtual void applicationProcessId(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t applicationProcessId() const
-        throw(UTIL::DU::Exception);
-      virtual void segmentationFlags(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t segmentationFlags() const
-        throw(UTIL::DU::Exception);
+        throw(UTIL::Exception);
+      virtual uint32_t applicationProcessId() const throw(UTIL::Exception);
+      virtual void segmentationFlags(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t segmentationFlags() const throw(UTIL::Exception);
       virtual void sequenceControlCount(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t sequenceControlCount() const
-        throw(UTIL::DU::Exception);
-      virtual void packetLength(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t packetLength() const
-        throw(UTIL::DU::Exception);
+        throw(UTIL::Exception);
+      virtual uint32_t sequenceControlCount() const throw(UTIL::Exception);
+      virtual void packetLength(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t packetLength() const throw(UTIL::Exception);
 
       // other methods
-      virtual void setPacketLength()
-        throw(UTIL::DU::Exception);
-      virtual bool checkPacketLength() const
-        throw(UTIL::DU::Exception);
-      virtual void setChecksum()
-        throw(UTIL::DU::Exception);
-      virtual bool checkChecksum() const
-        throw(UTIL::DU::Exception);
+      virtual void setPacketLength() throw(UTIL::Exception);
+      virtual bool checkPacketLength() const throw(UTIL::Exception);
+      virtual void setChecksum() throw(UTIL::Exception);
+      virtual bool checkChecksum() const throw(UTIL::Exception);
     };
 
     //-------------------------------------------------------------------------

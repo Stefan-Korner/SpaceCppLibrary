@@ -65,18 +65,12 @@ namespace PUS
       virtual ~TMpacket();
 
       // access methods (convenience methods)
-      virtual void pusVersionNumber(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t pusVersionNumber() const
-        throw(UTIL::DU::Exception);
-      virtual void serviceType(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t serviceType() const
-        throw(UTIL::DU::Exception);
-      virtual void serviceSubType(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t serviceSubType() const
-        throw(UTIL::DU::Exception);
+      virtual void pusVersionNumber(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t pusVersionNumber() const throw(UTIL::Exception);
+      virtual void serviceType(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t serviceType() const throw(UTIL::Exception);
+      virtual void serviceSubType(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t serviceSubType() const throw(UTIL::Exception);
     };
 
     //-------------------------------------------------------------------------
@@ -94,22 +88,14 @@ namespace PUS
       virtual ~TCpacket();
 
       // access methods (convenience methods)
-      virtual void pusVersionNumber(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t pusVersionNumber() const
-        throw(UTIL::DU::Exception);
-      virtual void ack(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t ack() const
-        throw(UTIL::DU::Exception);
-      virtual void serviceType(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t serviceType() const
-        throw(UTIL::DU::Exception);
-      virtual void serviceSubType(uint32_t p_val)
-        throw(UTIL::DU::Exception);
-      virtual uint32_t serviceSubType() const
-        throw(UTIL::DU::Exception);
+      virtual void pusVersionNumber(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t pusVersionNumber() const throw(UTIL::Exception);
+      virtual void ack(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t ack() const throw(UTIL::Exception);
+      virtual void serviceType(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t serviceType() const throw(UTIL::Exception);
+      virtual void serviceSubType(uint32_t p_val) throw(UTIL::Exception);
+      virtual uint32_t serviceSubType() const throw(UTIL::Exception);
     };
   }
 }

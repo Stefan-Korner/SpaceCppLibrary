@@ -26,15 +26,19 @@ clean:
 	\rm -f ../lib/libCCSDS.so ../lib/libCCSDS.a *.o
 
 ../lib/libCCSDS.so: \
-	CCSDS_PACKET.o
+	CCSDS_PACKET.o \
+	CCSDS_TIME.o
 	${LIB_DYNAMIC} -olibCCSDS.so \
-	CCSDS_PACKET.o
+	CCSDS_PACKET.o \
+	CCSDS_TIME.o
 	mv libCCSDS.so ../lib
 
 ../lib/libCCSDS.a: \
-	CCSDS_PACKET.o
+	CCSDS_PACKET.o \
+	CCSDS_TIME.o
 	${LIB_STATIC} libCCSDS.a \
-	CCSDS_PACKET.o
+	CCSDS_PACKET.o \
+	CCSDS_TIME.o
 	mv libCCSDS.a ../lib
 
 CCSDS_PACKET.o: CCSDS_PACKET.cpp \
@@ -42,3 +46,9 @@ CCSDS_PACKET.o: CCSDS_PACKET.cpp \
 	${LIB_UTIL}
 	${CPP} -oCCSDS_PACKET.o ${INCLUDES} \
 	CCSDS_PACKET.cpp
+
+CCSDS_TIME.o: CCSDS_TIME.cpp \
+	CCSDS_TIME.hpp \
+	${LIB_UTIL}
+	${CPP} -oCCSDS_TIME.o ${INCLUDES} \
+	CCSDS_TIME.cpp

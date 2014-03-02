@@ -164,9 +164,9 @@ int main()
     du3 = du1 + du2;
     du3.dump("du3", true);
   }
-  catch(UTIL::DU::Exception ex)
+  catch(UTIL::Exception ex)
   {
-    cout << "Exception: " << ex.reason << endl;
+    cout << "Exception: " << ex.what() << endl;
   }
   return 0;
 }

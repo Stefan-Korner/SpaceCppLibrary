@@ -81,31 +81,28 @@ PUS::PACKET::TMpacket::~TMpacket()
 
 //-----------------------------------------------------------------------------
 void PUS::PACKET::TMpacket::pusVersionNumber(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TM_PACKET_DATAFIELD_HEADER::PUS_VERSION_NUMBER, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TMpacket::pusVersionNumber() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TMpacket::pusVersionNumber() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TM_PACKET_DATAFIELD_HEADER::PUS_VERSION_NUMBER);
 }
 
 //-----------------------------------------------------------------------------
-void PUS::PACKET::TMpacket::serviceType(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+void PUS::PACKET::TMpacket::serviceType(uint32_t p_val) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TM_PACKET_DATAFIELD_HEADER::SERVICE_TYPE, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TMpacket::serviceType() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TMpacket::serviceType() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TM_PACKET_DATAFIELD_HEADER::SERVICE_TYPE);
@@ -113,15 +110,14 @@ uint32_t PUS::PACKET::TMpacket::serviceType() const
 
 //-----------------------------------------------------------------------------
 void PUS::PACKET::TMpacket::serviceSubType(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TM_PACKET_DATAFIELD_HEADER::SERVICE_SUB_TYPE, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TMpacket::serviceSubType() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TMpacket::serviceSubType() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TM_PACKET_DATAFIELD_HEADER::SERVICE_SUB_TYPE);
@@ -193,47 +189,42 @@ PUS::PACKET::TCpacket::~TCpacket()
 
 //-----------------------------------------------------------------------------
 void PUS::PACKET::TCpacket::pusVersionNumber(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::PUS_VERSION_NUMBER, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TCpacket::pusVersionNumber() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TCpacket::pusVersionNumber() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::PUS_VERSION_NUMBER);
 }
 
 //-----------------------------------------------------------------------------
-void PUS::PACKET::TCpacket::ack(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+void PUS::PACKET::TCpacket::ack(uint32_t p_val) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::ACK, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TCpacket::ack() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TCpacket::ack() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::ACK);
 }
 
 //-----------------------------------------------------------------------------
-void PUS::PACKET::TCpacket::serviceType(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+void PUS::PACKET::TCpacket::serviceType(uint32_t p_val) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::SERVICE_TYPE, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TCpacket::serviceType() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TCpacket::serviceType() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::SERVICE_TYPE);
@@ -241,15 +232,14 @@ uint32_t PUS::PACKET::TCpacket::serviceType() const
 
 //-----------------------------------------------------------------------------
 void PUS::PACKET::TCpacket::serviceSubType(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::SERVICE_SUB_TYPE, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t PUS::PACKET::TCpacket::serviceSubType() const
-  throw(UTIL::DU::Exception)
+uint32_t PUS::PACKET::TCpacket::serviceSubType() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(PUS::PACKET::TC_PACKET_DATAFIELD_HEADER::SERVICE_SUB_TYPE);

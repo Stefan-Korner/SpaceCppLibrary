@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <string>
+#include "UTIL_EXCEPTION.hpp"
 
 namespace UTIL
 {
@@ -26,16 +27,6 @@ namespace UTIL
   //---------------------------------------------------------------------------
   {
   public:
-    // this exception can be raised by some methods
-    struct Exception
-    {
-      bool isOK;
-      std::string reason;
-      Exception(): isOK(true), reason("") {}
-      Exception(const char* p_reason):
-        isOK(false), reason(p_reason) {}
-    };
-
     // accessors for different types
     struct BitAccessor
     {
@@ -71,12 +62,13 @@ namespace UTIL
     virtual void init(const DU& p_du);
     virtual void append(const DU& p_du);
     virtual void clear();
-    virtual void resize(size_t p_bufferSize) throw(Exception);
+    virtual void resize(size_t p_bufferSize) throw(UTIL::Exception);
     virtual uint8_t* release(size_t& p_bufferSize);
     virtual const uint8_t* buffer() const;
     virtual size_t bufferSize() const;
-    virtual const uint8_t& operator[](size_t p_bytePos) const throw(Exception);
-    virtual uint8_t& operator[](size_t p_bytePos) throw(Exception);
+    virtual const uint8_t& operator[](size_t p_bytePos) const
+      throw(UTIL::Exception);
+    virtual uint8_t& operator[](size_t p_bytePos) throw(UTIL::Exception);
 
     // helpers
     virtual int compare(const DU& p_du) const;
@@ -87,30 +79,36 @@ namespace UTIL
 
     // bit aligned access
     virtual uint32_t getBits(size_t p_bitPos,
-                             size_t p_bitLength) const throw(Exception);
+                             size_t p_bitLength) const throw(UTIL::Exception);
     virtual void setBits(size_t p_bitPos,
                          size_t p_bitLength,
-                         uint32_t p_value) throw(Exception);
-    virtual uint32_t get(BitAccessor p_acc) const throw(Exception);
-    virtual void set(BitAccessor p_acc, uint32_t p_value) throw(Exception);
+                         uint32_t p_value) throw(UTIL::Exception);
+    virtual uint32_t get(BitAccessor p_acc) const throw(UTIL::Exception);
+    virtual void set(BitAccessor p_acc, uint32_t p_value)
+      throw(UTIL::Exception);
 
     // bit aligned access
     virtual const uint8_t* getBytes(size_t p_bytePos,
-                                    size_t p_byteLength) const throw(Exception);
+                                    size_t p_byteLength) const
+      throw(UTIL::Exception);
     virtual void setBytes(size_t p_bytePos,
                           size_t p_byteLength,
-                          const void* p_bytes) throw(Exception);
-    virtual const uint8_t* get(ByteAccessor p_acc) const throw(Exception);
-    virtual void set(ByteAccessor p_acc, const void* p_bytes) throw(Exception);
+                          const void* p_bytes) throw(UTIL::Exception);
+    virtual const uint8_t* get(ByteAccessor p_acc) const
+      throw(UTIL::Exception);
+    virtual void set(ByteAccessor p_acc, const void* p_bytes)
+      throw(UTIL::Exception);
 
     // unsigned integer access
     virtual uint32_t getUnsigned(size_t p_bytePos,
-                                 size_t p_byteLength) const throw(Exception);
+                                 size_t p_byteLength)
+      const throw(UTIL::Exception);
     virtual void setUnsigned(size_t p_bytePos,
                              size_t p_byteLength,
-                             uint32_t p_value) throw(Exception);
-    virtual uint32_t get(UnsignedAccessor p_acc) const throw(Exception);
-    virtual void set(UnsignedAccessor p_acc, uint32_t p_value) throw(Exception);
+                             uint32_t p_value) throw(UTIL::Exception);
+    virtual uint32_t get(UnsignedAccessor p_acc) const throw(UTIL::Exception);
+    virtual void set(UnsignedAccessor p_acc, uint32_t p_value)
+      throw(UTIL::Exception);
 
   private:
     uint8_t* m_buffer;

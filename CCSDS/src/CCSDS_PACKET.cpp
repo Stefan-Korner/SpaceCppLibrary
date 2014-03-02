@@ -83,31 +83,28 @@ CCSDS::PACKET::Packet::~Packet()
 
 //-----------------------------------------------------------------------------
 void CCSDS::PACKET::Packet::versionNumber(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::VERSION_NUMBER, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t CCSDS::PACKET::Packet::versionNumber() const
-  throw(UTIL::DU::Exception)
+uint32_t CCSDS::PACKET::Packet::versionNumber() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::VERSION_NUMBER);
 }
 
 //-----------------------------------------------------------------------------
-void CCSDS::PACKET::Packet::packetType(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+void CCSDS::PACKET::Packet::packetType(uint32_t p_val) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::PACKET_TYPE, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t CCSDS::PACKET::Packet::packetType() const
-  throw(UTIL::DU::Exception)
+uint32_t CCSDS::PACKET::Packet::packetType() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::PACKET_TYPE);
@@ -115,7 +112,7 @@ uint32_t CCSDS::PACKET::Packet::packetType() const
 
 //-----------------------------------------------------------------------------
 void CCSDS::PACKET::Packet::dataFieldHeaderFlag(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::DATA_FIELD_HEADER_FLAG, p_val);
@@ -123,7 +120,7 @@ void CCSDS::PACKET::Packet::dataFieldHeaderFlag(uint32_t p_val)
 
 //-----------------------------------------------------------------------------
 uint32_t CCSDS::PACKET::Packet::dataFieldHeaderFlag() const
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::DATA_FIELD_HEADER_FLAG);
@@ -131,7 +128,7 @@ uint32_t CCSDS::PACKET::Packet::dataFieldHeaderFlag() const
 
 //-----------------------------------------------------------------------------
 void CCSDS::PACKET::Packet::applicationProcessId(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::APPLICATION_PROCESS_ID, p_val);
@@ -139,7 +136,7 @@ void CCSDS::PACKET::Packet::applicationProcessId(uint32_t p_val)
 
 //-----------------------------------------------------------------------------
 uint32_t CCSDS::PACKET::Packet::applicationProcessId() const
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::APPLICATION_PROCESS_ID);
@@ -147,7 +144,7 @@ uint32_t CCSDS::PACKET::Packet::applicationProcessId() const
 
 //-----------------------------------------------------------------------------
 void CCSDS::PACKET::Packet::segmentationFlags(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::SEGMENTATION_FLAGS, p_val);
@@ -155,7 +152,7 @@ void CCSDS::PACKET::Packet::segmentationFlags(uint32_t p_val)
 
 //-----------------------------------------------------------------------------
 uint32_t CCSDS::PACKET::Packet::segmentationFlags() const
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::SEGMENTATION_FLAGS);
@@ -163,7 +160,7 @@ uint32_t CCSDS::PACKET::Packet::segmentationFlags() const
 
 //-----------------------------------------------------------------------------
 void CCSDS::PACKET::Packet::sequenceControlCount(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::SEQUENCE_CONTROL_COUNT, p_val);
@@ -171,23 +168,21 @@ void CCSDS::PACKET::Packet::sequenceControlCount(uint32_t p_val)
 
 //-----------------------------------------------------------------------------
 uint32_t CCSDS::PACKET::Packet::sequenceControlCount() const
-  throw(UTIL::DU::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::SEQUENCE_CONTROL_COUNT);
 }
 
 //-----------------------------------------------------------------------------
-void CCSDS::PACKET::Packet::packetLength(uint32_t p_val)
-  throw(UTIL::DU::Exception)
+void CCSDS::PACKET::Packet::packetLength(uint32_t p_val) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   set(CCSDS::PACKET::PRIMARY_HEADER::PACKET_LENGTH, p_val);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t CCSDS::PACKET::Packet::packetLength() const
-  throw(UTIL::DU::Exception)
+uint32_t CCSDS::PACKET::Packet::packetLength() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::PACKET_LENGTH);
@@ -195,8 +190,7 @@ uint32_t CCSDS::PACKET::Packet::packetLength() const
 
 //-----------------------------------------------------------------------------
 // sets the packetLength according to the data unit's buffer size
-void CCSDS::PACKET::Packet::setPacketLength()
-  throw(UTIL::DU::Exception)
+void CCSDS::PACKET::Packet::setPacketLength() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   packetLength(bufferSize() - PRIMARY_HEADER_BYTE_SIZE - 1);
@@ -204,8 +198,7 @@ void CCSDS::PACKET::Packet::setPacketLength()
 
 //-----------------------------------------------------------------------------
 // checks the packetLength according to the data unit's buffer size
-bool CCSDS::PACKET::Packet::checkPacketLength() const
-  throw(UTIL::DU::Exception)
+bool CCSDS::PACKET::Packet::checkPacketLength() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return (packetLength() == (bufferSize() - PRIMARY_HEADER_BYTE_SIZE - 1));
@@ -214,13 +207,12 @@ bool CCSDS::PACKET::Packet::checkPacketLength() const
 //-----------------------------------------------------------------------------
 // sets the checksum out of the binary data,
 // buffer and packetLength must be correctly initialised
-void CCSDS::PACKET::Packet::setChecksum()
-  throw(UTIL::DU::Exception)
+void CCSDS::PACKET::Packet::setChecksum() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   if(!checkPacketLength())
   {
-    throw UTIL::DU::Exception("inconsistent packetLength");
+    throw UTIL::Exception("inconsistent packetLength");
   }
   size_t crcPos = bufferSize() - 2;
   uint16_t crc = UTIL::CRC::calculate(buffer(), crcPos);
@@ -230,8 +222,7 @@ void CCSDS::PACKET::Packet::setChecksum()
 //-----------------------------------------------------------------------------
 // checks the checksum out of the binary data,
 // buffer and, packetLength must be correctly initialised
-bool CCSDS::PACKET::Packet::checkChecksum() const
-  throw(UTIL::DU::Exception)
+bool CCSDS::PACKET::Packet::checkChecksum() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   if(!checkPacketLength())

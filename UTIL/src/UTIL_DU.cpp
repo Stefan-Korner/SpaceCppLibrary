@@ -248,7 +248,7 @@ void UTIL::DU::clear()
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::DU::resize(size_t p_bufferSize) throw(Exception)
+void UTIL::DU::resize(size_t p_bufferSize) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // shrink is done without re-allocation
@@ -270,7 +270,7 @@ void UTIL::DU::resize(size_t p_bufferSize) throw(Exception)
     }
     else
     {
-      throw Exception("DU is configured for Read Only");
+      throw UTIL::Exception("DU is configured for Read Only");
     }
   }
   else
@@ -324,29 +324,30 @@ size_t UTIL::DU::bufferSize() const
 }
 
 //-----------------------------------------------------------------------------
-const uint8_t& UTIL::DU::operator[](size_t p_bytePos) const throw(Exception)
+const uint8_t& UTIL::DU::operator[](size_t p_bytePos) const
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
   if(p_bytePos > bufferSize())
   {
-    throw Exception("bytePos out of buffer");
+    throw UTIL::Exception("bytePos out of buffer");
   }
   return buffer()[p_bytePos];
 }
 
 //-----------------------------------------------------------------------------
-uint8_t& UTIL::DU::operator[](size_t p_bytePos) throw(Exception)
+uint8_t& UTIL::DU::operator[](size_t p_bytePos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
   if(m_buffer == NULL)
   {
-    throw Exception("DU is configured for Read Only");
+    throw UTIL::Exception("DU is configured for Read Only");
   }
   if(p_bytePos > bufferSize())
   {
-    throw Exception("bytePos out of buffer");
+    throw UTIL::Exception("bytePos out of buffer");
   }
   return m_buffer[p_bytePos];
 }
@@ -483,7 +484,7 @@ void UTIL::DU::dump(const char* p_prefix,
 //-----------------------------------------------------------------------------
 // extracts bits as numerical unsigned value
 uint32_t UTIL::DU::getBits(size_t p_bitPos,
-                           size_t p_bitLength) const throw(Exception)
+                           size_t p_bitLength) const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // performance optimizations:
@@ -492,13 +493,13 @@ uint32_t UTIL::DU::getBits(size_t p_bitPos,
   // consistency checks
   if(p_bitLength == 0)
   {
-    throw Exception("invalid bitLength");
+    throw UTIL::Exception("invalid bitLength");
   }
   size_t lastBitPos = p_bitPos + p_bitLength - 1;
   size_t lastBytePos = lastBitPos >> 3;
   if(lastBytePos >= bufferSize())
   {
-    throw Exception("bitPos/bitLength out of buffer");
+    throw UTIL::Exception("bitPos/bitLength out of buffer");
   }
   // accumulate the number starting with the first byte
   size_t bytePos = p_bitPos >> 3;
@@ -525,7 +526,7 @@ uint32_t UTIL::DU::getBits(size_t p_bitPos,
 // sets bits as numerical unsigned value
 void UTIL::DU::setBits(size_t p_bitPos,
                        size_t p_bitLength,
-                       uint32_t p_value) throw(Exception)
+                       uint32_t p_value) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // performance optimizations:
@@ -534,22 +535,22 @@ void UTIL::DU::setBits(size_t p_bitPos,
   // consistency checks
   if(m_buffer == NULL)
   {
-    throw Exception("DU is configured for Read Only");
+    throw UTIL::Exception("DU is configured for Read Only");
   }
   if(p_bitLength == 0)
   {
-    throw Exception("invalid bitLength");
+    throw UTIL::Exception("invalid bitLength");
   }
   uint64_t maxValue = (1L << p_bitLength) - 1;
   if(p_value > maxValue)
   {
-    throw Exception("value out of range");
+    throw UTIL::Exception("value out of range");
   }
   size_t lastBitPos = p_bitPos + p_bitLength - 1;
   size_t lastBytePos = lastBitPos >> 3;
   if(lastBytePos >= bufferSize())
   {
-    throw Exception("bitPos/bitLength out of buffer");
+    throw UTIL::Exception("bitPos/bitLength out of buffer");
   }
   // set zero-bits in the buffer where the value aligns
   size_t firstBytePos = p_bitPos >> 3;
@@ -590,14 +591,14 @@ void UTIL::DU::setBits(size_t p_bitPos,
 }
 
 //-----------------------------------------------------------------------------
-uint32_t UTIL::DU::get(BitAccessor p_acc) const throw(Exception)
+uint32_t UTIL::DU::get(BitAccessor p_acc) const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return getBits(p_acc.bitPos, p_acc.bitLength);
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::DU::set(BitAccessor p_acc, uint32_t p_value) throw(Exception)
+void UTIL::DU::set(BitAccessor p_acc, uint32_t p_value) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   setBits(p_acc.bitPos, p_acc.bitLength, p_value);
@@ -606,17 +607,18 @@ void UTIL::DU::set(BitAccessor p_acc, uint32_t p_value) throw(Exception)
 //-----------------------------------------------------------------------------
 // extract bytes
 const uint8_t* UTIL::DU::getBytes(size_t p_bytePos,
-                                  size_t p_byteLength) const throw(Exception)
+                                  size_t p_byteLength)
+  const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
   if(p_byteLength == 0)
   {
-    throw Exception("invalid byteLength");
+    throw UTIL::Exception("invalid byteLength");
   }
   if((p_bytePos + p_byteLength) > bufferSize())
   {
-    throw Exception("bytePos/byteLength out of buffer");
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
   }
   return (buffer() + p_bytePos);
 }
@@ -625,34 +627,35 @@ const uint8_t* UTIL::DU::getBytes(size_t p_bytePos,
 // set bytes
 void UTIL::DU::setBytes(size_t p_bytePos,
                         size_t p_byteLength,
-                        const void* p_bytes) throw(Exception)
+                        const void* p_bytes) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
   if(m_buffer == NULL)
   {
-    throw Exception("DU is configured for Read Only");
+    throw UTIL::Exception("DU is configured for Read Only");
   }
   if(p_byteLength == 0)
   {
-    throw Exception("invalid byteLength");
+    throw UTIL::Exception("invalid byteLength");
   }
   if((p_bytePos + p_byteLength) > bufferSize())
   {
-    throw Exception("bytePos/byteLength out of buffer");
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
   }
   memcpy(m_buffer + p_bytePos, p_bytes, p_byteLength);
 }
 
 //-----------------------------------------------------------------------------
-const uint8_t* UTIL::DU::get(ByteAccessor p_acc) const throw(Exception)
+const uint8_t* UTIL::DU::get(ByteAccessor p_acc) const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return getBytes(p_acc.bytePos, p_acc.byteLength);
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::DU::set(ByteAccessor p_acc, const void* p_bytes) throw(Exception)
+void UTIL::DU::set(ByteAccessor p_acc, const void* p_bytes)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   setBytes(p_acc.bytePos, p_acc.byteLength, p_bytes);
@@ -661,18 +664,19 @@ void UTIL::DU::set(ByteAccessor p_acc, const void* p_bytes) throw(Exception)
 //-----------------------------------------------------------------------------
 // extracts a numerical unsigned value byte aligned
 uint32_t UTIL::DU::getUnsigned(size_t p_bytePos,
-                               size_t p_byteLength) const throw(Exception)
+                               size_t p_byteLength) const
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
   if(p_byteLength == 0)
   {
-    throw Exception("invalid byteLength");
+    throw UTIL::Exception("invalid byteLength");
   }
   size_t lastBytePos = p_bytePos + p_byteLength - 1;
   if(lastBytePos >= bufferSize())
   {
-    throw Exception("bytePos/byteLength out of buffer");
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
   }
   // accumulate the number starting with the first byte
   uint32_t value = 0;
@@ -689,27 +693,27 @@ uint32_t UTIL::DU::getUnsigned(size_t p_bytePos,
 // set a numerical value byte aligned
 void UTIL::DU::setUnsigned(size_t p_bytePos,
                            size_t p_byteLength,
-                           uint32_t p_value) throw(Exception)
+                           uint32_t p_value) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
   if(m_buffer == NULL)
   {
-    throw Exception("DU is configured for Read Only");
+    throw UTIL::Exception("DU is configured for Read Only");
   }
   if(p_byteLength == 0)
   {
-    throw Exception("invalid byteLength");
+    throw UTIL::Exception("invalid byteLength");
   }
   if(((p_byteLength == 1) && (p_value > 255)) || 
      ((p_byteLength == 2) && (p_value > 65535)) || 
      ((p_byteLength == 3) && (p_value > 16777215)))
   {
-    throw Exception("value out of range");
+    throw UTIL::Exception("value out of range");
   }
   if((p_bytePos + p_byteLength) > bufferSize())
   {
-    throw Exception("bytePos/byteLength out of buffer");
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
   }
   // decompose the value and add it to the buffer
   // starting at bytePos, which is at the last byte
@@ -729,14 +733,15 @@ void UTIL::DU::setUnsigned(size_t p_bytePos,
 }
 
 //-----------------------------------------------------------------------------
-uint32_t UTIL::DU::get(UnsignedAccessor p_acc) const throw(Exception)
+uint32_t UTIL::DU::get(UnsignedAccessor p_acc) const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return getUnsigned(p_acc.bytePos, p_acc.byteLength);
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::DU::set(UnsignedAccessor p_acc, uint32_t p_value) throw(Exception)
+void UTIL::DU::set(UnsignedAccessor p_acc, uint32_t p_value)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   setUnsigned(p_acc.bytePos, p_acc.byteLength, p_value);
