@@ -54,26 +54,32 @@ CCSDS::CUC::Time CCSDS::CUC::convert(const UTIL::AbsTime& p_time,
 {
   CCSDS::CUC::Time retVal;
   double fine = p_time.m_micro;
-  switch(p_pField)
+  if((p_pField == L1_TIME_4_3) || (p_pField == L2_TIME_4_3))
   {
-  case L1_TIME_4_3:
-  case L2_TIME_4_3:
     fine *= (256.0 / 1000000); // convert from micro seconds to sec and shift
-    retVal.m_tFine2 = (uint8_t) fine;
+    retVal.m_tFine0 = (uint8_t) fine;
     fine -= retVal.m_tFine2;
-  case L1_TIME_4_2:
-  case L2_TIME_4_2:
     fine *= 256.0;
     retVal.m_tFine1 = (uint8_t) fine;
     fine -= retVal.m_tFine1;
-  case L1_TIME_4_1:
-  case L2_TIME_4_1:
     fine *= 256.0;
+    retVal.m_tFine2 = (uint8_t) fine;
+  }
+  else if((p_pField == L1_TIME_4_2) || (p_pField == L2_TIME_4_2))
+  {
+    fine *= (256.0 / 1000000); // convert from micro seconds to sec and shift
     retVal.m_tFine0 = (uint8_t) fine;
-  case L1_TIME_4_0:
-  case L2_TIME_4_0:
-    break;
-  default:
+    fine -= retVal.m_tFine2;
+    fine *= 256.0;
+    retVal.m_tFine1 = (uint8_t) fine;
+  }
+  else if((p_pField == L1_TIME_4_1) || (p_pField == L2_TIME_4_1))
+  {
+    fine *= (256.0 / 1000000); // convert from micro seconds to sec and shift
+    retVal.m_tFine0 = (uint8_t) fine;
+  }
+  else if((p_pField =! L1_TIME_4_0) && (p_pField == L2_TIME_4_0))
+  {
     throw UTIL::Exception("invalid time code for CUC time");
   }
   uint32_t coarse = p_time.m_sec;
