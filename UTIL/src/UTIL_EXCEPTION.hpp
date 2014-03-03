@@ -15,8 +15,8 @@
 //                                                                            *
 // Compatible with std::exception                                             *
 //*****************************************************************************
-#ifndef UTIL_TIME_hpp
-#define UTIL_TIME_hpp
+#ifndef UTIL_EXCEPTION_hpp
+#define UTIL_EXCEPTION_hpp
 
 #include <string>
 #include <exception>
