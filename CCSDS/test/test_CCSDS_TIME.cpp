@@ -64,13 +64,13 @@ void printTimes(const UTIL::AbsTime& p_absTime)
 {
   cout << endl << p_absTime.m_sec << "." << p_absTime.m_micro << endl;
   CCSDS::CUC::Time cucTime0 =
-    printAsCUCtime(p_absTime, CCSDS::CUC::L1_TIME_4_0, "du(4_0)");
+    printAsCUCtime(p_absTime, CCSDS::CUC::L2_TIME_4_0, "du(4_0)");
   CCSDS::CUC::Time cucTime1 =
-    printAsCUCtime(p_absTime, CCSDS::CUC::L1_TIME_4_1, "du(4_1)");
+    printAsCUCtime(p_absTime, CCSDS::CUC::L2_TIME_4_1, "du(4_1)");
   CCSDS::CUC::Time cucTime2 =
-    printAsCUCtime(p_absTime, CCSDS::CUC::L1_TIME_4_2, "du(4_2)");
+    printAsCUCtime(p_absTime, CCSDS::CUC::L2_TIME_4_2, "du(4_2)");
   CCSDS::CUC::Time cucTime3 =
-    printAsCUCtime(p_absTime, CCSDS::CUC::L1_TIME_4_3, "du(4_3)");
+    printAsCUCtime(p_absTime, CCSDS::CUC::L2_TIME_4_3, "du(4_3)");
   printAsAbsTime(cucTime0, "du(4_0)");
   printAsAbsTime(cucTime1, "du(4_1)");
   printAsAbsTime(cucTime2, "du(4_2)");

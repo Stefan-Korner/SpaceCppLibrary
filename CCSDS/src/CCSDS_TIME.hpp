@@ -23,6 +23,8 @@ namespace CCSDS
 {
   namespace CUC
   {
+    static const int32_t EPOCH_1958_SEC_DELTA = -378691200;
+
     typedef uint8_t TimeCode;
     // supported time codes
     static const TimeCode L1_TIME_4_0 = 0x1C; // epoch: 1.1.1958, 0 fine byte
@@ -65,12 +67,21 @@ namespace CCSDS
         m_tFine2(p_tFine2) {}
     };
 
+    // set the agency defined mission timeline (epoch delta),
+    // - the value shall be negative for mission timelines before 01.01.1970
+    // + the value shall be positive for mission timelines after 01.01.1970
+    // this epoch delta is used or CUC L2 times (CUC L1 use timeline 1.1.1958)
+    void setEpochDelta(int32_t p_deltaSeconds);
+
+    // returns the agency defined mission timeline (epoch delta)
+    int32_t getEpochDelta();
+
     // the data in the buffer must start with the P field,
-    // no time correlation with a mission timeline is performed
+    // time correlation with a mission timeline is performed
     UTIL::AbsTime convert(const void* p_buffer) throw(UTIL::Exception);
 
     // the data in the buffer start with the P field,
-    // no time correlation with a mission timeline is performed
+    // time correlation with a mission timeline is performed
     Time convert(const UTIL::AbsTime& p_time, TimeCode p_pField)
       throw(UTIL::Exception);
   }
