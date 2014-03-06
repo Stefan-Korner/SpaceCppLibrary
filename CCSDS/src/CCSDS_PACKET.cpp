@@ -15,6 +15,7 @@
 //*****************************************************************************
 #include "CCSDS_PACKET.hpp"
 
+#include "CCSDS_TIME.hpp"
 #include "UTIL_CRC.hpp"
 
 ////////////
@@ -186,6 +187,25 @@ uint32_t CCSDS::PACKET::Packet::packetLength() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return get(CCSDS::PACKET::PRIMARY_HEADER::PACKET_LENGTH);
+}
+
+//-----------------------------------------------------------------------------
+UTIL::AbsTime CCSDS::PACKET::Packet::getAbsTime(size_t p_bytePos,
+                                                uint32_t p_timeCode)
+   const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  UTIL::AbsTime retVal;
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+void CCSDS::PACKET::Packet::setAbsTime(size_t p_bytePos,
+                                       uint32_t p_timeCode,
+                                       const UTIL::AbsTime& p_time)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
 }
 
 //-----------------------------------------------------------------------------

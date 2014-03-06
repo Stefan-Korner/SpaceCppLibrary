@@ -748,6 +748,37 @@ void UTIL::DU::set(UnsignedAccessor p_acc, uint32_t p_value)
 }
 
 //-----------------------------------------------------------------------------
+UTIL::AbsTime UTIL::DU::getAbsTime(size_t, uint32_t) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::getAbsTime must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::setAbsTime(size_t, uint32_t, const UTIL::AbsTime&)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::setAbsTime must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+UTIL::AbsTime UTIL::DU::get(AbsTimeAccessor p_acc) const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getAbsTime(p_acc.bytePos, p_acc.timeCode);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::set(AbsTimeAccessor p_acc, const UTIL::AbsTime& p_time)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setAbsTime(p_acc.bytePos, p_acc.timeCode, p_time);
+}
+
+//-----------------------------------------------------------------------------
 UTIL::DU UTIL::operator+(const UTIL::DU& p_du1, const UTIL::DU& p_du2)
 //-----------------------------------------------------------------------------
 {

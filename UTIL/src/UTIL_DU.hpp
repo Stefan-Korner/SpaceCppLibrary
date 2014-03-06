@@ -19,6 +19,7 @@
 #include <stdint.h>
 #include <string>
 #include "UTIL_EXCEPTION.hpp"
+#include "UTIL_TIME.hpp"
 
 namespace UTIL
 {
@@ -42,6 +43,11 @@ namespace UTIL
     {
       size_t bytePos;
       size_t byteLength;
+    };
+    struct AbsTimeAccessor
+    {
+      size_t bytePos;
+      uint32_t timeCode;
     };
 
     // constructors and destructur
@@ -83,9 +89,8 @@ namespace UTIL
     virtual void setBits(size_t p_bitPos,
                          size_t p_bitLength,
                          uint32_t p_value) throw(UTIL::Exception);
-    virtual uint32_t get(BitAccessor p_acc) const throw(UTIL::Exception);
-    virtual void set(BitAccessor p_acc, uint32_t p_value)
-      throw(UTIL::Exception);
+    uint32_t get(BitAccessor p_acc) const throw(UTIL::Exception);
+    void set(BitAccessor p_acc, uint32_t p_value) throw(UTIL::Exception);
 
     // bit aligned access
     virtual const uint8_t* getBytes(size_t p_bytePos,
@@ -94,10 +99,8 @@ namespace UTIL
     virtual void setBytes(size_t p_bytePos,
                           size_t p_byteLength,
                           const void* p_bytes) throw(UTIL::Exception);
-    virtual const uint8_t* get(ByteAccessor p_acc) const
-      throw(UTIL::Exception);
-    virtual void set(ByteAccessor p_acc, const void* p_bytes)
-      throw(UTIL::Exception);
+    const uint8_t* get(ByteAccessor p_acc) const throw(UTIL::Exception);
+    void set(ByteAccessor p_acc, const void* p_bytes) throw(UTIL::Exception);
 
     // unsigned integer access
     virtual uint32_t getUnsigned(size_t p_bytePos,
@@ -106,9 +109,23 @@ namespace UTIL
     virtual void setUnsigned(size_t p_bytePos,
                              size_t p_byteLength,
                              uint32_t p_value) throw(UTIL::Exception);
-    virtual uint32_t get(UnsignedAccessor p_acc) const throw(UTIL::Exception);
-    virtual void set(UnsignedAccessor p_acc, uint32_t p_value)
+    uint32_t get(UnsignedAccessor p_acc) const throw(UTIL::Exception);
+    void set(UnsignedAccessor p_acc, uint32_t p_value) throw(UTIL::Exception);
+
+
+    // absolute time access
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual UTIL::AbsTime getAbsTime(size_t p_bytePos,
+                                     uint32_t p_timeCode) const
       throw(UTIL::Exception);
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual void setAbsTime(size_t p_bytePos,
+                            uint32_t p_timeCode,
+                            const UTIL::AbsTime& p_time)
+      throw(UTIL::Exception);
+    UTIL::AbsTime get(AbsTimeAccessor p_acc) const throw(UTIL::Exception);
+    void set(AbsTimeAccessor p_acc,
+             const UTIL::AbsTime& p_time) throw(UTIL::Exception);
 
   private:
     uint8_t* m_buffer;

@@ -79,6 +79,15 @@ namespace CCSDS
       virtual void packetLength(uint32_t p_val) throw(UTIL::Exception);
       virtual uint32_t packetLength() const throw(UTIL::Exception);
 
+      // absolute time access: overloaded from UTIL::DU
+      virtual UTIL::AbsTime getAbsTime(size_t p_bytePos,
+                                       uint32_t p_timeCode) const
+        throw(UTIL::Exception);
+      virtual void setAbsTime(size_t p_bytePos,
+                              uint32_t p_timeCode,
+                              const UTIL::AbsTime& p_time)
+        throw(UTIL::Exception);
+
       // other methods
       virtual void setPacketLength() throw(UTIL::Exception);
       virtual bool checkPacketLength() const throw(UTIL::Exception);
