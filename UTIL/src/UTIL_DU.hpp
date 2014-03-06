@@ -92,7 +92,7 @@ namespace UTIL
     uint32_t get(BitAccessor p_acc) const throw(UTIL::Exception);
     void set(BitAccessor p_acc, uint32_t p_value) throw(UTIL::Exception);
 
-    // bit aligned access
+    // byte aligned access
     virtual const uint8_t* getBytes(size_t p_bytePos,
                                     size_t p_byteLength) const
       throw(UTIL::Exception);
