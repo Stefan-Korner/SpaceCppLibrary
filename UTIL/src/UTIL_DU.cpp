@@ -16,6 +16,7 @@
 #include "UTIL_DU.hpp"
 
 #include <iostream>
+#include <stdio.h>
 #include <string.h>
 
 // index = [firstBitInBytePos][lastBitInBytePos]
@@ -202,7 +203,7 @@ void UTIL::DU::init(const UTIL::DU& p_du)
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::DU::append(const UTIL::DU::DU& p_du)
+void UTIL::DU::append(const UTIL::DU& p_du)
 //-----------------------------------------------------------------------------
 {
   // performance optimization

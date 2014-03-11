@@ -46,6 +46,7 @@ UTIL_CRC.o: UTIL_CRC.cpp \
 
 UTIL_DU.o: UTIL_DU.cpp \
 	UTIL_DU.hpp \
-	UTIL_EXCEPTION.hpp
+	UTIL_EXCEPTION.hpp \
+	UTIL_TIME.hpp
 	${CPP} -oUTIL_DU.o ${INCLUDES} \
 	UTIL_DU.cpp

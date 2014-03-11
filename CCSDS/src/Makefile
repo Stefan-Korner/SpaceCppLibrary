@@ -43,6 +43,7 @@ clean:
 
 CCSDS_PACKET.o: CCSDS_PACKET.cpp \
 	CCSDS_PACKET.hpp \
+	CCSDS_TIME.hpp \
 	${LIB_UTIL}
 	${CPP} -oCCSDS_PACKET.o ${INCLUDES} \
 	CCSDS_PACKET.cpp
