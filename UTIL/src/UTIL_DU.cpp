@@ -749,6 +749,81 @@ void UTIL::DU::set(UnsignedAccessor p_acc, uint32_t p_value)
 }
 
 //-----------------------------------------------------------------------------
+// set a fixed size string
+std::string UTIL::DU::getString(size_t p_bytePos,
+                                size_t p_byteLength) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // consistency checks
+  if(p_byteLength == 0)
+  {
+    throw UTIL::Exception("invalid byteLength");
+  }
+  if((p_bytePos + p_byteLength) > bufferSize())
+  {
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
+  }
+  // copy the bytes from the buffer into retString
+  const char* str = (const char*) (m_buffer + p_bytePos);
+  return std::string(str, p_byteLength);
+}
+
+//-----------------------------------------------------------------------------
+// get a fixed sized string
+void UTIL::DU::setString(size_t p_bytePos,
+                         size_t p_byteLength,
+                         const std::string& p_string) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // consistency checks
+  if(m_buffer == NULL)
+  {
+    throw UTIL::Exception("DU is configured for Read Only");
+  }
+  if(p_byteLength == 0)
+  {
+    throw UTIL::Exception("invalid byteLength");
+  }
+  size_t stringSize = p_string.size();
+  if(stringSize > p_byteLength)
+  {
+    throw UTIL::Exception("string size out of range");
+  }
+  if((p_bytePos + p_byteLength) > bufferSize())
+  {
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
+  }
+  // copy the bytes from p_string
+  size_t i = 0;
+  for(; i < stringSize; i++)
+  {
+    uint8_t byte = (uint8_t) p_string[i];
+    m_buffer[p_bytePos + i] = byte;
+  }
+  // fill up with null characters
+  for(; i < p_byteLength; i++)
+  {
+    m_buffer[p_bytePos + i] = 0;
+  }
+}
+
+//-----------------------------------------------------------------------------
+std::string UTIL::DU::get(StringAccessor p_acc) const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getString(p_acc.bytePos, p_acc.byteLength);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::set(StringAccessor p_acc, const std::string& p_string)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setString(p_acc.bytePos, p_acc.byteLength, p_string);
+}
+
+//-----------------------------------------------------------------------------
 UTIL::AbsTime UTIL::DU::getAbsTime(size_t, uint32_t) const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
