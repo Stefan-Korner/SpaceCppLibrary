@@ -223,16 +223,35 @@ UTIL::AbsTime CCSDS::PACKET::Packet::getAbsTime(size_t p_bytePos,
   case CCSDS::CUC::L2_TIME_4_3:
     cucTime = getBytes(p_bytePos, 8);
     break;
+  case CCSDS::CUC::T1_TIME_4_0:
+    cucTime = getBytes(p_bytePos, 4);
+    break;
+  case CCSDS::CUC::T1_TIME_4_1:
+    cucTime = getBytes(p_bytePos, 5);
+    break;
+  case CCSDS::CUC::T1_TIME_4_2:
+    cucTime = getBytes(p_bytePos, 6);
+    break;
+  case CCSDS::CUC::T1_TIME_4_3:
+    cucTime = getBytes(p_bytePos, 7);
+    break;
+  case CCSDS::CUC::T2_TIME_4_0:
+    cucTime = getBytes(p_bytePos, 4);
+    break;
+  case CCSDS::CUC::T2_TIME_4_1:
+    cucTime = getBytes(p_bytePos, 5);
+    break;
+  case CCSDS::CUC::T2_TIME_4_2:
+    cucTime = getBytes(p_bytePos, 6);
+    break;
+  case CCSDS::CUC::T2_TIME_4_3:
+    cucTime = getBytes(p_bytePos, 7);
+    break;
   default:
     throw UTIL::Exception("invalid time code for CUC time");
   }
-  // check if the time code is in the first data byte
-  if(cucTime[0] != p_timeCode)
-  {
-    throw UTIL::Exception("unexpected time code in first data byte");
-  }
   // convert from CUC time to AbsTime
-  return CCSDS::CUC::convert(cucTime);
+  return CCSDS::CUC::convert(cucTime, p_timeCode);
 }
 
 //-----------------------------------------------------------------------------
@@ -271,6 +290,30 @@ void CCSDS::PACKET::Packet::setAbsTime(size_t p_bytePos,
     break;
   case CCSDS::CUC::L2_TIME_4_3:
     setBytes(p_bytePos, 8, &cucTime);
+    break;
+  case CCSDS::CUC::T1_TIME_4_0:
+    setBytes(p_bytePos, 4, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T1_TIME_4_1:
+    setBytes(p_bytePos, 5, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T1_TIME_4_2:
+    setBytes(p_bytePos, 6, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T1_TIME_4_3:
+    setBytes(p_bytePos, 7, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T2_TIME_4_0:
+    setBytes(p_bytePos, 4, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T2_TIME_4_1:
+    setBytes(p_bytePos, 5, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T2_TIME_4_2:
+    setBytes(p_bytePos, 6, &cucTime.m_tCoarse0);
+    break;
+  case CCSDS::CUC::T2_TIME_4_3:
+    setBytes(p_bytePos, 7, &cucTime.m_tCoarse0);
     break;
   default:
     throw UTIL::Exception("invalid time code for CUC time");

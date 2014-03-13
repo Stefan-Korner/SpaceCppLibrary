@@ -94,13 +94,79 @@ UTIL::AbsTime CCSDS::CUC::convert(const void* p_buffer) throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+UTIL::AbsTime CCSDS::CUC::convert(const void* p_buffer, TimeCode p_pField)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  const uint8_t* cucTime = (const uint8_t*) p_buffer;
+  if((p_pField & 0x80) == 0)
+  {
+    // the time code is also encoded in the data
+    if(p_pField != cucTime[0])
+    {
+      throw UTIL::Exception("invalid time code in buffer");
+    }
+    return convert(p_buffer);
+  }
+  UTIL::AbsTime retVal;
+  // process the microseconds
+  double timeMicro = 0;
+  if((p_pField == T1_TIME_4_3) || (p_pField == T2_TIME_4_3))
+  {
+    uint32_t cucTimeFine = (cucTime[4] * 0x010000) +
+                           (cucTime[5] * 0x000100) +
+                           (cucTime[6] * 0x000001);
+    timeMicro = cucTimeFine * CUCFINE3_TO_MICRO;
+  }
+  else if((p_pField == T1_TIME_4_2) || (p_pField == T2_TIME_4_2))
+  {
+    uint32_t cucTimeFine = (cucTime[4] * 0x0100) +
+                           (cucTime[5] * 0x0001);
+    timeMicro = cucTimeFine * CUCFINE2_TO_MICRO;
+  }
+  else if((p_pField == T1_TIME_4_1) || (p_pField == T2_TIME_4_1))
+  {
+    uint32_t cucTimeFine = cucTime[4];
+    timeMicro = cucTimeFine * CUCFINE1_TO_MICRO;
+  }
+  else if((p_pField != T1_TIME_4_0) && (p_pField != T2_TIME_4_0))
+  {
+    throw UTIL::Exception("invalid time code for CUC time");
+  }
+  // process the seconds
+  retVal.m_sec = (cucTime[0] * 0x01000000) +
+                 (cucTime[1] * 0x00010000) +
+                 (cucTime[2] * 0x00000100) +
+                 (cucTime[3] * 0x00000001);
+  retVal.m_micro = (uint32_t) timeMicro;
+  // perform the time correlation with the mission epoch time
+  switch(p_pField)
+  {
+  case T1_TIME_4_0:
+  case T1_TIME_4_1:
+  case T1_TIME_4_2:
+  case T1_TIME_4_3:
+    retVal.m_sec += EPOCH_1958_SEC_DELTA;
+    break;
+  case T2_TIME_4_0:
+  case T2_TIME_4_1:
+  case T2_TIME_4_2:
+  case T2_TIME_4_3:
+    retVal.m_sec += s_epochDeltaSeconds;
+    break;
+  }
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
 CCSDS::CUC::Time CCSDS::CUC::convert(const UTIL::AbsTime& p_time,
                                      TimeCode p_pField) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   CCSDS::CUC::Time retVal;
+  TimeCode pField = p_pField & 0x7F; // filter the option flag
   // process the microseconds
-  if((p_pField == L1_TIME_4_3) || (p_pField == L2_TIME_4_3))
+  if((pField == L1_TIME_4_3) || (pField == L2_TIME_4_3))
   {
     uint32_t cucTimeFine = (uint32_t) (p_time.m_micro * MICRO_TO_CUCFINE3);
     retVal.m_tFine2 = (uint8_t) (cucTimeFine & 0xFF);
@@ -109,25 +175,25 @@ CCSDS::CUC::Time CCSDS::CUC::convert(const UTIL::AbsTime& p_time,
     cucTimeFine >>= 8;
     retVal.m_tFine0 = (uint8_t) cucTimeFine;
   }
-  else if((p_pField == L1_TIME_4_2) || (p_pField == L2_TIME_4_2))
+  else if((pField == L1_TIME_4_2) || (pField == L2_TIME_4_2))
   {
     uint32_t cucTimeFine = (uint32_t) (p_time.m_micro * MICRO_TO_CUCFINE2);
     retVal.m_tFine1 = (uint8_t) (cucTimeFine & 0xFF);
     cucTimeFine >>= 8;
     retVal.m_tFine0 = (uint8_t) cucTimeFine;
   }
-  else if((p_pField == L1_TIME_4_1) || (p_pField == L2_TIME_4_1))
+  else if((pField == L1_TIME_4_1) || (pField == L2_TIME_4_1))
   {
     uint32_t cucTimeFine = (uint32_t) (p_time.m_micro * MICRO_TO_CUCFINE1);
     retVal.m_tFine0 = (uint8_t) cucTimeFine;
   }
-  else if((p_pField != L1_TIME_4_0) && (p_pField != L2_TIME_4_0))
+  else if((pField != L1_TIME_4_0) && (pField != L2_TIME_4_0))
   {
     throw UTIL::Exception("invalid time code for CUC time");
   }
   uint32_t cucTimeCoarse = p_time.m_sec;
   // perform the time correlation with the mission epoch time
-  switch(p_pField)
+  switch(pField)
   {
   case L1_TIME_4_0:
   case L1_TIME_4_1:
