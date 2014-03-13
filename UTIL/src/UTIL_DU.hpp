@@ -44,6 +44,11 @@ namespace UTIL
       size_t bytePos;
       size_t byteLength;
     };
+    struct StringAccessor
+    {
+      size_t bytePos;
+      size_t byteLength;
+    };
     struct AbsTimeAccessor
     {
       size_t bytePos;
@@ -112,6 +117,19 @@ namespace UTIL
     uint32_t get(UnsignedAccessor p_acc) const throw(UTIL::Exception);
     void set(UnsignedAccessor p_acc, uint32_t p_value) throw(UTIL::Exception);
 
+    // fixed size string access
+    // smaller sized strings may be passed with setString() and set(),
+    // in this case the remaining bytes are filled up null characters
+    virtual std::string getString(size_t p_bytePos,
+                                  size_t p_byteLength) const
+      throw(UTIL::Exception);
+    virtual void setString(size_t p_bytePos,
+                           size_t p_byteLength,
+                           const std::string& p_string)
+      throw(UTIL::Exception);
+    std::string get(StringAccessor p_acc) const throw(UTIL::Exception);
+    void set(StringAccessor p_acc, const std::string& p_string)
+      throw(UTIL::Exception);
 
     // absolute time access
     // shall be overloaded in derived class (this impl. raises an exception)
