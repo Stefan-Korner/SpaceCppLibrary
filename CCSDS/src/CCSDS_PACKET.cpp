@@ -347,7 +347,7 @@ void CCSDS::PACKET::Packet::setChecksum() throw(UTIL::Exception)
     throw UTIL::Exception("inconsistent packetLength");
   }
   size_t crcPos = bufferSize() - 2;
-  uint16_t crc = UTIL::CRC::calculate(buffer(), crcPos);
+  uint16_t crc = UTIL::CRC::calculate16(buffer(), crcPos);
   setUnsigned(crcPos, 2, crc);
 }
 
@@ -362,7 +362,7 @@ bool CCSDS::PACKET::Packet::checkChecksum() const throw(UTIL::Exception)
     return false;
   }
   size_t crcPos = bufferSize() - 2;
-  uint16_t crc = UTIL::CRC::calculate(buffer(), crcPos);
+  uint16_t crc = UTIL::CRC::calculate16(buffer(), crcPos);
   return (getUnsigned(crcPos, 2) == crc);
 }
 

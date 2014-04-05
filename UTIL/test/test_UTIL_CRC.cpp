@@ -111,7 +111,7 @@ bool test_CRCoperation()
   uint16_t expectedCrc;
   pkt = TC_PACKET_01;
   pktSize = sizeof(TC_PACKET_01);
-  crc = UTIL::CRC::calculate(pkt, pktSize - 2);
+  crc = UTIL::CRC::calculate16(pkt, pktSize - 2);
   expectedCrc = (0x100 * pkt[pktSize - 2]) + pkt[pktSize - 1];
   if(crc != expectedCrc)
   {
@@ -121,7 +121,7 @@ bool test_CRCoperation()
   printf( "CRC = %04X  ---> OK\n", crc);
   pkt = TC_FRAME_01;
   pktSize = sizeof(TC_FRAME_01);
-  crc = UTIL::CRC::calculate(pkt, pktSize - 2);
+  crc = UTIL::CRC::calculate16(pkt, pktSize - 2);
   expectedCrc = (0x100 * pkt[pktSize - 2]) + pkt[pktSize - 1];
   if(crc != expectedCrc)
   {
@@ -131,7 +131,7 @@ bool test_CRCoperation()
   printf( "CRC = %04X  ---> OK\n", crc);
   pkt = TC_FRAME_02;
   pktSize = sizeof(TC_FRAME_02);
-  crc = UTIL::CRC::calculate(pkt, pktSize - 2);
+  crc = UTIL::CRC::calculate16(pkt, pktSize - 2);
   expectedCrc = (0x100 * pkt[pktSize - 2]) + pkt[pktSize - 1];
   if(crc != expectedCrc)
   {

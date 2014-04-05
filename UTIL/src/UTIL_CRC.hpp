@@ -25,7 +25,8 @@ namespace UTIL
   namespace CRC
   //---------------------------------------------------------------------------
   {
-    uint16_t calculate(const void* p_buffer, size_t p_bufferSize);
+    uint8_t calculate8(const void* p_buffer, size_t p_bufferSize);
+    uint16_t calculate16(const void* p_buffer, size_t p_bufferSize);
   }
 }
 

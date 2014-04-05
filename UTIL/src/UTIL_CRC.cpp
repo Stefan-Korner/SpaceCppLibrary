@@ -16,8 +16,16 @@
 #include "UTIL_CRC.hpp"
 
 //-----------------------------------------------------------------------------
-// calculates the CRC from the byte array
-uint16_t UTIL::CRC::calculate(const void* p_buffer, size_t p_bufferSize)
+// calculates the CRC-8 from the byte array
+uint8_t UTIL::CRC::calculate8(const void* p_buffer, size_t p_bufferSize)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+// calculates the CRC-16 from the byte array
+uint16_t UTIL::CRC::calculate16(const void* p_buffer, size_t p_bufferSize)
 //-----------------------------------------------------------------------------
 {
   // typed buffer
