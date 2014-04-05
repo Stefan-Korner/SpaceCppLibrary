@@ -15,13 +15,12 @@
 #******************************************************************************
 
 all:
-	cd UTIL; make
-	cd CCSDS; make
-	cd PUS; make
-	cd SPW; make
+	cd src; make
+#	cd test; make
 
 clean:
-	cd UTIL; make clean
-	cd CCSDS; make clean
-	cd PUS; make clean
-	cd SPW; make clean
+	cd src; make clean
+#	cd test; make clean
+
+#tst_SPW_PACKET:
+#	cd test; make tst_SPW_PACKET

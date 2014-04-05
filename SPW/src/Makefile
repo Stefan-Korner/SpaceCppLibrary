@@ -13,15 +13,32 @@
 #******************************************************************************
 # Makefile                                                                    *
 #******************************************************************************
+include ../../Makefile.include
 
-all:
-	cd UTIL; make
-	cd CCSDS; make
-	cd PUS; make
-	cd SPW; make
+LIB_SPW = ../lib/libSPW.a
+LIB_UTIL = ../../UTIL/lib/libUTIL.a
+INCLUDES = -I. \
+           -I../../UTIL/src
+
+all: ${LIB_SPW}
 
 clean:
-	cd UTIL; make clean
-	cd CCSDS; make clean
-	cd PUS; make clean
-	cd SPW; make clean
+	\rm -f ../lib/libSPW.so ../lib/libSPW.a *.o
+
+../lib/libSPW.so: \
+	SPW_PACKET.o
+	${LIB_DYNAMIC} -olibSPW.so \
+	SPW_PACKET.o
+	mv libSPW.so ../lib
+
+../lib/libSPW.a: \
+	SPW_PACKET.o
+	${LIB_STATIC} libSPW.a \
+	SPW_PACKET.o
+	mv libSPW.a ../lib
+
+SPW_PACKET.o: SPW_PACKET.cpp \
+	SPW_PACKET.hpp \
+	${LIB_UTIL}
+	${CPP} -oSPW_PACKET.o ${INCLUDES} \
+	SPW_PACKET.cpp
