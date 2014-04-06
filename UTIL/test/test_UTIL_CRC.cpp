@@ -17,6 +17,32 @@
 
 #include <stdio.h>
 
+/////////////////////////////
+// test patterns for CRC 8 //
+/////////////////////////////
+const uint8_t SPW_RMAP_HEADER1[] =
+{
+  0xFE, 0x01, 0x6C, 0x00, 0x67, 0x00, 0x00, 0x00,
+  0xA0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
+};
+const uint8_t SPW_RMAP_HEADER1_CRC = 0x9F;
+
+const uint8_t SPW_RMAP_DATA1[] =
+{
+  0x01, 0x23, 0x45, 0x67, 0x89, 0xAB, 0xCD, 0xEF,
+  0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17
+};
+const uint8_t SPW_RMAP_DATA1_CRC = 0x56;
+
+const uint8_t SPW_RMAP_HEADER2[] =
+{
+  0x67, 0x01, 0x2C, 0x00, 0xFE, 0x00, 0x00
+};
+const uint8_t SPW_RMAP_HEADER2_CRC = 0xED;
+
+//////////////////////////////
+// test patterns for CRC 16 //
+//////////////////////////////
 const uint8_t TC_PACKET_01[] =
 {
   0x1A, 0x8C, 0xC0, 0x0E, 0x01, 0x0D, 0x19, 0x06,
@@ -102,7 +128,40 @@ const uint8_t TC_FRAME_02[] =
 };
 
 //-----------------------------------------------------------------------------
-bool test_CRCoperation()
+bool test_CRC8operation()
+//-----------------------------------------------------------------------------
+{
+  uint8_t crc;
+  uint8_t expectedCrc;
+  crc = UTIL::CRC::calculate8(SPW_RMAP_HEADER1, sizeof(SPW_RMAP_HEADER1));
+  expectedCrc = SPW_RMAP_HEADER1_CRC;
+  if(crc != expectedCrc)
+  {
+    printf("CRC %02X does not match the expected one: %02X\n", crc, expectedCrc);
+    return false;
+  }
+  printf( "CRC = %02X  ---> OK\n", crc);
+  crc = UTIL::CRC::calculate8(SPW_RMAP_DATA1, sizeof(SPW_RMAP_DATA1));
+  expectedCrc = SPW_RMAP_DATA1_CRC;
+  if(crc != expectedCrc)
+  {
+    printf("CRC %02X does not match the expected one: %02X\n", crc, expectedCrc);
+    return false;
+  }
+  printf( "CRC = %02X  ---> OK\n", crc);
+  crc = UTIL::CRC::calculate8(SPW_RMAP_HEADER2, sizeof(SPW_RMAP_HEADER2));
+  expectedCrc = SPW_RMAP_HEADER2_CRC;
+  if(crc != expectedCrc)
+  {
+    printf("CRC %02X does not match the expected one: %02X\n", crc, expectedCrc);
+    return false;
+  }
+  printf( "CRC = %02X  ---> OK\n", crc);
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+bool test_CRC16operation()
 //-----------------------------------------------------------------------------
 {
   const uint8_t* pkt;
@@ -146,8 +205,15 @@ bool test_CRCoperation()
 int main()
 //-----------------------------------------------------------------------------
 {
-  printf("***** test_CRCoperation() start\n");
-  bool retVal = test_CRCoperation();
-  printf("***** test_CRCoperation() done: %d\n", retVal);
+  printf("***** test_CRC8operation() start\n");
+  bool retVal = test_CRC8operation();
+  printf("***** test_CRC8operation() done: %d\n", retVal);
+  if(retVal == false)
+  {
+    return -1;
+  }
+  printf("***** test_CRC16operation() start\n");
+  retVal = test_CRC16operation();
+  printf("***** test_CRC16operation() done: %d\n", retVal);
   return 0;
 }

@@ -25,7 +25,10 @@ namespace UTIL
   namespace CRC
   //---------------------------------------------------------------------------
   {
+    // generator polynom is: X^8 + X^2 + X^1 + X^0
     uint8_t calculate8(const void* p_buffer, size_t p_bufferSize);
+
+    // generator polynom is: X^16 + X^12 + X^5 + X^0
     uint16_t calculate16(const void* p_buffer, size_t p_bufferSize);
   }
 }
