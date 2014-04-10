@@ -25,11 +25,16 @@ namespace SPW
     ///////////////
     // constants //
     ///////////////
-    static const uint8_t EXTENDED_PROTOCOL_ID = 0;
-    static const uint8_t RMAP_PROTOCOL_ID = 1;
-    static const uint8_t CCSDS_PROTOCOL_ID = 2;
-    static const uint8_t GOES_PROTOCOL_ID = 238;
-    static const uint8_t STUP_PROTOCOL_ID = 239;
+    namespace PROTOCOL_ID
+    {
+      static const uint8_t EXTENDED = 0;
+      static const uint8_t RMAP = 1;
+      static const uint8_t CCSDS = 2;
+      static const uint8_t GOES = 238;
+      static const uint8_t STUP = 239;
+      static const uint8_t INVALID = 255;
+    }
+    static const uint8_t UNKNOWN_LOG_ADDR = 254;
 
     //-------------------------------------------------------------------------
     class Packet: public UTIL::DU
@@ -38,8 +43,15 @@ namespace SPW
     public:
       // constructors and destructur
       Packet();
+      // structure of the SpaceWire packet:
+      // - SpW address: 0-n bytes (p_spwAddrSize)
+      // - logical address: 1 byte
+      // - protocol ID: 1 byte 
+      // - data field: 0-n bytes (p_spwDataSize)
       Packet(size_t p_spwAddrSize, size_t p_spwDataSize);
+      // the buffer shall contain a correct SpaceWire packet
       Packet(void* p_buffer, size_t p_bufferSize, size_t p_spwAddrSize);
+      // the buffer shall contain a correct SpaceWire packet
       Packet(const void* p_buffer,
              size_t p_bufferSize,
              bool p_copyBuffer,
