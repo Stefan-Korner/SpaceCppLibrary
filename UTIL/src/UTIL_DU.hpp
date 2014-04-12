@@ -65,6 +65,7 @@ namespace UTIL
     virtual ~DU();
 
     // buffer access
+    virtual bool bufferIsReadonly() const;
     virtual void init(size_t p_bufferSize);
     virtual void init(void* p_buffer, size_t p_bufferSize);
     virtual void init(const void* p_buffer,

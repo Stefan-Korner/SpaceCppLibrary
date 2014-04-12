@@ -44,10 +44,11 @@ namespace SPW
       // constructors and destructur
       Packet();
       // structure of the SpaceWire packet:
-      // - SpW address: 0-n bytes (p_spwAddrSize)
-      // - logical address: 1 byte
-      // - protocol ID: 1 byte 
-      // - data field: 0-n bytes (p_spwDataSize)
+      // - SPW address: * bytes (p_spwAddrSize)
+      // - SPW data field: * bytes (p_spwDataSize), includes
+      //   - logical address: 1 byte
+      //   - protocol ID: 1 byte
+      //   - other data fields: * bytes, size depends on instruction
       Packet(size_t p_spwAddrSize, size_t p_spwDataSize);
       // the buffer shall contain a correct SpaceWire packet
       Packet(void* p_buffer, size_t p_bufferSize, size_t p_spwAddrSize);
@@ -68,10 +69,15 @@ namespace SPW
       virtual void setLogAddr(uint8_t p_logAddr) throw(UTIL::Exception);
       virtual uint8_t getLogAddr() const throw(UTIL::Exception);
       virtual void setProtocolID(uint8_t p_id) throw(UTIL::Exception);
-      virtual uint8_t setProtocolID() const throw(UTIL::Exception);
+      virtual uint8_t getProtocolID() const throw(UTIL::Exception);
+      // includes the logical address and the protocol ID
       virtual size_t getSPWdataSize() const throw(UTIL::Exception);
+      // unused bytes in the buffer are kept
+      // if the data are smaller than the available buffer
+      // includes the logical address and the protocol ID
       virtual void setSPWdata(size_t p_byteLength, const void* p_bytes)
         throw(UTIL::Exception);
+      // includes the logical address and the protocol ID
       virtual const uint8_t* getSPWdata() const throw(UTIL::Exception);
 
     private:
@@ -83,8 +89,45 @@ namespace SPW
     //-------------------------------------------------------------------------
     {
     public:
+      enum ReplyAddressLength
+      {
+        BYTES_0 = 0,
+        BYTES_4 = 1,
+        BYTES_8 = 8,
+        BYTES_12 = 12
+      };
+
+      enum CommandCode
+      {
+        CMD_INVALID,
+        CMD_READ_SINGLE_ADDR,
+        CMD_READ_INCR_ADDR,
+        CMD_READ_MOD_WRITE_INCR_ADDR,
+        CMD_WRITE_SINGLE_ADDR,
+        CMD_WRITE_INCR_ADDR,
+        CMD_WRITE_SINGLE_ADDR_RPLY,
+        CMD_WRITE_INCR_ADDR_RPLY,
+        CMD_WRITE_SINGLE_ADDR_VERIF,
+        CMD_WRITE_INCR_ADDR_VERIF,
+        CMD_WRITE_SINGLE_ADDR_VERIF_RPLY,
+        CMD_WRITE_INCR_ADDR_VERIF_RPLY
+      };
+
       // constructors and destructur
       RMAPpacket();
+      // structure of an RMAP packet:
+      // - SPW address: * bytes (p_spwAddrSize), from Target or Reply
+      // - header field: * bytes, size depends on instruction, includes
+      //   - logical address: 1 byte, from Target or Reply
+      //   - protocol ID: 1 byte, SPW::PACKET::PROTOCOL_ID::RMAP
+      //   - instruction: 1 byte
+      //   - other header fields: * bytes, size depends on instruction
+      //   - optional data length: 3 bytes, depends on instruction
+      //   - header CRC
+      // - data field: * bytes (p_dataSize), includes
+      //   - data fields: * bytes
+      //   - data CRC
+      // (EOP) not part of the buffer, added on the transport layer
       RMAPpacket(size_t p_spwAddrSize,
                  uint8_t p_instruction,
                  size_t p_dataSize);
@@ -99,6 +142,8 @@ namespace SPW
 
       // access methods
       virtual uint8_t getInstruction() const throw(UTIL::Exception);
+      virtual size_t getHeaderSize() const throw(UTIL::Exception);
+      virtual const uint8_t* getHeader() const throw(UTIL::Exception);
       virtual void setHeaderCRC() throw(UTIL::Exception);
       virtual uint8_t getHeaderCRC() const throw(UTIL::Exception);
       virtual size_t getDataSize() const throw(UTIL::Exception);
@@ -108,6 +153,23 @@ namespace SPW
       virtual const uint8_t* getData() const throw(UTIL::Exception);
       virtual void setDataCRC() throw(UTIL::Exception);
       virtual uint8_t getDataCRC() const throw(UTIL::Exception);
+
+      // predicates
+      static bool isCommand(uint8_t p_instruction);
+      static bool isReply(uint8_t p_instruction);
+      static bool isRead(uint8_t p_instruction);
+      static bool isWrite(uint8_t p_instruction);
+      static bool verifyDataBeforeWrite(uint8_t p_instruction);
+      static bool hasReply(uint8_t p_instruction);
+      static bool incrementAddress(uint8_t p_instruction);
+
+      // helper functions
+      static ReplyAddressLength replyAddrLength(uint8_t p_instruction);
+      static CommandCode commandCode(uint8_t p_instruction);
+      static uint8_t headerSize(uint8_t p_instruction);
+      static uint8_t instruction(bool p_isCommand,
+                                 ReplyAddressLength p_rplyAddrLength,
+                                 CommandCode p_commandCode);
     };
 
     //-------------------------------------------------------------------------
