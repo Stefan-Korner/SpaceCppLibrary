@@ -598,3 +598,277 @@ uint8_t SPW::PACKET::RMAPpacket::instruction(
   return retVal;
 }
 
+/////////////////
+// RMAPcommand //
+/////////////////
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPcommand::RMAPcommand()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+// ensure that the RMPApacket is really a command
+SPW::PACKET::RMAPcommand::RMAPcommand(size_t p_targetSPWaddrSize,
+                                      uint8_t p_instruction,
+                                      size_t p_dataSize):
+  SPW::PACKET::RMAPpacket::RMAPpacket(
+    p_targetSPWaddrSize, p_instruction | 0x40, p_dataSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPcommand::RMAPcommand(void* p_buffer,
+                                      size_t p_bufferSize,
+                                      size_t p_targetSPWaddrSize):
+  SPW::PACKET::RMAPpacket::RMAPpacket(
+    p_buffer, p_bufferSize, p_targetSPWaddrSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPcommand::RMAPcommand(const void* p_buffer,
+                                      size_t p_bufferSize,
+                                      bool p_copyBuffer,
+                                      size_t p_targetSPWaddrSize):
+  SPW::PACKET::RMAPpacket::RMAPpacket(
+    p_buffer, p_bufferSize, p_copyBuffer, p_targetSPWaddrSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPcommand::RMAPcommand(const SPW::PACKET::RMAPcommand& p_du):
+  SPW::PACKET::RMAPpacket::RMAPpacket(p_du)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+const SPW::PACKET::RMAPcommand&
+SPW::PACKET::RMAPcommand::operator=(const SPW::PACKET::RMAPcommand& p_du)
+//-----------------------------------------------------------------------------
+{
+  SPW::PACKET::RMAPpacket::operator=(p_du);
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPcommand::~RMAPcommand()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setReplyAddr(size_t p_byteLength,
+                                            const void* p_bytes)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+size_t SPW::PACKET::RMAPcommand::getReplyAddrSize() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+const uint8_t* SPW::PACKET::RMAPcommand::getReplyAddr() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return NULL;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setInitLogAddr(uint8_t p_logAddr)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPcommand::getInitLogAddr() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setTransactionID(uint16_t p_transID)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint16_t SPW::PACKET::RMAPcommand::getTransactionID() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setExtendedMemAddr(uint8_t p_extMemAddr)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPcommand::getExtendedMemAddr() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setMemoryAddr(uint32_t p_memAddr)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPcommand::getMemoryAddr() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setReadModWriteData(uint32_t p_data)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPcommand::getReadModWriteData() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setReadModWriteMask(uint32_t p_mask)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPcommand::getReadModWriteMask() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+///////////////
+// RMAPreply //
+///////////////
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPreply::RMAPreply()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+// ensure that the RMPApacket is really a reply
+SPW::PACKET::RMAPreply::RMAPreply(const SPW::PACKET::RMAPcommand& p_command,
+                                  size_t p_dataSize):
+  SPW::PACKET::RMAPpacket::RMAPpacket(p_command.getReplyAddrSize(),
+                                      p_command.getInstruction() & 0xBF,
+                                      p_dataSize)
+//-----------------------------------------------------------------------------
+{
+  // copy data from the command into the reply
+  // there is some risk of exceptions that are suppressed protect the ctor
+  try
+  {
+    setSPWaddr(p_command.getReplyAddrSize(), p_command.getReplyAddr());
+    setLogAddr(p_command.getInitLogAddr());
+    // protocol ID is already copied in the SPW ctor
+    // instruction is already copied in the RMAP ctor
+    // TODO: copy to initLogAddr
+    // TODO: copy to transactionID 
+  }
+  catch(...) {}
+}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPreply::RMAPreply(void* p_buffer,
+                                  size_t p_bufferSize,
+                                  size_t p_initSPWaddrSize):
+  SPW::PACKET::RMAPpacket::RMAPpacket(
+    p_buffer, p_bufferSize, p_initSPWaddrSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPreply::RMAPreply(const void* p_buffer,
+                                  size_t p_bufferSize,
+                                  bool p_copyBuffer,
+                                  size_t p_initSPWaddrSize):
+  SPW::PACKET::RMAPpacket::RMAPpacket(
+    p_buffer, p_bufferSize, p_copyBuffer, p_initSPWaddrSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPreply::RMAPreply(const SPW::PACKET::RMAPreply& p_du):
+  SPW::PACKET::RMAPpacket::RMAPpacket(p_du)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+const SPW::PACKET::RMAPreply&
+SPW::PACKET::RMAPreply::operator=(const SPW::PACKET::RMAPreply& p_du)
+//-----------------------------------------------------------------------------
+{
+  SPW::PACKET::RMAPpacket::operator=(p_du);
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPreply::~RMAPreply()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPreply::setStatus(uint8_t p_status) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPreply::getStatus() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPreply::getInitLogAddr() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+uint16_t SPW::PACKET::RMAPreply::getTransactionID() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPreply::setReadModWriteData(uint32_t p_data)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPreply::getReadModWriteData() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+

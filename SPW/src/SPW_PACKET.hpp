@@ -194,6 +194,7 @@ namespace SPW
       // access methods
       virtual void setReplyAddr(size_t p_byteLength, const void* p_bytes)
         throw(UTIL::Exception);
+      virtual size_t getReplyAddrSize() const throw(UTIL::Exception);
       virtual const uint8_t* getReplyAddr() const throw(UTIL::Exception);
       virtual void setInitLogAddr(uint8_t p_logAddr) throw(UTIL::Exception);
       virtual uint8_t getInitLogAddr() const throw(UTIL::Exception);
@@ -216,7 +217,7 @@ namespace SPW
     public:
       // constructors and destructur
       RMAPreply();
-      RMAPreply(const RMAPcommand& p_command);
+      RMAPreply(const RMAPcommand& p_command, size_t p_dataSize);
       RMAPreply(void* p_buffer, size_t p_bufferSize, size_t p_initSPWaddrSize);
       RMAPreply(const void* p_buffer,
                 size_t p_bufferSize,
