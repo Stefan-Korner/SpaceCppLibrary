@@ -278,20 +278,6 @@ SPW::PACKET::RMAPpacket::~RMAPpacket()
 {}
 
 //-----------------------------------------------------------------------------
-uint8_t SPW::PACKET::RMAPpacket::getInstruction() const throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  // the RMAP header size must be least 3 bytes large
-  // (with logical address, protocol ID, instruction)
-  if(getHeaderSize() < 3)
-  {
-    throw UTIL::Exception("Instruction does not fit into RMAP header");
-  }
-  // fetch the protocol ID
-  return (*this)[getSPWaddrSize() + 2];  
-}
-
-//-----------------------------------------------------------------------------
 size_t SPW::PACKET::RMAPpacket::getHeaderSize() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
@@ -309,13 +295,165 @@ const uint8_t* SPW::PACKET::RMAPpacket::getHeader() const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  size_t hdrSize = headerSize(getInstruction());
-  if(hdrSize > getSPWdataSize())
-  {
-    throw UTIL::Exception("Encoded RMAP header does not fit into SPW packet buffer");
-  }
+  // force a check of the header size
+  getHeaderSize();
   // fetch the header (starts at the beginning of the SPW data field)
   return getSPWdata();
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPpacket::getInstruction() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  getHeaderSize();
+  // fetch the protocol ID
+  return (*this)[getSPWaddrSize() + 2];
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setSpecialByte(uint8_t p_byte)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  getHeaderSize();
+  // copy the special byte
+  (*this)[getSPWaddrSize() + 3] = p_byte;  
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPpacket::getSpecialByte() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  getHeaderSize();
+  // fetch the special byte
+  return (*this)[getSPWaddrSize() + 3];
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setSenderLogAddr(uint8_t p_logAddr)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the sender logical address
+  size_t instruction = getInstruction();
+  size_t sndLogAddrPos = getSPWaddrSize() + headerSize;
+  if(isCommand(instruction))
+  {
+    sndLogAddrPos -= 12;
+  }
+  else if(isWrite(instruction))
+  {
+    // write response
+    sndLogAddrPos -= 4;
+  }
+  else
+  {
+    // read or read-modify-write response
+    sndLogAddrPos -= 8;
+  }
+  (*this)[sndLogAddrPos] = p_logAddr;
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPpacket::getSenderLogAddr() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the sender logical address
+  size_t instruction = getInstruction();
+  size_t sndLogAddrPos = getSPWaddrSize() + headerSize;
+  if(isCommand(instruction))
+  {
+    sndLogAddrPos -= 12;
+  }
+  else if(isWrite(instruction))
+  {
+    // write response
+    sndLogAddrPos -= 4;
+  }
+  else
+  {
+    // read or read-modify-write response
+    sndLogAddrPos -= 8;
+  }
+  return (*this)[sndLogAddrPos];
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setTransactionID(uint16_t p_transID)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the transaction ID
+  size_t instruction = getInstruction();
+  size_t transIDpos = getSPWaddrSize() + headerSize;
+  if(isCommand(instruction))
+  {
+    transIDpos -= 11;
+  }
+  else if(isWrite(instruction))
+  {
+    // write response
+    transIDpos -= 3;
+  }
+  else
+  {
+    // read or read-modify-write response
+    transIDpos -= 7;
+  }
+  setUnsigned(transIDpos, 2, p_transID);
+}
+
+//-----------------------------------------------------------------------------
+uint16_t SPW::PACKET::RMAPpacket::getTransactionID() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the transaction ID
+  size_t instruction = getInstruction();
+  size_t transIDpos = getSPWaddrSize() + headerSize;
+  if(isCommand(instruction))
+  {
+    transIDpos -= 11;
+  }
+  else if(isWrite(instruction))
+  {
+    // write response
+    transIDpos -= 3;
+  }
+  else
+  {
+    // read or read-modify-write response
+    transIDpos -= 7;
+  }
+  return ((uint16_t) getUnsigned(transIDpos, 2));
+}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPpacket::getDataLength() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // check if the instruction requires a data field
+  if(!hasData(getInstruction()))
+  {
+    throw UTIL::Exception("Instruction does not define a data field");
+  }
+  // fetch the data size
+  size_t dataSizePos = getSPWaddrSize() + headerSize - 4;
+  return getUnsigned(dataSizePos, 3);
 }
 
 //-----------------------------------------------------------------------------
@@ -327,13 +465,8 @@ void SPW::PACKET::RMAPpacket::setHeaderCRC() throw(UTIL::Exception)
   {
     throw UTIL::Exception("RMAP packet is configured for Read Only");
   }
-  // the RMAP header size must be least 4 bytes large
-  // (with logical address, protocol ID, instruction, header CRC)
+  // force a check of the header size
   size_t headerSize = getHeaderSize();
-  if(headerSize < 4)
-  {
-    throw UTIL::Exception("Header CRC does not fit into RMAP header");
-  }
   // calculate CRC exclusive CRC byte
   size_t crcPosInHeader = headerSize - 1;
   uint8_t crc = UTIL::CRC::calculate8(getHeader(), crcPosInHeader);
@@ -346,13 +479,8 @@ void SPW::PACKET::RMAPpacket::setHeaderCRC() throw(UTIL::Exception)
 uint8_t SPW::PACKET::RMAPpacket::getHeaderCRC() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  // the RMAP header size must be least 4 bytes large
-  // (with logical address, protocol ID, instruction, header CRC)
+  // force a check of the header size
   size_t headerSize = getHeaderSize();
-  if(headerSize < 4)
-  {
-    throw UTIL::Exception("Header CRC does not fit into RMAP header");
-  }
   // fetch the header CRC
   size_t crcPosInDU = getSPWaddrSize() + headerSize - 1;
   return (*this)[crcPosInDU];
@@ -366,22 +494,6 @@ size_t SPW::PACKET::RMAPpacket::getDataSize() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
-uint32_t SPW::PACKET::RMAPpacket::getDataLength() const throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  // data length = 3 bytes -> the RMAP header size must be least 7 bytes large
-  // (with logical address, protocol ID, instruction, data length, header CRC)
-  size_t headerSize = getHeaderSize();
-  if(headerSize < 7)
-  {
-    throw UTIL::Exception("data size field does not fit into RMAP header");
-  }
-  // fetch the data size
-  size_t dataSizePos = getSPWaddrSize() + headerSize - 4;
-  return getUnsigned(dataSizePos, 3);
-}
-
-//-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPpacket::setData(size_t p_byteLength, const void* p_bytes)
         throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
@@ -390,7 +502,7 @@ void SPW::PACKET::RMAPpacket::setData(size_t p_byteLength, const void* p_bytes)
   // and throws an exception if there are no data
   if(p_byteLength > getDataSize())
   {
-    throw UTIL::Exception("data do not fit into RMAP data field");
+    throw UTIL::Exception("Data do not fit into RMAP data field");
   }
   size_t dataPos = getSPWaddrSize() + getHeaderSize();
   setBytes(dataPos, p_byteLength, p_bytes);
@@ -410,6 +522,30 @@ const uint8_t* SPW::PACKET::RMAPpacket::getData() const throw(UTIL::Exception)
   size_t dataPos = getSPWaddrSize() + getHeaderSize();
   size_t dataSize = getDataSize();
   return getBytes(dataPos, dataSize);
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setReadModWriteData(uint32_t p_data)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the data
+  size_t dataPos = getSPWaddrSize() + headerSize;
+  setUnsigned(dataPos, 4, p_data);
+}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPpacket::getReadModWriteData() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the data
+  size_t dataPos = getSPWaddrSize() + headerSize;
+  return getUnsigned(dataPos, 4);
 }
 
 //-----------------------------------------------------------------------------
@@ -490,6 +626,25 @@ bool SPW::PACKET::RMAPpacket::hasReply(uint8_t p_instruction)
 //-----------------------------------------------------------------------------
 {
   return ((p_instruction & 0x08) == 0x08);
+}
+
+//-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::hasData(uint8_t p_instruction)
+//-----------------------------------------------------------------------------
+{
+  if(isCommand(p_instruction) && isWrite(p_instruction))
+  {
+    return true;
+  }
+  if(isReply(p_instruction) && isRead(p_instruction))
+  {
+    return true;
+  }
+  if(commandCode(p_instruction) == CMD_READ_MOD_WRITE_INCR_ADDR)
+  {
+    return true;
+  }
+  return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -657,18 +812,48 @@ SPW::PACKET::RMAPcommand::~RMAPcommand()
 {}
 
 //-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPcommand::setKey(uint8_t p_key) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setSpecialByte(p_key);
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::RMAPcommand::getKey() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getSpecialByte();
+}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::RMAPpacket::ReplyAddressLength
+SPW::PACKET::RMAPcommand::getReplyAddrLength() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(!hasReply(getInstruction()))
+  {
+    throw UTIL::Exception("Instruction does not have a reply");
+  }
+  return replyAddrLength(getInstruction());
+}
+
+//-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPcommand::setReplyAddr(size_t p_byteLength,
                                             const void* p_bytes)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{}
-
-//-----------------------------------------------------------------------------
-size_t SPW::PACKET::RMAPcommand::getReplyAddrSize() const
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
 {
-  return 0;
+  // force a check of the header size
+  getHeaderSize();
+  // force a check of the reply address existence
+  size_t replyAddrLength = getReplyAddrLength();
+  if(replyAddrLength != p_byteLength)
+  {
+    throw UTIL::Exception("Reply address has wrong size");
+  }
+  // fetch the reply address
+  size_t replyAddrPos = getSPWaddrSize() + 4;
+  setBytes(replyAddrPos, p_byteLength, p_bytes);
 }
 
 //-----------------------------------------------------------------------------
@@ -676,88 +861,99 @@ const uint8_t* SPW::PACKET::RMAPcommand::getReplyAddr() const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return NULL;
+  // force a check of the header size
+  getHeaderSize();
+  // force a check of the reply address existence
+  size_t replyAddrLength = getReplyAddrLength();
+  // fetch the reply address
+  size_t replyAddrPos = getSPWaddrSize() + 4;
+  return getBytes(replyAddrPos, replyAddrLength);
 }
 
 //-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPcommand::setInitLogAddr(uint8_t p_logAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{}
+{
+  setSenderLogAddr(p_logAddr);
+}
 
 //-----------------------------------------------------------------------------
 uint8_t SPW::PACKET::RMAPcommand::getInitLogAddr() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-void SPW::PACKET::RMAPcommand::setTransactionID(uint16_t p_transID)
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{}
-
-//-----------------------------------------------------------------------------
-uint16_t SPW::PACKET::RMAPcommand::getTransactionID() const
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  return 0;
+  return getSenderLogAddr();
 }
 
 //-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPcommand::setExtendedMemAddr(uint8_t p_extMemAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{}
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the extended memory address
+  size_t extMemAddrPos = getSPWaddrSize() + headerSize - 9;
+  setUnsigned(extMemAddrPos, p_extMemAddr, 4);
+}
 
 //-----------------------------------------------------------------------------
 uint8_t SPW::PACKET::RMAPcommand::getExtendedMemAddr() const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{  return 0;
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the extended memory address
+  size_t extMemAddrPos = getSPWaddrSize() + headerSize - 9;
+  return getUnsigned(extMemAddrPos, 4);
 }
 
 //-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPcommand::setMemoryAddr(uint32_t p_memAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{}
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the memory address
+  size_t memoryAddrPos = getSPWaddrSize() + headerSize - 8;
+  setUnsigned(memoryAddrPos, 4, p_memAddr);
+}
 
 //-----------------------------------------------------------------------------
 uint32_t SPW::PACKET::RMAPcommand::getMemoryAddr() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-void SPW::PACKET::RMAPcommand::setReadModWriteData(uint32_t p_data)
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{}
-
-//-----------------------------------------------------------------------------
-uint32_t SPW::PACKET::RMAPcommand::getReadModWriteData() const
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  return 0;
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the memory address
+  size_t memoryAddrPos = getSPWaddrSize() + headerSize - 8;
+  return getUnsigned(memoryAddrPos, 4);
 }
 
 //-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPcommand::setReadModWriteMask(uint32_t p_mask)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{}
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the mask
+  size_t maskPos = getSPWaddrSize() + headerSize + 4;
+  setUnsigned(maskPos, 4, p_mask);
+}
 
 //-----------------------------------------------------------------------------
 uint32_t SPW::PACKET::RMAPcommand::getReadModWriteMask() const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the mask
+  size_t maskPos = getSPWaddrSize() + headerSize + 4;
+  return getUnsigned(maskPos, 4);
 }
 
 ///////////////
@@ -773,7 +969,7 @@ SPW::PACKET::RMAPreply::RMAPreply()
 // ensure that the RMPApacket is really a reply
 SPW::PACKET::RMAPreply::RMAPreply(const SPW::PACKET::RMAPcommand& p_command,
                                   size_t p_dataSize):
-  SPW::PACKET::RMAPpacket::RMAPpacket(p_command.getReplyAddrSize(),
+  SPW::PACKET::RMAPpacket::RMAPpacket(p_command.getReplyAddrLength(),
                                       p_command.getInstruction() & 0xBF,
                                       p_dataSize)
 //-----------------------------------------------------------------------------
@@ -782,12 +978,12 @@ SPW::PACKET::RMAPreply::RMAPreply(const SPW::PACKET::RMAPcommand& p_command,
   // there is some risk of exceptions that are suppressed protect the ctor
   try
   {
-    setSPWaddr(p_command.getReplyAddrSize(), p_command.getReplyAddr());
+    setSPWaddr(p_command.getReplyAddrLength(), p_command.getReplyAddr());
     setLogAddr(p_command.getInitLogAddr());
     // protocol ID is already copied in the SPW ctor
     // instruction is already copied in the RMAP ctor
-    // TODO: copy to initLogAddr
-    // TODO: copy to transactionID 
+    setTargetLogAddr(p_command.getInitLogAddr());
+    setTransactionID(p_command.getTransactionID());
   }
   catch(...) {}
 }
@@ -834,41 +1030,29 @@ SPW::PACKET::RMAPreply::~RMAPreply()
 //-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPreply::setStatus(uint8_t p_status) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
-{}
+{
+  setSpecialByte(p_status);
+}
 
 //-----------------------------------------------------------------------------
 uint8_t SPW::PACKET::RMAPreply::getStatus() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
+  return getSpecialByte();
 }
 
 //-----------------------------------------------------------------------------
-uint8_t SPW::PACKET::RMAPreply::getInitLogAddr() const throw(UTIL::Exception)
+void SPW::PACKET::RMAPreply::setTargetLogAddr(uint8_t p_logAddr)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
+  setSenderLogAddr(p_logAddr);
 }
 
 //-----------------------------------------------------------------------------
-uint16_t SPW::PACKET::RMAPreply::getTransactionID() const
-  throw(UTIL::Exception)
+uint8_t SPW::PACKET::RMAPreply::getTargetLogAddr() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
-}
-
-//-----------------------------------------------------------------------------
-void SPW::PACKET::RMAPreply::setReadModWriteData(uint32_t p_data)
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{}
-
-//-----------------------------------------------------------------------------
-uint32_t SPW::PACKET::RMAPreply::getReadModWriteData() const
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  return 0;
+  return getSenderLogAddr();
 }
 

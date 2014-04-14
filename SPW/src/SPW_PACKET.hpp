@@ -121,7 +121,12 @@ namespace SPW
       //   - logical address: 1 byte, from Target or Reply
       //   - protocol ID: 1 byte, SPW::PACKET::PROTOCOL_ID::RMAP
       //   - instruction: 1 byte
-      //   - other header fields: * bytes, size depends on instruction
+      //   - specialByte: 1 byte, key or status - depends on instruction
+      //   - reply address: 0, 4, 8, 12 bytes, size depends on instruction
+      //   - sender logical address: 1 byte, depends on instruction
+      //   - transaction ID: 2 bytes
+      //   - optional extended address: 1 byte, depends on instruction
+      //   - optional address: 4 byte, depends on instruction
       //   - optional data length: 3 bytes, depends on instruction
       //   - header CRC
       // - data field: * bytes (p_dataSize), includes
@@ -140,17 +145,28 @@ namespace SPW
       const RMAPpacket& operator=(const RMAPpacket& p_du);
       virtual ~RMAPpacket();
 
-      // access methods
-      virtual uint8_t getInstruction() const throw(UTIL::Exception);
+      // header access methods
       virtual size_t getHeaderSize() const throw(UTIL::Exception);
       virtual const uint8_t* getHeader() const throw(UTIL::Exception);
+      virtual uint8_t getInstruction() const throw(UTIL::Exception);
+      virtual void setSpecialByte(uint8_t p_byte) throw(UTIL::Exception);
+      virtual uint8_t getSpecialByte() const throw(UTIL::Exception);
+      virtual void setSenderLogAddr(uint8_t p_logAddr) throw(UTIL::Exception);
+      virtual uint8_t getSenderLogAddr() const throw(UTIL::Exception);
+      virtual void setTransactionID(uint16_t p_transID) throw(UTIL::Exception);
+      virtual uint16_t getTransactionID() const throw(UTIL::Exception);
+      virtual uint32_t getDataLength() const throw(UTIL::Exception);
       virtual void setHeaderCRC() throw(UTIL::Exception);
       virtual uint8_t getHeaderCRC() const throw(UTIL::Exception);
+
+      // data access methods
       virtual size_t getDataSize() const throw(UTIL::Exception);
-      virtual uint32_t getDataLength() const throw(UTIL::Exception);
       virtual void setData(size_t p_byteLength, const void* p_bytes)
         throw(UTIL::Exception);
       virtual const uint8_t* getData() const throw(UTIL::Exception);
+      // data access methods for CMD_READ_MOD_WRITE_INCR_ADDR
+      virtual void setReadModWriteData(uint32_t p_data) throw(UTIL::Exception);
+      virtual uint32_t getReadModWriteData() const throw(UTIL::Exception);
       virtual void setDataCRC() throw(UTIL::Exception);
       virtual uint8_t getDataCRC() const throw(UTIL::Exception);
 
@@ -161,6 +177,7 @@ namespace SPW
       static bool isWrite(uint8_t p_instruction);
       static bool verifyDataBeforeWrite(uint8_t p_instruction);
       static bool hasReply(uint8_t p_instruction);
+      static bool hasData(uint8_t p_instruction);
       static bool incrementAddress(uint8_t p_instruction);
 
       // helper functions
@@ -191,21 +208,23 @@ namespace SPW
       const RMAPcommand& operator=(const RMAPcommand& p_du);
       virtual ~RMAPcommand();
 
-      // access methods
+      // header access methods
+      virtual void setKey(uint8_t p_key) throw(UTIL::Exception);
+      virtual uint8_t getKey() const throw(UTIL::Exception);
+      virtual SPW::PACKET::RMAPpacket::ReplyAddressLength getReplyAddrLength()
+        const throw(UTIL::Exception);
       virtual void setReplyAddr(size_t p_byteLength, const void* p_bytes)
         throw(UTIL::Exception);
-      virtual size_t getReplyAddrSize() const throw(UTIL::Exception);
       virtual const uint8_t* getReplyAddr() const throw(UTIL::Exception);
       virtual void setInitLogAddr(uint8_t p_logAddr) throw(UTIL::Exception);
       virtual uint8_t getInitLogAddr() const throw(UTIL::Exception);
-      virtual void setTransactionID(uint16_t p_transID) throw(UTIL::Exception);
-      virtual uint16_t getTransactionID() const throw(UTIL::Exception);
       virtual void setExtendedMemAddr(uint8_t p_extMemAddr) throw(UTIL::Exception);
       virtual uint8_t getExtendedMemAddr() const throw(UTIL::Exception);
       virtual void setMemoryAddr(uint32_t p_memAddr) throw(UTIL::Exception);
       virtual uint32_t getMemoryAddr() const throw(UTIL::Exception);
-      virtual void setReadModWriteData(uint32_t p_data) throw(UTIL::Exception);
-      virtual uint32_t getReadModWriteData() const throw(UTIL::Exception);
+
+      // data access methods for CMD_READ_MOD_WRITE_INCR_ADDR,
+      // for other instructions use inherited methods setData(), getData()
       virtual void setReadModWriteMask(uint32_t p_mask) throw(UTIL::Exception);
       virtual uint32_t getReadModWriteMask() const throw(UTIL::Exception);
     };
@@ -227,13 +246,11 @@ namespace SPW
       const RMAPreply& operator=(const RMAPreply& p_du);
       virtual ~RMAPreply();
 
-      // access methods
+      // header access methods
       virtual void setStatus(uint8_t p_status) throw(UTIL::Exception);
       virtual uint8_t getStatus() const throw(UTIL::Exception);
-      virtual uint8_t getInitLogAddr() const throw(UTIL::Exception);
-      virtual uint16_t getTransactionID() const throw(UTIL::Exception);
-      virtual void setReadModWriteData(uint32_t p_data) throw(UTIL::Exception);
-      virtual uint32_t getReadModWriteData() const throw(UTIL::Exception);
+      virtual void setTargetLogAddr(uint8_t p_logAddr) throw(UTIL::Exception);
+      virtual uint8_t getTargetLogAddr() const throw(UTIL::Exception);
     };
   }
 }
