@@ -26,15 +26,19 @@ clean:
 	\rm -f ../lib/libSPW.so ../lib/libSPW.a *.o
 
 ../lib/libSPW.so: \
-	SPW_PACKET.o
+	SPW_PACKET.o \
+	SPW_RMAP_MEMORY.o
 	${LIB_DYNAMIC} -olibSPW.so \
-	SPW_PACKET.o
+	SPW_PACKET.o \
+	SPW_RMAP_MEMORY.o
 	mv libSPW.so ../lib
 
 ../lib/libSPW.a: \
-	SPW_PACKET.o
+	SPW_PACKET.o \
+	SPW_RMAP_MEMORY.o
 	${LIB_STATIC} libSPW.a \
-	SPW_PACKET.o
+	SPW_PACKET.o \
+	SPW_RMAP_MEMORY.o
 	mv libSPW.a ../lib
 
 SPW_PACKET.o: SPW_PACKET.cpp \
@@ -42,3 +46,10 @@ SPW_PACKET.o: SPW_PACKET.cpp \
 	${LIB_UTIL}
 	${CPP} -oSPW_PACKET.o ${INCLUDES} \
 	SPW_PACKET.cpp
+
+SPW_RMAP_MEMORY.o: SPW_RMAP_MEMORY.cpp \
+	SPW_RMAP_MEMORY.hpp \
+	SPW_PACKET.hpp \
+	${LIB_UTIL}
+	${CPP} -oSPW_RMAP_MEMORY.o ${INCLUDES} \
+	SPW_RMAP_MEMORY.cpp

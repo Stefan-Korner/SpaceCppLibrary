@@ -13,8 +13,8 @@
 //*****************************************************************************
 // SpaceWire - SpaceWire Packet Module                                        *
 //*****************************************************************************
-#ifndef CCSDS_DU_hpp
-#define CCSDS_DU_hpp
+#ifndef SPW_PACKET_hpp
+#define SPW_PACKET_hpp
 
 #include "UTIL_DU.hpp"
 
