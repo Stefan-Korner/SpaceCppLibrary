@@ -13,14 +13,35 @@
 #******************************************************************************
 # Makefile                                                                    *
 #******************************************************************************
+include ../../Makefile.include
 
-all:
-	cd src; make
-	cd test; make
+# keep the linking order of the libraries
+LIBS = -L../lib -lSPW \
+       -L../../UTIL/lib -lUTIL \
+       -lpthread
+LIB_SPW = ../lib/libSPW.a
+LIB_UTIL = ../../UTIL/lib/libUTIL.a
+INCLUDES = -I. \
+           -I../src \
+           -I../../UTIL/src
+
+all:	../bin/test_SPW_RMAP_MEMORY
 
 clean:
-	cd src; make clean
-	cd test; make clean
+	\rm -f ../bin/test_SPW_RMAP_MEMORY
+	\rm -f *.o
 
-tst_SPW_RMAP_MEMORY:
-	cd test; make tst_SPW_RMAP_MEMORY
+tst_SPW_RMAP_MEMORY: ../bin/test_SPW_RMAP_MEMORY
+	cd ../bin; ./test_SPW_RMAP_MEMORY
+
+../bin/test_SPW_RMAP_MEMORY: test_SPW_RMAP_MEMORY.o
+	${LINK} -otest_SPW_RMAP_MEMORY \
+	test_SPW_RMAP_MEMORY.o \
+	${LIBS}
+	mv test_SPW_RMAP_MEMORY ../bin
+
+test_SPW_RMAP_MEMORY.o: test_SPW_RMAP_MEMORY.cpp \
+	${LIB_SPW} \
+	${LIB_UTIL}
+	${CPP} -otest_SPW_RMAP_MEMORY.o ${INCLUDES} \
+	test_SPW_RMAP_MEMORY.cpp
