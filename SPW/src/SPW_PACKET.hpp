@@ -164,9 +164,18 @@ namespace SPW
       virtual void setData(size_t p_byteLength, const void* p_bytes)
         throw(UTIL::Exception);
       virtual const uint8_t* getData() const throw(UTIL::Exception);
-      // data access methods for CMD_READ_MOD_WRITE_INCR_ADDR
-      virtual void setReadModWriteData(uint32_t p_data) throw(UTIL::Exception);
-      virtual uint32_t getReadModWriteData() const throw(UTIL::Exception);
+      virtual void setDataByte(size_t p_bytePos, uint8_t p_byte)
+        throw(UTIL::Exception);
+      virtual uint8_t getDataByte(size_t p_bytePos) const
+        throw(UTIL::Exception);
+      virtual void setDataWord(size_t p_bytePos, uint16_t p_word)
+        throw(UTIL::Exception);
+      virtual uint16_t getDataWord(size_t p_bytePos) const
+        throw(UTIL::Exception);
+      virtual void setDataLongWord(size_t p_bytePos, uint32_t p_longWord)
+        throw(UTIL::Exception);
+      virtual uint32_t getDataLongWord(size_t p_bytePos) const
+        throw(UTIL::Exception);
       virtual void setDataCRC() throw(UTIL::Exception);
       virtual uint8_t getDataCRC() const throw(UTIL::Exception);
 
@@ -222,11 +231,6 @@ namespace SPW
       virtual uint8_t getExtendedMemAddr() const throw(UTIL::Exception);
       virtual void setMemoryAddr(uint32_t p_memAddr) throw(UTIL::Exception);
       virtual uint32_t getMemoryAddr() const throw(UTIL::Exception);
-
-      // data access methods for CMD_READ_MOD_WRITE_INCR_ADDR,
-      // for other instructions use inherited methods setData(), getData()
-      virtual void setReadModWriteMask(uint32_t p_mask) throw(UTIL::Exception);
-      virtual uint32_t getReadModWriteMask() const throw(UTIL::Exception);
     };
 
     //-------------------------------------------------------------------------

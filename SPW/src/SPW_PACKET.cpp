@@ -525,26 +525,75 @@ const uint8_t* SPW::PACKET::RMAPpacket::getData() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
-void SPW::PACKET::RMAPpacket::setReadModWriteData(uint32_t p_data)
+void SPW::PACKET::RMAPpacket::setDataByte(size_t p_bytePos, uint8_t p_byte)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the data
-  size_t dataPos = getSPWaddrSize() + headerSize;
-  setUnsigned(dataPos, 4, p_data);
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  setUnsigned(dataPos, 1, p_byte);
 }
 
 //-----------------------------------------------------------------------------
-uint32_t SPW::PACKET::RMAPpacket::getReadModWriteData() const
+uint8_t SPW::PACKET::RMAPpacket::getDataByte(size_t p_bytePos) const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // fetch the data
-  size_t dataPos = getSPWaddrSize() + headerSize;
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  return ((uint8_t) getUnsigned(dataPos, 1));
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setDataWord(size_t p_bytePos, uint16_t p_word)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the data
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  setUnsigned(dataPos, 2, p_word);
+}
+
+//-----------------------------------------------------------------------------
+uint16_t SPW::PACKET::RMAPpacket::getDataWord(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the data
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  return ((uint16_t) getUnsigned(dataPos, 2));
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setDataLongWord(size_t p_bytePos,
+                                              uint32_t p_longWord)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the data
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  setUnsigned(dataPos, 4, p_longWord);
+}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPpacket::getDataLongWord(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the data
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
   return getUnsigned(dataPos, 4);
 }
 
@@ -930,30 +979,6 @@ uint32_t SPW::PACKET::RMAPcommand::getMemoryAddr() const throw(UTIL::Exception)
   // fetch the memory address
   size_t memoryAddrPos = getSPWaddrSize() + headerSize - 8;
   return getUnsigned(memoryAddrPos, 4);
-}
-
-//-----------------------------------------------------------------------------
-void SPW::PACKET::RMAPcommand::setReadModWriteMask(uint32_t p_mask)
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  // force a check of the header size
-  size_t headerSize = getHeaderSize();
-  // copy the mask
-  size_t maskPos = getSPWaddrSize() + headerSize + 4;
-  setUnsigned(maskPos, 4, p_mask);
-}
-
-//-----------------------------------------------------------------------------
-uint32_t SPW::PACKET::RMAPcommand::getReadModWriteMask() const
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  // force a check of the header size
-  size_t headerSize = getHeaderSize();
-  // fetch the mask
-  size_t maskPos = getSPWaddrSize() + headerSize + 4;
-  return getUnsigned(maskPos, 4);
 }
 
 ///////////////
