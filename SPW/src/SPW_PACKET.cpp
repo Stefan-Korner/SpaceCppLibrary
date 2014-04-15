@@ -17,6 +17,23 @@
 
 #include "UTIL_CRC.hpp"
 
+//////////////////////
+// global functions //
+//////////////////////
+
+//-----------------------------------------------------------------------------
+bool
+SPW::PACKET::isA(uint8_t p_protocolID, void* p_buffer, size_t p_bufferSize)
+//-----------------------------------------------------------------------------
+{
+  if(p_bufferSize < 2)
+  {
+    return false;
+  }
+  uint8_t* buffer = (uint8_t*) p_buffer;
+  return (p_protocolID == buffer[2]);
+}
+
 ////////////
 // Packet //
 ////////////
@@ -487,6 +504,17 @@ uint8_t SPW::PACKET::RMAPpacket::getHeaderCRC() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::checkHeaderCRC() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // calculate CRC inclusive CRC byte
+  uint8_t crc = UTIL::CRC::calculate8(getHeader(), headerSize);
+  return (crc == 0);
+}
+
+//-----------------------------------------------------------------------------
 size_t SPW::PACKET::RMAPpacket::getDataSize() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
@@ -636,6 +664,21 @@ uint8_t SPW::PACKET::RMAPpacket::getDataCRC() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::checkDataCRC() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  size_t dataSize = getDataSize();
+  if(dataSize < 1)
+  {
+    throw UTIL::Exception("Data CRC does not fit into RMAP data field");
+  }
+  // calculate CRC inclusive CRC byte
+  uint8_t crc = UTIL::CRC::calculate8(getData(), dataSize);
+  // set the header CRC
+  return (crc == 0);
+}
+
+//-----------------------------------------------------------------------------
 bool SPW::PACKET::RMAPpacket::isCommand(uint8_t p_instruction)
 //-----------------------------------------------------------------------------
 {
@@ -701,6 +744,13 @@ bool SPW::PACKET::RMAPpacket::incrementAddress(uint8_t p_instruction)
 //-----------------------------------------------------------------------------
 {
   return ((p_instruction & 0x04) == 0x04);
+}
+
+//-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::isOK(uint8_t p_status)
+//-----------------------------------------------------------------------------
+{
+  return (p_status == SPW::PACKET::RMAPpacket::CMD_OK);
 }
 
 //-----------------------------------------------------------------------------
@@ -800,6 +850,40 @@ uint8_t SPW::PACKET::RMAPpacket::instruction(
   case CMD_WRITE_INCR_ADDR_VERIF_RPLY:   retVal |= 0x3C; break;
   }
   return retVal;
+}
+
+//-----------------------------------------------------------------------------
+const char* SPW::PACKET::RMAPpacket::errorTxt(uint8_t p_status)
+//-----------------------------------------------------------------------------
+{
+  switch(p_status)
+  {
+  case SPW::PACKET::RMAPpacket::CMD_OK:
+    return "Command executed successfully";
+  case SPW::PACKET::RMAPpacket::ERR_GENERAL_ERROR_CODE:
+    return "General error code";
+  case SPW::PACKET::RMAPpacket::ERR_UNUSED_RMAP_PKT_TYPE_OR_CMD_CODE:
+    return "Unused RMAP Packet Type or Command Code";
+  case SPW::PACKET::RMAPpacket::ERR_INVALID_KEY:
+    return "Invalid key";
+  case SPW::PACKET::RMAPpacket::ERR_INVALID_DATA_CRC:
+    return "Invalid Data CRC";
+  case SPW::PACKET::RMAPpacket::ERR_EARLY_EOP:
+    return "Early EOP";
+  case SPW::PACKET::RMAPpacket::ERR_TOO_MUCH_DATA:
+    return "Too much data";
+  case SPW::PACKET::RMAPpacket::ERR_EEP:
+    return "EEP";
+  case SPW::PACKET::RMAPpacket::ERR_VERIFY_BUFFER_OVERRUN:
+    return "Verify buffer overrun";
+  case SPW::PACKET::RMAPpacket::ERR_RMAP_CMD_NOT_IMPL_OR_NOT_AUTH:
+    return "RMAP Command not implemented or not authorised";
+  case SPW::PACKET::RMAPpacket::ERR_RMW_DATA_LENGTH_ERROR:
+    return "RMW Data Length error";
+  case SPW::PACKET::RMAPpacket::ERR_INVALID_TARGET_LOGICAL_ADDRESS:
+    return "Invalid Target Logical Address";
+  }
+  return "Reserved";
 }
 
 /////////////////

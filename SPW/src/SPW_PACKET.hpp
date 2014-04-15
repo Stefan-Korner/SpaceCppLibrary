@@ -36,6 +36,11 @@ namespace SPW
     }
     static const uint8_t UNKNOWN_LOG_ADDR = 254;
 
+    // validates the protocol ID, expects the following structure:
+    // - logical address: 1 byte
+    // - protocol ID: 1 byte
+    bool isA(uint8_t p_protocolID, void* p_buffer, size_t p_bufferSize);
+
     //-------------------------------------------------------------------------
     class Packet: public UTIL::DU
     //-------------------------------------------------------------------------
@@ -113,6 +118,22 @@ namespace SPW
         CMD_WRITE_INCR_ADDR_VERIF_RPLY
       };
 
+      enum ErrorCode
+      {
+        CMD_OK = 0,
+        ERR_GENERAL_ERROR_CODE = 1,
+        ERR_UNUSED_RMAP_PKT_TYPE_OR_CMD_CODE = 2,
+        ERR_INVALID_KEY = 3,
+        ERR_INVALID_DATA_CRC = 4,
+        ERR_EARLY_EOP = 5,
+        ERR_TOO_MUCH_DATA = 6,
+        ERR_EEP = 7,
+        ERR_VERIFY_BUFFER_OVERRUN = 9,
+        ERR_RMAP_CMD_NOT_IMPL_OR_NOT_AUTH = 10,
+        ERR_RMW_DATA_LENGTH_ERROR = 11,
+        ERR_INVALID_TARGET_LOGICAL_ADDRESS = 12
+      };
+
       // constructors and destructur
       RMAPpacket();
       // structure of an RMAP packet:
@@ -158,6 +179,7 @@ namespace SPW
       virtual uint32_t getDataLength() const throw(UTIL::Exception);
       virtual void setHeaderCRC() throw(UTIL::Exception);
       virtual uint8_t getHeaderCRC() const throw(UTIL::Exception);
+      virtual bool checkHeaderCRC() const throw(UTIL::Exception);
 
       // data access methods
       virtual size_t getDataSize() const throw(UTIL::Exception);
@@ -178,6 +200,7 @@ namespace SPW
         throw(UTIL::Exception);
       virtual void setDataCRC() throw(UTIL::Exception);
       virtual uint8_t getDataCRC() const throw(UTIL::Exception);
+      virtual bool checkDataCRC() const throw(UTIL::Exception);
 
       // predicates
       static bool isCommand(uint8_t p_instruction);
@@ -188,6 +211,7 @@ namespace SPW
       static bool hasReply(uint8_t p_instruction);
       static bool hasData(uint8_t p_instruction);
       static bool incrementAddress(uint8_t p_instruction);
+      static bool isOK(uint8_t p_status);
 
       // helper functions
       static ReplyAddressLength replyAddrLength(uint8_t p_instruction);
@@ -196,6 +220,7 @@ namespace SPW
       static uint8_t instruction(bool p_isCommand,
                                  ReplyAddressLength p_rplyAddrLength,
                                  CommandCode p_commandCode);
+      static const char* errorTxt(uint8_t p_status);
     };
 
     //-------------------------------------------------------------------------

@@ -33,12 +33,11 @@ namespace SPW
       // access methods
       virtual size_t getMemorySize() const;
       virtual UTIL::DU& buffer();
-      virtual void setMemoryPointer(size_t p_pos) throw(UTIL::Exception);
-      virtual size_t getMemoryPointer() const;
 
       // performs RMAP memory access - reply shall be deleted by the caller
+      // returns NULL if no reply is requested
       virtual SPW::PACKET::RMAPreply* execute(
-        const SPW::PACKET::RMAPcommand& p_command);
+        const SPW::PACKET::RMAPcommand& p_command) throw(UTIL::Exception);
 
     private:
       // object has reference semantic
@@ -46,7 +45,6 @@ namespace SPW
       const Memory& operator=(const Memory& p_du);
 
       UTIL::DU m_buffer;
-      size_t m_memoryPointer;
     };
   }
 }
