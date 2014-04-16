@@ -63,8 +63,8 @@ SPW::PACKET::RMAPreply* SPW::RMAP::Memory::execute(
       throw UTIL::Exception("Invalid command data CRC");
     }
   }
-  // access to memory is performed without considering
-  // the extended memory address
+  // the extended memory address is used as bytecount for read
+  size_t readDataSize = p_command.getExtendedMemAddr();
   SPW::PACKET::RMAPreply* reply = NULL;
   size_t memoryPos = p_command.getMemoryAddr();
   // check the command code
@@ -77,11 +77,16 @@ SPW::PACKET::RMAPreply* SPW::RMAP::Memory::execute(
   case SPW::PACKET::RMAPpacket::CMD_READ_SINGLE_ADDR:
   case SPW::PACKET::RMAPpacket::CMD_READ_INCR_ADDR:
     {
-      // incrementation is ignored, reply only single byte (with CRC)
-      uint8_t readByte = m_buffer[memoryPos];
-      reply = new SPW::PACKET::RMAPreply(p_command, 2);
+      if(readDataSize == 0)
+      {
+        throw UTIL::Exception("Empty data for read operation requested");
+      }
+      // incrementation is ignored
+      const uint8_t* readBytes = m_buffer.getBytes(memoryPos, readDataSize);
+      // add CRC to data
+      reply = new SPW::PACKET::RMAPreply(p_command, readDataSize + 1);
       reply->setStatus(SPW::PACKET::RMAPpacket::CMD_OK);
-      reply->setDataByte(0, readByte);
+      reply->setData(readDataSize, readBytes);
       reply->setDataCRC();
     }
     break;
