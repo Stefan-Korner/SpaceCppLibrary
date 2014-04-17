@@ -254,13 +254,6 @@ SPW::PACKET::RMAPpacket::RMAPpacket(size_t p_spwAddrSize,
   // set protocol ID and instruction
   (*this)[p_spwAddrSize + 1] = SPW::PACKET::PROTOCOL_ID::RMAP;
   (*this)[p_spwAddrSize + 2] = p_instruction;
-  // initialise the data size field if the instruction requires a data field
-  if(hasData(p_instruction))
-  {
-    // set the data size
-    size_t dataSizePos = p_spwAddrSize + headerSize(p_instruction) - 4;
-    setUnsigned(dataSizePos, 3, p_dataSize);
-  }
 }
 
 //-----------------------------------------------------------------------------
@@ -305,15 +298,9 @@ SPW::PACKET::RMAPpacket::~RMAPpacket()
 size_t SPW::PACKET::RMAPpacket::getHeaderSize() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  size_t spwDataSize = getSPWdataSize();
-  if(spwDataSize < 3)
-  {
-    throw UTIL::Exception("Instruction does not fit into SPW packet buffer");
-  }
-  uint8_t instruction = (*this)[getSPWaddrSize() + 2];
-  size_t hdrSize = headerSize(instruction);
+  size_t hdrSize = headerSize(getInstruction());
   // header starts at the beginning of the SPW data field
-  if(hdrSize > spwDataSize)
+  if(hdrSize > getSPWdataSize())
   {
     throw UTIL::Exception("Encoded RMAP header does not fit into SPW packet buffer");
   }

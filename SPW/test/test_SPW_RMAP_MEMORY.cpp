@@ -27,7 +27,7 @@ int main()
   try
   {
     // memory with 1000 bytes
-    SPW::RMAP::Memory memory(1000);
+    SPW::RMAP::Memory memory(256);
     // command for setting one byte
     uint8_t instruction = SPW::PACKET::RMAPpacket::instruction(
       true,
@@ -35,12 +35,9 @@ int main()
       SPW::PACKET::RMAPpacket::CMD_WRITE_SINGLE_ADDR);
     SPW::PACKET::RMAPcommand command(0, instruction, 2);
     command.setDataByte(0, 0x5A);
-/*
     command.setHeaderCRC();
     command.setDataCRC();
-*/
     command.dump("command");
-/*
     // execute the command
     SPW::PACKET::RMAPreply* reply = memory.execute(command);
     memory.buffer().dump("memory");
@@ -49,7 +46,6 @@ int main()
     {
       reply->dump("reply");
     }
-*/
   }
   catch(UTIL::Exception ex)
   {
