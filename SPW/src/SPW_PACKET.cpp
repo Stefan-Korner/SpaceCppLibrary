@@ -254,12 +254,12 @@ SPW::PACKET::RMAPpacket::RMAPpacket(size_t p_spwAddrSize,
   // set protocol ID and instruction
   (*this)[p_spwAddrSize + 1] = SPW::PACKET::PROTOCOL_ID::RMAP;
   (*this)[p_spwAddrSize + 2] = p_instruction;
-  // initialise the data size field if the instruction requires a data field
-  if(hasData(p_instruction))
+  // initialise the data length field if the instruction requires a data field
+  if(hasDataLength(p_instruction))
   {
-    // set the data size
-    size_t dataSizePos = p_spwAddrSize + headerSize(p_instruction) - 4;
-    setUnsigned(dataSizePos, 3, p_dataSize);
+    // set the data length
+    size_t dataLengthPos = p_spwAddrSize + headerSize(p_instruction) - 4;
+    setUnsigned(dataLengthPos, 3, p_dataSize);
   }
 }
 
@@ -346,6 +346,11 @@ void SPW::PACKET::RMAPpacket::setSpecialByte(uint8_t p_byte)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   getHeaderSize();
   // copy the special byte
@@ -367,6 +372,11 @@ void SPW::PACKET::RMAPpacket::setSenderLogAddr(uint8_t p_logAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the sender logical address
@@ -421,6 +431,11 @@ void SPW::PACKET::RMAPpacket::setTransactionID(uint16_t p_transID)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the transaction ID
@@ -471,19 +486,41 @@ uint16_t SPW::PACKET::RMAPpacket::getTransactionID() const
 }
 
 //-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setDataLength(uint32_t p_dataLength)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // check if the instruction requires a data length field
+  if(!hasDataLength(getInstruction()))
+  {
+    throw UTIL::Exception("Instruction does not define a data length field");
+  }
+  // copy the data size
+  size_t dataLengthPos = getSPWaddrSize() + headerSize - 4;
+  setUnsigned(dataLengthPos, 3, p_dataLength);
+}
+
+//-----------------------------------------------------------------------------
 uint32_t SPW::PACKET::RMAPpacket::getDataLength() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // force a check of the header size
   size_t headerSize = getHeaderSize();
-  // check if the instruction requires a data field
-  if(!hasData(getInstruction()))
+  // check if the instruction requires a data length field
+  if(!hasDataLength(getInstruction()))
   {
-    throw UTIL::Exception("Instruction does not define a data field");
+    throw UTIL::Exception("Instruction does not define a data length field");
   }
   // fetch the data size
-  size_t dataSizePos = getSPWaddrSize() + headerSize - 4;
-  return getUnsigned(dataSizePos, 3);
+  size_t dataLengthPos = getSPWaddrSize() + headerSize - 4;
+  return getUnsigned(dataLengthPos, 3);
 }
 
 //-----------------------------------------------------------------------------
@@ -531,7 +568,13 @@ bool SPW::PACKET::RMAPpacket::checkHeaderCRC() const throw(UTIL::Exception)
 size_t SPW::PACKET::RMAPpacket::getDataSize() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return getDataLength();
+  size_t bufSize = bufferSize();
+  size_t dataPos = getSPWaddrSize() + getHeaderSize();
+  if(dataPos > bufSize)
+  {
+    throw UTIL::Exception("Inconsistend RMAP data field size");
+  }
+  return (bufSize - dataPos);
 }
 
 //-----------------------------------------------------------------------------
@@ -734,6 +777,21 @@ bool SPW::PACKET::RMAPpacket::hasReply(uint8_t p_instruction)
 }
 
 //-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::hasDataLength(uint8_t p_instruction)
+//-----------------------------------------------------------------------------
+{
+  if(isCommand(p_instruction))
+  {
+    return true;
+  }
+  if(!isWrite(p_instruction))
+  {
+    return true;
+  }
+  return false;
+}
+
+//-----------------------------------------------------------------------------
 bool SPW::PACKET::RMAPpacket::hasData(uint8_t p_instruction)
 //-----------------------------------------------------------------------------
 {
@@ -834,9 +892,9 @@ uint8_t SPW::PACKET::RMAPpacket::headerSize(uint8_t p_instruction)
 
 //-----------------------------------------------------------------------------
 uint8_t SPW::PACKET::RMAPpacket::instruction(
-  bool p_isCommand,
+  CommandCode p_commandCode,
   ReplyAddressLength p_rplyAddrLength,
-  CommandCode p_commandCode)
+  bool p_isCommand)
 //-----------------------------------------------------------------------------
 {
   uint8_t retVal = (p_isCommand ? 0x40 : 0x00);
@@ -997,7 +1055,7 @@ void SPW::PACKET::RMAPcommand::setReplyAddr(size_t p_byteLength,
   {
     throw UTIL::Exception("Reply address has wrong size");
   }
-  // fetch the reply address
+  // copy the reply address
   size_t replyAddrPos = getSPWaddrSize() + 4;
   setBytes(replyAddrPos, p_byteLength, p_bytes);
 }
@@ -1040,7 +1098,7 @@ void SPW::PACKET::RMAPcommand::setExtendedMemAddr(uint8_t p_extMemAddr)
   size_t headerSize = getHeaderSize();
   // copy the extended memory address
   size_t extMemAddrPos = getSPWaddrSize() + headerSize - 9;
-  setUnsigned(extMemAddrPos, p_extMemAddr, 4);
+  setUnsigned(extMemAddrPos, 4, p_extMemAddr);
 }
 
 //-----------------------------------------------------------------------------

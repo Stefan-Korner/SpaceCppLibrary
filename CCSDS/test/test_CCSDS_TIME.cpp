@@ -34,7 +34,7 @@ CCSDS::CUC::Time printAsCUCtime(const UTIL::AbsTime& p_absTime,
     UTIL::DU du(&cucTime, 8, false);
     du.dump(p_prefix);
   }
-  catch(UTIL::Exception ex)
+  catch(const UTIL::Exception& ex)
   {
     cout << "Exception: " << ex.what() << endl;
   }
@@ -52,7 +52,7 @@ void printAsAbsTime(const CCSDS::CUC::Time& p_cucTime,
     cout << p_prefix << " = " << absTime.m_sec << "." << absTime.m_micro
          << endl;
   }
-  catch(UTIL::Exception ex)
+  catch(const UTIL::Exception& ex)
   {
     cout << "Exception: " << ex.what() << endl;
   }
@@ -151,7 +151,7 @@ int main()
     absTime.m_micro = 1;
     printTimes(absTime);
   }
-  catch(UTIL::Exception ex)
+  catch(const UTIL::Exception& ex)
   {
     cout << "Exception: " << ex.what() << endl;
   }

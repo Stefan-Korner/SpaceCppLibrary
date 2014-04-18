@@ -164,7 +164,7 @@ int main()
     du3 = du1 + du2;
     du3.dump("du3", true);
   }
-  catch(UTIL::Exception ex)
+  catch(const UTIL::Exception& ex)
   {
     cout << "Exception: " << ex.what() << endl;
   }

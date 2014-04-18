@@ -176,6 +176,7 @@ namespace SPW
       virtual uint8_t getSenderLogAddr() const throw(UTIL::Exception);
       virtual void setTransactionID(uint16_t p_transID) throw(UTIL::Exception);
       virtual uint16_t getTransactionID() const throw(UTIL::Exception);
+      virtual void setDataLength(uint32_t p_dataLength) throw(UTIL::Exception);
       virtual uint32_t getDataLength() const throw(UTIL::Exception);
       virtual void setHeaderCRC() throw(UTIL::Exception);
       virtual uint8_t getHeaderCRC() const throw(UTIL::Exception);
@@ -209,6 +210,7 @@ namespace SPW
       static bool isWrite(uint8_t p_instruction);
       static bool verifyDataBeforeWrite(uint8_t p_instruction);
       static bool hasReply(uint8_t p_instruction);
+      static bool hasDataLength(uint8_t p_instruction);
       static bool hasData(uint8_t p_instruction);
       static bool incrementAddress(uint8_t p_instruction);
       static bool isOK(uint8_t p_status);
@@ -217,9 +219,9 @@ namespace SPW
       static ReplyAddressLength replyAddrLength(uint8_t p_instruction);
       static CommandCode commandCode(uint8_t p_instruction);
       static uint8_t headerSize(uint8_t p_instruction);
-      static uint8_t instruction(bool p_isCommand,
-                                 ReplyAddressLength p_rplyAddrLength,
-                                 CommandCode p_commandCode);
+      static uint8_t instruction(CommandCode p_commandCode,
+                                 ReplyAddressLength p_rplyAddrLength = BYTES_0,
+                                 bool p_isCommand = true);
       static const char* errorTxt(uint8_t p_status);
     };
 

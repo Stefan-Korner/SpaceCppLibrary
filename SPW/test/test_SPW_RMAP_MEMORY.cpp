@@ -17,8 +17,12 @@
 #include "SPW_RMAP_MEMORY.hpp"
 
 #include <iostream>
+#include <memory>
 
 using namespace std;
+
+static const size_t MEMORY_BUFFER_SIZE = 256;
+static const uint8_t TESTBYTE1 = 0x5A;
 
 //-----------------------------------------------------------------------------
 int main()
@@ -26,30 +30,72 @@ int main()
 {
   try
   {
-    // memory with 1000 bytes
-    SPW::RMAP::Memory memory(256);
+    // memory with MEMORY_BUFFER_SIZE bytes
+    SPW::RMAP::Memory memory(MEMORY_BUFFER_SIZE);
+    UTIL::DU& memoryBuffer = memory.buffer();
+    memoryBuffer.dump("empty memory");
+    // check the memory
+    for(size_t i = 0; i < MEMORY_BUFFER_SIZE; i++)
+    {
+      if(memoryBuffer[i] != 0)
+      {
+        cout << "Error: buffer not empty" << endl;
+        return -1;
+      }
+    }
     // command for setting one byte
     uint8_t instruction = SPW::PACKET::RMAPpacket::instruction(
-      true,
-      SPW::PACKET::RMAPpacket::BYTES_0,
       SPW::PACKET::RMAPpacket::CMD_WRITE_SINGLE_ADDR);
-    SPW::PACKET::RMAPcommand command(0, instruction, 2);
-    command.setDataByte(0, 0x5A);
-    command.setHeaderCRC();
-    command.setDataCRC();
-    command.dump("command");
+    SPW::PACKET::RMAPcommand writeCmd(0, instruction, 2);
+    writeCmd.setDataByte(0, TESTBYTE1);
+    writeCmd.setHeaderCRC();
+    writeCmd.setDataCRC();
+    writeCmd.dump("writeCmd");
     // execute the command
-    SPW::PACKET::RMAPreply* reply = memory.execute(command);
-    memory.buffer().dump("memory");
-    // dump the reply if there is one
-    if(reply != NULL)
+    auto_ptr<SPW::PACKET::RMAPreply> writeReply(memory.execute(writeCmd));
+    memoryBuffer.dump("memory");
+    // check the memory
+    if(memoryBuffer[0] != TESTBYTE1)
     {
-      reply->dump("reply");
+      cout << "Error: invalid byte in buffer" << endl;
+      return -1;
     }
+    // check if there is an empty reply
+    if(writeReply.get() != NULL)
+    {
+      cout << "Error: non empty reply" << endl;
+      return -1;
+    }
+    // command for reading one byte
+    instruction = SPW::PACKET::RMAPpacket::instruction(
+      SPW::PACKET::RMAPpacket::CMD_READ_SINGLE_ADDR);
+    SPW::PACKET::RMAPcommand readCmd(0, instruction, 0);
+    readCmd.setDataLength(1);
+    readCmd.setHeaderCRC();
+    readCmd.dump("readCmd");
+    // execute the command
+    auto_ptr<SPW::PACKET::RMAPreply> readReply(memory.execute(readCmd));
+    memoryBuffer.dump("memory");
+    // check if there is an empty reply
+    if(readReply.get() == NULL)
+    {
+      cout << "Error: empty reply" << endl;
+      return -1;
+    }
+    readReply->dump("readReply");
+    // check if the reply contains the proper data
+    uint8_t readByte = readReply->getDataByte(0);
+    if(readByte != TESTBYTE1)
+    {
+      cout << "Error: empty data in reply" << endl;
+      return -1;
+    }
+    cout << "*** PASSED ***" << endl;
   }
-  catch(UTIL::Exception ex)
+  catch(const UTIL::Exception& ex)
   {
     cout << "Exception: " << ex.what() << endl;
+    return -1;
   }
   return 0;
 }
