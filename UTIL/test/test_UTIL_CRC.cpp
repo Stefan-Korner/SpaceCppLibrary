@@ -215,5 +215,9 @@ int main()
   printf("***** test_CRC16operation() start\n");
   retVal = test_CRC16operation();
   printf("***** test_CRC16operation() done: %d\n", retVal);
+  if(retVal == false)
+  {
+    return -1;
+  }
   return 0;
 }
