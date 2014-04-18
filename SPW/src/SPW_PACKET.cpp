@@ -246,9 +246,11 @@ SPW::PACKET::RMAPpacket::RMAPpacket()
 //-----------------------------------------------------------------------------
 SPW::PACKET::RMAPpacket::RMAPpacket(size_t p_spwAddrSize,
                                     uint8_t p_instruction,
-                                    size_t p_dataSize):
+                                    size_t p_dataLength):
   SPW::PACKET::Packet::Packet(p_spwAddrSize,
-                              headerSize(p_instruction) + p_dataSize) 
+                              hasData(p_instruction) ?
+                              (headerSize(p_instruction) + p_dataLength + 1) :
+                              headerSize(p_instruction)) 
 //-----------------------------------------------------------------------------
 {
   // set protocol ID and instruction
@@ -259,7 +261,7 @@ SPW::PACKET::RMAPpacket::RMAPpacket(size_t p_spwAddrSize,
   {
     // set the data length
     size_t dataLengthPos = p_spwAddrSize + headerSize(p_instruction) - 4;
-    setUnsigned(dataLengthPos, 3, p_dataSize);
+    setUnsigned(dataLengthPos, 3, p_dataLength);
   }
 }
 
@@ -486,28 +488,6 @@ uint16_t SPW::PACKET::RMAPpacket::getTransactionID() const
 }
 
 //-----------------------------------------------------------------------------
-void SPW::PACKET::RMAPpacket::setDataLength(uint32_t p_dataLength)
-  throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  // check if there is a writable buffer with proper size
-  if(bufferIsReadonly())
-  {
-    throw UTIL::Exception("RMAP packet is configured for Read Only");
-  }
-  // force a check of the header size
-  size_t headerSize = getHeaderSize();
-  // check if the instruction requires a data length field
-  if(!hasDataLength(getInstruction()))
-  {
-    throw UTIL::Exception("Instruction does not define a data length field");
-  }
-  // copy the data size
-  size_t dataLengthPos = getSPWaddrSize() + headerSize - 4;
-  setUnsigned(dataLengthPos, 3, p_dataLength);
-}
-
-//-----------------------------------------------------------------------------
 uint32_t SPW::PACKET::RMAPpacket::getDataLength() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
@@ -518,7 +498,7 @@ uint32_t SPW::PACKET::RMAPpacket::getDataLength() const throw(UTIL::Exception)
   {
     throw UTIL::Exception("Instruction does not define a data length field");
   }
-  // fetch the data size
+  // fetch the data length
   size_t dataLengthPos = getSPWaddrSize() + headerSize - 4;
   return getUnsigned(dataLengthPos, 3);
 }
@@ -584,7 +564,7 @@ void SPW::PACKET::RMAPpacket::setData(size_t p_byteLength, const void* p_bytes)
 {
   // this checks also the consistency of the buffer
   // and throws an exception if there are no data
-  if(p_byteLength > getDataSize())
+  if(p_byteLength > getDataLength())
   {
     throw UTIL::Exception("Data do not fit into RMAP data field");
   }
@@ -604,8 +584,8 @@ const uint8_t* SPW::PACKET::RMAPpacket::getData() const throw(UTIL::Exception)
   // this checks also the consistency of the buffer
   // and throws an exception if there are no data
   size_t dataPos = getSPWaddrSize() + getHeaderSize();
-  size_t dataSize = getDataSize();
-  return getBytes(dataPos, dataSize);
+  size_t dataLength = getDataLength();
+  return getBytes(dataPos, dataLength);
 }
 
 //-----------------------------------------------------------------------------
@@ -654,6 +634,31 @@ uint16_t SPW::PACKET::RMAPpacket::getDataWord(size_t p_bytePos) const
   // fetch the data
   size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
   return ((uint16_t) getUnsigned(dataPos, 2));
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::RMAPpacket::setData3Bytes(size_t p_bytePos, 
+                                            uint32_t p_3Bytes)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the data
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  setUnsigned(dataPos, 3, p_3Bytes);
+}
+
+//-----------------------------------------------------------------------------
+uint32_t SPW::PACKET::RMAPpacket::getData3Bytes(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the data
+  size_t dataPos = getSPWaddrSize() + headerSize + p_bytePos;
+  return getUnsigned(dataPos, 3);
 }
 
 //-----------------------------------------------------------------------------
@@ -749,17 +754,24 @@ bool SPW::PACKET::RMAPpacket::isReply(uint8_t p_instruction)
 }
 
 //-----------------------------------------------------------------------------
-bool SPW::PACKET::RMAPpacket::isRead(uint8_t p_instruction)
-//-----------------------------------------------------------------------------
-{
-  return ((p_instruction & 0x20) == 0x00);
-}
-
-//-----------------------------------------------------------------------------
 bool SPW::PACKET::RMAPpacket::isWrite(uint8_t p_instruction)
 //-----------------------------------------------------------------------------
 {
   return ((p_instruction & 0x20) == 0x20);
+}
+
+//-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::isRead(uint8_t p_instruction)
+//-----------------------------------------------------------------------------
+{
+  return ((p_instruction & 0x38) == 0x08);
+}
+
+//-----------------------------------------------------------------------------
+bool SPW::PACKET::RMAPpacket::isReadModWrite(uint8_t p_instruction)
+//-----------------------------------------------------------------------------
+{
+  return ((p_instruction & 0x3C) == 0x1C);
 }
 
 //-----------------------------------------------------------------------------
@@ -803,7 +815,7 @@ bool SPW::PACKET::RMAPpacket::hasData(uint8_t p_instruction)
   {
     return true;
   }
-  if(commandCode(p_instruction) == CMD_READ_MOD_WRITE_INCR_ADDR)
+  if(isReadModWrite(p_instruction))
   {
     return true;
   }
@@ -1147,11 +1159,13 @@ SPW::PACKET::RMAPreply::RMAPreply()
 
 //-----------------------------------------------------------------------------
 // ensure that the RMPApacket is really a reply
-SPW::PACKET::RMAPreply::RMAPreply(const SPW::PACKET::RMAPcommand& p_command,
-                                  size_t p_dataSize):
-  SPW::PACKET::RMAPpacket::RMAPpacket(p_command.getReplyAddrLength(),
-                                      p_command.getInstruction() & 0xBF,
-                                      p_dataSize)
+SPW::PACKET::RMAPreply::RMAPreply(const SPW::PACKET::RMAPcommand& p_command):
+  SPW::PACKET::RMAPpacket::RMAPpacket(
+    p_command.getReplyAddrLength(),
+    p_command.getInstruction() & 0xBF,
+    SPW::PACKET::RMAPpacket::isReadModWrite(p_command.getInstruction()) ?
+      (p_command.getDataLength() / 2) :
+      p_command.getDataLength())
 //-----------------------------------------------------------------------------
 {
   // copy data from the command into the reply

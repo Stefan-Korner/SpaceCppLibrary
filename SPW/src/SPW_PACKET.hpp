@@ -156,7 +156,7 @@ namespace SPW
       // (EOP) not part of the buffer, added on the transport layer
       RMAPpacket(size_t p_spwAddrSize,
                  uint8_t p_instruction,
-                 size_t p_dataSize);
+                 size_t p_dataLength);
       RMAPpacket(void* p_buffer, size_t p_bufferSize, size_t p_spwAddrSize);
       RMAPpacket(const void* p_buffer,
                  size_t p_bufferSize,
@@ -176,7 +176,6 @@ namespace SPW
       virtual uint8_t getSenderLogAddr() const throw(UTIL::Exception);
       virtual void setTransactionID(uint16_t p_transID) throw(UTIL::Exception);
       virtual uint16_t getTransactionID() const throw(UTIL::Exception);
-      virtual void setDataLength(uint32_t p_dataLength) throw(UTIL::Exception);
       virtual uint32_t getDataLength() const throw(UTIL::Exception);
       virtual void setHeaderCRC() throw(UTIL::Exception);
       virtual uint8_t getHeaderCRC() const throw(UTIL::Exception);
@@ -195,6 +194,10 @@ namespace SPW
         throw(UTIL::Exception);
       virtual uint16_t getDataWord(size_t p_bytePos) const
         throw(UTIL::Exception);
+      virtual void setData3Bytes(size_t p_bytePos, uint32_t p_3Bytes)
+        throw(UTIL::Exception);
+      virtual uint32_t getData3Bytes(size_t p_bytePos) const
+        throw(UTIL::Exception);
       virtual void setDataLongWord(size_t p_bytePos, uint32_t p_longWord)
         throw(UTIL::Exception);
       virtual uint32_t getDataLongWord(size_t p_bytePos) const
@@ -206,8 +209,9 @@ namespace SPW
       // predicates
       static bool isCommand(uint8_t p_instruction);
       static bool isReply(uint8_t p_instruction);
-      static bool isRead(uint8_t p_instruction);
       static bool isWrite(uint8_t p_instruction);
+      static bool isRead(uint8_t p_instruction);
+      static bool isReadModWrite(uint8_t p_instruction);
       static bool verifyDataBeforeWrite(uint8_t p_instruction);
       static bool hasReply(uint8_t p_instruction);
       static bool hasDataLength(uint8_t p_instruction);
@@ -267,7 +271,7 @@ namespace SPW
     public:
       // constructors and destructur
       RMAPreply();
-      RMAPreply(const RMAPcommand& p_command, size_t p_dataSize);
+      RMAPreply(const RMAPcommand& p_command);
       RMAPreply(void* p_buffer, size_t p_bufferSize, size_t p_initSPWaddrSize);
       RMAPreply(const void* p_buffer,
                 size_t p_bufferSize,

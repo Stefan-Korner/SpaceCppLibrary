@@ -66,6 +66,10 @@ SPW::PACKET::RMAPreply* SPW::RMAP::Memory::execute(
   SPW::PACKET::RMAPreply* reply = NULL;
   size_t memoryPos = p_command.getMemoryAddr();
   size_t dataLength = p_command.getDataLength();
+  if(dataLength == 0)
+  {
+    throw UTIL::Exception("Empty data for command not supported");
+  }
   // check the command code
   SPW::PACKET::RMAPpacket::CommandCode commandCode =
     SPW::PACKET::RMAPpacket::commandCode(instruction);
@@ -76,32 +80,81 @@ SPW::PACKET::RMAPreply* SPW::RMAP::Memory::execute(
   case SPW::PACKET::RMAPpacket::CMD_READ_SINGLE_ADDR:
   case SPW::PACKET::RMAPpacket::CMD_READ_INCR_ADDR:
     {
-      if(dataLength == 0)
-      {
-        throw UTIL::Exception("Empty data for read operation requested");
-      }
       // incrementation is ignored
       const uint8_t* readBytes = m_buffer.getBytes(memoryPos, dataLength);
       // add CRC to data
-      reply = new SPW::PACKET::RMAPreply(p_command, dataLength + 1);
+      reply = new SPW::PACKET::RMAPreply(p_command);
       reply->setStatus(SPW::PACKET::RMAPpacket::CMD_OK);
       reply->setData(dataLength, readBytes);
       reply->setDataCRC();
     }
     break;
   case SPW::PACKET::RMAPpacket::CMD_READ_MOD_WRITE_INCR_ADDR:
+    {
+      // incrementation is ignored
+      if(dataLength == 2)
+      {
+        // read modify write byte
+        uint32_t memoryData = m_buffer.getUnsigned(memoryPos, 1);
+        uint32_t packetData = p_command.getDataByte(0);
+        uint32_t packetMask = p_command.getDataByte(1);
+        uint32_t writeData = (packetData & packetMask) | 
+                            (memoryData & ~packetMask);
+        m_buffer.setUnsigned(memoryPos, 1, writeData);
+        reply = new SPW::PACKET::RMAPreply(p_command);
+        reply->setDataByte(0, (uint8_t) memoryData);
+      }
+      else if(dataLength == 4)
+      {
+        // read modify write word
+        uint32_t memoryData = m_buffer.getUnsigned(memoryPos, 2);
+        uint32_t packetData = p_command.getDataWord(0);
+        uint32_t packetMask = p_command.getDataWord(2);
+        uint32_t writeData = (packetData & packetMask) | 
+                            (memoryData & ~packetMask);
+        m_buffer.setUnsigned(memoryPos, 2, writeData);
+        reply = new SPW::PACKET::RMAPreply(p_command);
+        reply->setDataWord(0, (uint16_t) memoryData);
+      }
+      else if(dataLength == 6)
+      {
+        // read modify write 3 bytes
+        uint32_t memoryData = m_buffer.getUnsigned(memoryPos, 3);
+        uint32_t packetData = p_command.getData3Bytes(0);
+        uint32_t packetMask = p_command.getData3Bytes(3);
+        uint32_t writeData = (packetData & packetMask) | 
+                            (memoryData & ~packetMask);
+        m_buffer.setUnsigned(memoryPos, 3, writeData);
+        reply = new SPW::PACKET::RMAPreply(p_command);
+        reply->setData3Bytes(0, memoryData);
+      }
+      else if(dataLength == 8)
+      {
+        // read modify write long word
+        uint32_t memoryData = m_buffer.getUnsigned(memoryPos, 4);
+        uint32_t packetData = p_command.getDataLongWord(0);
+        uint32_t packetMask = p_command.getDataLongWord(4);
+        uint32_t writeData = (packetData & packetMask) | 
+                            (memoryData & ~packetMask);
+        m_buffer.setUnsigned(memoryPos, 4, writeData);
+        reply = new SPW::PACKET::RMAPreply(p_command);
+        reply->setDataLongWord(0, memoryData);
+      }
+      else
+      {
+        throw UTIL::Exception("Invalid data length for read-modify-write");
+      }
+      reply->setStatus(SPW::PACKET::RMAPpacket::CMD_OK);
+      reply->setDataCRC();
+    }
     break;
   case SPW::PACKET::RMAPpacket::CMD_WRITE_SINGLE_ADDR:
   case SPW::PACKET::RMAPpacket::CMD_WRITE_INCR_ADDR:
   case SPW::PACKET::RMAPpacket::CMD_WRITE_SINGLE_ADDR_VERIF:
   case SPW::PACKET::RMAPpacket::CMD_WRITE_INCR_ADDR_VERIF:
     {
-      // incrementation is ignored, skip CRC, don't reply 
-      if(dataLength < 2)
-      {
-        throw UTIL::Exception("Missing data for write operation");
-      }
-      m_buffer.setBytes(memoryPos, dataLength - 1, p_command.getData());
+      // incrementation is ignored, don't reply
+      m_buffer.setBytes(memoryPos, dataLength, p_command.getData());
     }
     break;
   case SPW::PACKET::RMAPpacket::CMD_WRITE_SINGLE_ADDR_RPLY:
@@ -109,13 +162,9 @@ SPW::PACKET::RMAPreply* SPW::RMAP::Memory::execute(
   case SPW::PACKET::RMAPpacket::CMD_WRITE_SINGLE_ADDR_VERIF_RPLY:
   case SPW::PACKET::RMAPpacket::CMD_WRITE_INCR_ADDR_VERIF_RPLY:
     {
-      // incrementation is ignored, skip CRC, reply status
-      if(dataLength < 2)
-      {
-        throw UTIL::Exception("Missing data for write operation");
-      }
-      m_buffer.setBytes(memoryPos, dataLength - 1, p_command.getData());
-      reply = new SPW::PACKET::RMAPreply(p_command, 0);    
+      // incrementation is ignored, reply status
+      m_buffer.setBytes(memoryPos, dataLength, p_command.getData());
+      reply = new SPW::PACKET::RMAPreply(p_command);    
       reply->setStatus(SPW::PACKET::RMAPpacket::CMD_OK);
     }
     break;
