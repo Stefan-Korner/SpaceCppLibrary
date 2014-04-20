@@ -13,8 +13,8 @@
 //*****************************************************************************
 // PUS Services - Packet Module                                               *
 //*****************************************************************************
-#ifndef PUS_DU_hpp
-#define PUS_DU_hpp
+#ifndef PUS_PACKET_hpp
+#define PUS_PACKET_hpp
 
 #include "CCSDS_PACKET.hpp"
 

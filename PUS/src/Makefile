@@ -28,15 +28,19 @@ clean:
 	\rm -f ../lib/libPUS.so ../lib/libPUS.a *.o
 
 ../lib/libPUS.so: \
-	PUS_PACKET.o
+	PUS_PACKET.o \
+	PUS_SERVICES.o
 	${LIB_DYNAMIC} -olibPUS.so \
-	PUS_PACKET.o
+	PUS_PACKET.o \
+	PUS_SERVICES.o
 	mv libPUS.so ../lib
 
 ../lib/libPUS.a: \
-	PUS_PACKET.o
+	PUS_PACKET.o \
+	PUS_SERVICES.o
 	${LIB_STATIC} libPUS.a \
-	PUS_PACKET.o
+	PUS_PACKET.o \
+	PUS_SERVICES.o
 	mv libPUS.a ../lib
 
 PUS_PACKET.o: PUS_PACKET.cpp \
@@ -45,3 +49,11 @@ PUS_PACKET.o: PUS_PACKET.cpp \
 	${LIB_UTIL}
 	${CPP} -oPUS_PACKET.o ${INCLUDES} \
 	PUS_PACKET.cpp
+
+PUS_SERVICES.o: PUS_SERVICES.cpp \
+	PUS_SERVICES.hpp \
+	PUS_PACKET.hpp \
+	${LIB_CCSDS} \
+	${LIB_UTIL}
+	${CPP} -oPUS_SERVICES.o ${INCLUDES} \
+	PUS_SERVICES.cpp

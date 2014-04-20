@@ -13,8 +13,8 @@
 //*****************************************************************************
 // CCSDS Stack - CCSDS Packet Module                                          *
 //*****************************************************************************
-#ifndef CCSDS_DU_hpp
-#define CCSDS_DU_hpp
+#ifndef CCSDS_PACKET_hpp
+#define CCSDS_PACKET_hpp
 
 #include "UTIL_DU.hpp"
 
