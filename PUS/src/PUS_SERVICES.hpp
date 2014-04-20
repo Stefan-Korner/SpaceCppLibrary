@@ -25,6 +25,23 @@ namespace PUS
 {
   namespace SERVICES
   {
+    // constants
+    static const size_t DEFAULT_TIME_BYTE_POS = 9;
+    static const uint32_t DEFAULT_TIME_FORMAT = CCSDS::CUC::L2_TIME_4_3;
+
+    namespace S1
+    {
+      static const size_t DEFAULT_TC_HEADER_BYTE_POS = 16;
+      static const size_t DEFAULT_TM_1_1_BYTE_SIZE = 22;
+      static const size_t DEFAULT_TM_1_2_BYTE_SIZE = 24;
+      static const size_t DEFAULT_TM_1_3_BYTE_SIZE = 22;
+      static const size_t DEFAULT_TM_1_4_BYTE_SIZE = 24;
+      static const size_t DEFAULT_TM_1_5_BYTE_SIZE = 24;
+      static const size_t DEFAULT_TM_1_6_BYTE_SIZE = 26;
+      static const size_t DEFAULT_TM_1_7_BYTE_SIZE = 22;
+      static const size_t DEFAULT_TM_1_8_BYTE_SIZE = 24;
+    }
+
     //-------------------------------------------------------------------------
     class Service1
     //-------------------------------------------------------------------------
@@ -38,19 +55,28 @@ namespace PUS
       // the service is a singleton
       static Service1* instance();
 
-      // create TM response to TC
+      // creates TM response to TC, the caller is responsible for
+      // - initialization of source sequence counter, packet time and CRC
+      // - deletion of the TM packet
       PUS::PACKET::TMpacket* respond(const PUS::PACKET::TCpacket& p_tcPkt,
-                                     uint8_t p_subType);
+                                     uint8_t p_subType) throw(UTIL::Exception);
+
+      // change setup values
+      virtual void setTcHeaderPos(size_t p_tcHeaderPos);
+      virtual void setTM_1_1_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_2_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_3_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_4_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_5_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_6_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_7_ByteSize(size_t p_byteSize);
+      virtual void setTM_1_8_ByteSize(size_t p_byteSize);
 
     protected:
-      // APID is key
-      std::map<uint32_t, uint16_t> m_sequCtrlCounters;
-      // position of the time field in the TM response
-      size_t m_timePos;
-      // type of the time field in the TM response
-      CCSDS::CUC::TimeCode m_timeCode;
       // position of the TC header in the TM response
       size_t m_tcHeaderPos;
+      // TM packet sizes depending on the service sub type (1...8)
+      size_t m_tmPacketSizes[9];
 
     private:
       Service1(const Service1& p_service);
