@@ -13,14 +13,39 @@
 #******************************************************************************
 # Makefile                                                                    *
 #******************************************************************************
+include ../../Makefile.include
 
-all:
-	cd src; make
-	cd test; make
+# keep the linking order of the libraries
+LIBS = -L../lib -lPUS \
+       -L../../CCSDS/lib -lCCSDS \
+       -L../../UTIL/lib -lUTIL \
+       -lpthread
+LIB_PUS = ../lib/libPUS.a
+LIB_CCSDS = ../../CCSDS/lib/libCCSDS.a
+LIB_UTIL = ../../UTIL/lib/libUTIL.a
+INCLUDES = -I. \
+           -I../src \
+           -I../../CCSDS/src \
+           -I../../UTIL/src
+
+all:	../bin/test_PUS_SERVICE1
 
 clean:
-	cd src; make clean
-	cd test; make clean
+	\rm -f ../bin/test_PUS_SERVICE1
+	\rm -f *.o
 
-tst_PUS_SERVICE1:
-	cd test; make tst_PUS_SERVICE1
+tst_PUS_SERVICE1: ../bin/test_PUS_SERVICE1
+	cd ../bin; ./test_PUS_SERVICE1
+
+../bin/test_PUS_SERVICE1: test_PUS_SERVICE1.o
+	${LINK} -otest_PUS_SERVICE1 \
+	test_PUS_SERVICE1.o \
+	${LIBS}
+	mv test_PUS_SERVICE1 ../bin
+
+test_PUS_SERVICE1.o: test_PUS_SERVICE1.cpp \
+	${LIB_PUS} \
+	${LIB_CCSDS} \
+	${LIB_UTIL}
+	${CPP} -otest_PUS_SERVICE1.o ${INCLUDES} \
+	test_PUS_SERVICE1.cpp

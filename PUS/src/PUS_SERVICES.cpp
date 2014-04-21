@@ -71,10 +71,12 @@ PUS::SERVICES::Service1::respond(const PUS::PACKET::TCpacket& p_tcPkt,
     throw UTIL::Exception("Service sub type has invalid value");
   }
   uint32_t tcPacketID = p_tcPkt.getUnsigned(0, 2);
+  uint32_t tcPacketAPID = p_tcPkt.applicationProcessId();
   uint32_t tcPacketSCC = p_tcPkt.sequenceControlCount();
   size_t tmPacketSize = m_tmPacketSizes[p_subType];
   auto_ptr<PUS::PACKET::TMpacket>
     tmPacket(new PUS::PACKET::TMpacket(tmPacketSize));
+  tmPacket->applicationProcessId(tcPacketAPID);
   tmPacket->serviceType(1);
   tmPacket->serviceSubType(p_subType);
   tmPacket->setUnsigned(m_tcHeaderPos, 2, tcPacketID);
