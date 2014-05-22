@@ -44,6 +44,11 @@ namespace UTIL
       size_t bytePos;
       size_t byteLength;
     };
+    struct BigUnsignedAccessor
+    {
+      size_t bytePos;
+      size_t byteLength;
+    };
     struct StringAccessor
     {
       size_t bytePos;
@@ -117,6 +122,16 @@ namespace UTIL
                              uint32_t p_value) throw(UTIL::Exception);
     uint32_t get(UnsignedAccessor p_acc) const throw(UTIL::Exception);
     void set(UnsignedAccessor p_acc, uint32_t p_value) throw(UTIL::Exception);
+
+    // big unsigned integer access
+    virtual uint64_t getBigUnsigned(size_t p_bytePos,
+                                    size_t p_byteLength)
+      const throw(UTIL::Exception);
+    virtual void setBigUnsigned(size_t p_bytePos,
+                                size_t p_byteLength,
+                                uint64_t p_value) throw(UTIL::Exception);
+    uint64_t get(BigUnsignedAccessor p_acc) const throw(UTIL::Exception);
+    void set(BigUnsignedAccessor p_acc, uint64_t p_value) throw(UTIL::Exception);
 
     // fixed size string access
     // smaller sized strings may be passed with setString() and set(),

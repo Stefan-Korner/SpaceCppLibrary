@@ -677,7 +677,7 @@ uint32_t UTIL::DU::getUnsigned(size_t p_bytePos,
 //-----------------------------------------------------------------------------
 {
   // consistency checks
-  if(p_byteLength == 0)
+  if((p_byteLength == 0) || (p_byteLength > 4))
   {
     throw UTIL::Exception("invalid byteLength");
   }
@@ -698,7 +698,7 @@ uint32_t UTIL::DU::getUnsigned(size_t p_bytePos,
 }
 
 //-----------------------------------------------------------------------------
-// set a numerical value byte aligned
+// set a numerical unsigned value byte aligned
 void UTIL::DU::setUnsigned(size_t p_bytePos,
                            size_t p_byteLength,
                            uint32_t p_value) throw(UTIL::Exception)
@@ -709,7 +709,7 @@ void UTIL::DU::setUnsigned(size_t p_bytePos,
   {
     throw UTIL::Exception("DU is configured for Read Only");
   }
-  if(p_byteLength == 0)
+  if((p_byteLength == 0) || (p_byteLength > 4))
   {
     throw UTIL::Exception("invalid byteLength");
   }
@@ -753,6 +753,96 @@ void UTIL::DU::set(UnsignedAccessor p_acc, uint32_t p_value)
 //-----------------------------------------------------------------------------
 {
   setUnsigned(p_acc.bytePos, p_acc.byteLength, p_value);
+}
+
+//-----------------------------------------------------------------------------
+// extracts a numerical big unsigned value byte aligned
+uint64_t UTIL::DU::getBigUnsigned(size_t p_bytePos,
+                                  size_t p_byteLength) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // consistency checks
+  if((p_byteLength == 0) || (p_byteLength > 8))
+  {
+    throw UTIL::Exception("invalid byteLength");
+  }
+  size_t lastBytePos = p_bytePos + p_byteLength - 1;
+  if(lastBytePos >= bufferSize())
+  {
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
+  }
+  // accumulate the number starting with the first byte
+  uint64_t value = 0;
+  while(p_bytePos <= lastBytePos)
+  {
+    uint8_t byte = buffer()[p_bytePos];
+    value = (value << 8) + byte;
+    p_bytePos++;
+  }
+  return value;
+}
+
+//-----------------------------------------------------------------------------
+// set a numerical big unsigned value byte aligned
+void UTIL::DU::setBigUnsigned(size_t p_bytePos,
+                              size_t p_byteLength,
+                              uint64_t p_value) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // consistency checks
+  if(m_buffer == NULL)
+  {
+    throw UTIL::Exception("DU is configured for Read Only");
+  }
+  if((p_byteLength == 0) || (p_byteLength > 8))
+  {
+    throw UTIL::Exception("invalid byteLength");
+  }
+  if(((p_byteLength == 1) && (p_value > 255)) || 
+     ((p_byteLength == 2) && (p_value > 65535)) || 
+     ((p_byteLength == 3) && (p_value > 16777215)) ||
+     ((p_byteLength == 4) && (p_value > 4294967295)) ||
+     ((p_byteLength == 5) && (p_value > 1099511627775)) ||
+     ((p_byteLength == 6) && (p_value > 281474976710655)) ||
+     ((p_byteLength == 7) && (p_value > 72057594037927935)))
+  {
+    throw UTIL::Exception("value out of range");
+  }
+  if((p_bytePos + p_byteLength) > bufferSize())
+  {
+    throw UTIL::Exception("bytePos/byteLength out of buffer");
+  }
+  // decompose the value and add it to the buffer
+  // starting at bytePos, which is at the last byte
+  size_t firstBytePos = p_bytePos;
+  p_bytePos = firstBytePos + p_byteLength - 1;
+  while(p_bytePos >= firstBytePos)
+  {
+    uint8_t byte = (uint8_t) p_value & 0xFF;
+    m_buffer[p_bytePos] = byte;
+    p_value >>= 8;
+    if(p_bytePos == 0)
+    {
+      break;
+    }
+    p_bytePos--;
+  }
+}
+
+//-----------------------------------------------------------------------------
+uint64_t UTIL::DU::get(BigUnsignedAccessor p_acc) const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getBigUnsigned(p_acc.bytePos, p_acc.byteLength);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::set(BigUnsignedAccessor p_acc, uint64_t p_value)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setBigUnsigned(p_acc.bytePos, p_acc.byteLength, p_value);
 }
 
 //-----------------------------------------------------------------------------

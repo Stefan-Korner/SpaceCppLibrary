@@ -25,12 +25,23 @@ static const UTIL::DU::UnsignedAccessor UINT_ACC2 = {0, 2};
 static const UTIL::DU::UnsignedAccessor UINT_ACC3 = {0, 3};
 static const UTIL::DU::UnsignedAccessor UINT_ACC4 = {0, 4};
 
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC1 = {0, 1};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC2 = {0, 2};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC3 = {0, 3};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC4 = {0, 4};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC5 = {0, 5};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC6 = {0, 6};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC7 = {0, 7};
+static const UTIL::DU::BigUnsignedAccessor BUINT_ACC8 = {0, 8};
+
 static const UTIL::DU::BitAccessor BIT_ACC1 = { 4,  1};
 static const UTIL::DU::BitAccessor BIT_ACC2 = { 5,  3};
 static const UTIL::DU::BitAccessor BIT_ACC3 = {12,  8};
 static const UTIL::DU::BitAccessor BIT_ACC4 = {20, 16};
 
 static const UTIL::DU::ByteAccessor BYTE_ACC1 = {5, 4};
+
+static const UTIL::DU::StringAccessor STRING_ACC1 = {0, 8};
 
 //-----------------------------------------------------------------------------
 int main()
@@ -39,6 +50,7 @@ int main()
   try
   {
     uint32_t val;
+    uint64_t bval;
     const uint8_t* bytes;
     const char* txt1 = "0123456789 hihihi huhuhu";
     UTIL::DU du1(txt1, strlen(txt1), true);
@@ -71,6 +83,53 @@ int main()
     du1.set(UINT_ACC4, 67305985);
     du1.dump("du1", true);
     // du1 = 04 03 02 01 ...
+
+    bval = du1.get(BUINT_ACC1);
+    // 4
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC2);
+    // 1027
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC3);
+    // 262914
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC4);
+    // 67305985
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC5);
+    // 17230332212
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC6);
+    // 4410965046325
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC7);
+    // 1129207051859254
+    cout << "bval = " << bval << endl;
+    bval = du1.get(BUINT_ACC8);
+    // 289077005275969079
+    cout << "bval = " << bval << endl;
+
+    du1.set(BUINT_ACC1, 1);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC2, 513);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC3, 197121);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC4, 67305985);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC5, 21542142465);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC6, 6618611909121);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC7, 1976943448883713);
+    du1.dump("du1", true);
+    du1.set(BUINT_ACC8, 578437695752307201);
+    du1.dump("du1", true);
+    // du1 = 08 07 06 05 04 03 02 01 ...
+
+    du1.set(STRING_ACC1, "\x04\x03\x02\x01" "4567");
+    du1.dump("du1", true);
+    // du1 = 04 03 02 01 34 35 36 37 ...
 
     val = du1.get(BIT_ACC1);
     // 0
