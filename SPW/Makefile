@@ -22,5 +22,8 @@ clean:
 	cd src; make clean
 	cd test; make clean
 
+tst_SPW_CCSDS_PACKET:
+	cd test; make tst_SPW_CCSDS_PACKET
+
 tst_SPW_RMAP_MEMORY:
 	cd test; make tst_SPW_RMAP_MEMORY

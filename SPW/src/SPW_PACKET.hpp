@@ -14,7 +14,7 @@
 // SpaceWire - SpaceWire Packet Module                                        *
 //*****************************************************************************
 #ifndef SPW_PACKET_hpp
-#define SPW_PACKET_hppp_ccsdsPacketSize
+#define SPW_PACKET_hpp
 
 #include "UTIL_DU.hpp"
 

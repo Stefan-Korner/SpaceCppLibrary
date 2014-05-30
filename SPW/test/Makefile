@@ -25,20 +25,37 @@ INCLUDES = -I. \
            -I../src \
            -I../../UTIL/src
 
-all:	../bin/test_SPW_RMAP_MEMORY
+all:	../bin/test_SPW_CCSDS_PACKET \
+	../bin/test_SPW_RMAP_MEMORY \
 
 clean:
+	\rm -f ../bin/test_SPW_CCSDS_PACKET
 	\rm -f ../bin/test_SPW_RMAP_MEMORY
 	\rm -f *.o
 
+tst_SPW_CCSDS_PACKET: ../bin/test_SPW_CCSDS_PACKET
+	cd ../bin; ./test_SPW_CCSDS_PACKET
+
 tst_SPW_RMAP_MEMORY: ../bin/test_SPW_RMAP_MEMORY
 	cd ../bin; ./test_SPW_RMAP_MEMORY
+
+../bin/test_SPW_CCSDS_PACKET: test_SPW_CCSDS_PACKET.o
+	${LINK} -otest_SPW_CCSDS_PACKET \
+	test_SPW_CCSDS_PACKET.o \
+	${LIBS}
+	mv test_SPW_CCSDS_PACKET ../bin
 
 ../bin/test_SPW_RMAP_MEMORY: test_SPW_RMAP_MEMORY.o
 	${LINK} -otest_SPW_RMAP_MEMORY \
 	test_SPW_RMAP_MEMORY.o \
 	${LIBS}
 	mv test_SPW_RMAP_MEMORY ../bin
+
+test_SPW_CCSDS_PACKET.o: test_SPW_CCSDS_PACKET.cpp \
+	${LIB_SPW} \
+	${LIB_UTIL}
+	${CPP} -otest_SPW_CCSDS_PACKET.o ${INCLUDES} \
+	test_SPW_CCSDS_PACKET.cpp
 
 test_SPW_RMAP_MEMORY.o: test_SPW_RMAP_MEMORY.cpp \
 	${LIB_SPW} \
