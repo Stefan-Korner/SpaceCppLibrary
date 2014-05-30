@@ -14,7 +14,7 @@
 // SpaceWire - SpaceWire Packet Module                                        *
 //*****************************************************************************
 #ifndef SPW_PACKET_hpp
-#define SPW_PACKET_hpp
+#define SPW_PACKET_hppp_ccsdsPacketSize
 
 #include "UTIL_DU.hpp"
 
@@ -286,6 +286,50 @@ namespace SPW
       virtual uint8_t getStatus() const throw(UTIL::Exception);
       virtual void setTargetLogAddr(uint8_t p_logAddr) throw(UTIL::Exception);
       virtual uint8_t getTargetLogAddr() const throw(UTIL::Exception);
+    };
+
+    //-------------------------------------------------------------------------
+    class CCSDSpacket: public Packet
+    //-------------------------------------------------------------------------
+    {
+    public:
+      // constructors and destructur
+      CCSDSpacket();
+      // structure of a CCSDS packet:
+      // - target SPW address: * bytes (p_spwAddrSize)
+      // - header field: 4 bytes, includes
+      //   - target logical address: 1 byte
+      //   - protocol ID: 1 byte, SPW::PACKET::PROTOCOL_ID::CCSDS
+      //   - reserved: 1 byte (0x00)
+      //   - user application: 1 byte, mission specific
+      // - CCSDS packet: 7...65542 bytes (p_ccsdsPacketSize), opaque
+      // (EOP) not part of the buffer, added on the transport layer
+      CCSDSpacket(size_t p_spwAddrSize, size_t p_ccsdsPacketSize);
+      CCSDSpacket(void* p_buffer, size_t p_bufferSize, size_t p_spwAddrSize);
+      CCSDSpacket(const void* p_buffer,
+                  size_t p_bufferSize,
+                  bool p_copyBuffer,
+                  size_t p_spwAddrSize);
+      CCSDSpacket(const CCSDSpacket& p_du);
+      const CCSDSpacket& operator=(const CCSDSpacket& p_du);
+      virtual ~CCSDSpacket();
+
+      // header access methods
+      virtual size_t getHeaderSize() const throw(UTIL::Exception);
+      virtual const uint8_t* getHeader() const throw(UTIL::Exception);
+      virtual void setUserAppByte(uint8_t p_byte) throw(UTIL::Exception);
+      virtual uint8_t getUserAppByte() const throw(UTIL::Exception);
+
+      // CCSDS packet access methods
+      virtual size_t getCCSDSpacketSize() const throw(UTIL::Exception);
+      virtual void setCCSDSpacket(size_t p_ccsdsPacketSize,
+                                  const void* p_ccsdsPacket)
+        throw(UTIL::Exception);
+      virtual const uint8_t* getCCSDSpacket() const throw(UTIL::Exception);
+      virtual void setCCSDSpacketByte(size_t p_bytePos, uint8_t p_byte)
+        throw(UTIL::Exception);
+      virtual uint8_t getCCSDSpacketByte(size_t p_bytePos) const
+        throw(UTIL::Exception);
     };
   }
 }

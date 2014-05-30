@@ -559,9 +559,14 @@ size_t SPW::PACKET::RMAPpacket::getDataSize() const throw(UTIL::Exception)
 
 //-----------------------------------------------------------------------------
 void SPW::PACKET::RMAPpacket::setData(size_t p_byteLength, const void* p_bytes)
-        throw(UTIL::Exception)
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // this checks also the consistency of the buffer
   // and throws an exception if there are no data
   if(p_byteLength > getDataLength())
@@ -576,11 +581,6 @@ void SPW::PACKET::RMAPpacket::setData(size_t p_byteLength, const void* p_bytes)
 const uint8_t* SPW::PACKET::RMAPpacket::getData() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  // check if there is a writable buffer with proper size
-  if(bufferIsReadonly())
-  {
-    throw UTIL::Exception("RMAP packet is configured for Read Only");
-  }
   // this checks also the consistency of the buffer
   // and throws an exception if there are no data
   size_t dataPos = getSPWaddrSize() + getHeaderSize();
@@ -593,6 +593,11 @@ void SPW::PACKET::RMAPpacket::setDataByte(size_t p_bytePos, uint8_t p_byte)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the data
@@ -617,6 +622,11 @@ void SPW::PACKET::RMAPpacket::setDataWord(size_t p_bytePos, uint16_t p_word)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the data
@@ -642,6 +652,11 @@ void SPW::PACKET::RMAPpacket::setData3Bytes(size_t p_bytePos,
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the data
@@ -667,6 +682,11 @@ void SPW::PACKET::RMAPpacket::setDataLongWord(size_t p_bytePos,
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP packet is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the data
@@ -1059,6 +1079,11 @@ void SPW::PACKET::RMAPcommand::setReplyAddr(size_t p_byteLength,
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP command is configured for Read Only");
+  }
   // force a check of the header size
   getHeaderSize();
   // force a check of the reply address existence
@@ -1091,6 +1116,11 @@ void SPW::PACKET::RMAPcommand::setInitLogAddr(uint8_t p_logAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP command is configured for Read Only");
+  }
   setSenderLogAddr(p_logAddr);
 }
 
@@ -1106,6 +1136,11 @@ void SPW::PACKET::RMAPcommand::setExtendedMemAddr(uint8_t p_extMemAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP command is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the extended memory address
@@ -1130,6 +1165,11 @@ void SPW::PACKET::RMAPcommand::setMemoryAddr(uint32_t p_memAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP command is configured for Read Only");
+  }
   // force a check of the header size
   size_t headerSize = getHeaderSize();
   // copy the memory address
@@ -1225,6 +1265,11 @@ SPW::PACKET::RMAPreply::~RMAPreply()
 void SPW::PACKET::RMAPreply::setStatus(uint8_t p_status) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP reply is configured for Read Only");
+  }
   setSpecialByte(p_status);
 }
 
@@ -1240,6 +1285,11 @@ void SPW::PACKET::RMAPreply::setTargetLogAddr(uint8_t p_logAddr)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("RMAP reply is configured for Read Only");
+  }
   setSenderLogAddr(p_logAddr);
 }
 
@@ -1248,5 +1298,189 @@ uint8_t SPW::PACKET::RMAPreply::getTargetLogAddr() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return getSenderLogAddr();
+}
+
+////////////////
+// CCSDSpacket //
+////////////////
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::CCSDSpacket::CCSDSpacket()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::CCSDSpacket::CCSDSpacket(size_t p_spwAddrSize,
+                                      size_t p_ccsdsPacketSize):
+  SPW::PACKET::Packet::Packet(p_spwAddrSize,
+                              getHeaderSize() + p_ccsdsPacketSize) 
+//-----------------------------------------------------------------------------
+{
+  // set protocol ID
+  (*this)[p_spwAddrSize + 1] = SPW::PACKET::PROTOCOL_ID::CCSDS;
+}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::CCSDSpacket::CCSDSpacket(void* p_buffer,
+                                      size_t p_bufferSize,
+                                      size_t p_spwAddrSize):
+  SPW::PACKET::Packet::Packet(p_buffer, p_bufferSize, p_spwAddrSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::CCSDSpacket::CCSDSpacket(const void* p_buffer,
+                                      size_t p_bufferSize,
+                                      bool p_copyBuffer,
+                                      size_t p_spwAddrSize):
+  SPW::PACKET::Packet::Packet(
+    p_buffer, p_bufferSize, p_copyBuffer, p_spwAddrSize)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::CCSDSpacket::CCSDSpacket(const SPW::PACKET::CCSDSpacket& p_du):
+  SPW::PACKET::Packet::Packet(p_du)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+const SPW::PACKET::CCSDSpacket&
+SPW::PACKET::CCSDSpacket::operator=(const SPW::PACKET::CCSDSpacket& p_du)
+//-----------------------------------------------------------------------------
+{
+  SPW::PACKET::Packet::operator=(p_du);
+  return *this;
+}
+
+//-----------------------------------------------------------------------------
+SPW::PACKET::CCSDSpacket::~CCSDSpacket()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+size_t SPW::PACKET::CCSDSpacket::getHeaderSize() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  size_t spwDataSize = getSPWdataSize();
+  if(spwDataSize < (4 + 7))
+  {
+    throw UTIL::Exception("CCSDS packet does not fit into SPW packet buffer");
+  }
+  return 4;
+}
+
+//-----------------------------------------------------------------------------
+const uint8_t* SPW::PACKET::CCSDSpacket::getHeader() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  getHeaderSize();
+  // fetch the header (starts at the beginning of the SPW data field)
+  return getSPWdata();
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::CCSDSpacket::setUserAppByte(uint8_t p_byte)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("CCSDS packet is configured for Read Only");
+  }
+  // force a check of the header size
+  getHeaderSize();
+  // copy the user application byte
+  (*this)[getSPWaddrSize() + 3] = p_byte;  
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::CCSDSpacket::getUserAppByte() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  getHeaderSize();
+  // fetch the user application byte
+  return (*this)[getSPWaddrSize() + 3];
+}
+
+//-----------------------------------------------------------------------------
+size_t SPW::PACKET::CCSDSpacket::getCCSDSpacketSize() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  size_t bufSize = bufferSize();
+  size_t ccsdsPacketPos = getSPWaddrSize() + getHeaderSize();
+  if(ccsdsPacketPos > bufSize)
+  {
+    throw UTIL::Exception("Inconsistend CCSDS packet field size");
+  }
+  return (bufSize - ccsdsPacketPos);
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::CCSDSpacket::setCCSDSpacket(size_t p_ccsdsPacketSize,
+                                              const void* p_ccsdsPacket)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("CCSDS packet is configured for Read Only");
+  }
+  // this checks also the consistency of the buffer
+  // and throws an exception if there are no data
+  if(p_ccsdsPacketSize > getCCSDSpacketSize())
+  {
+    throw UTIL::Exception("Data do not fit into CCSDS packet field");
+  }
+  size_t ccsdsPacketPos = getSPWaddrSize() + getHeaderSize();
+  setBytes(ccsdsPacketPos, p_ccsdsPacketSize, p_ccsdsPacket);
+}
+
+//-----------------------------------------------------------------------------
+const uint8_t* SPW::PACKET::CCSDSpacket::getCCSDSpacket() const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // this checks also the consistency of the buffer
+  // and throws an exception if there are no data
+  size_t ccsdsPacketPos = getSPWaddrSize() + getHeaderSize();
+  size_t ccsdsPacketSize = getCCSDSpacketSize();
+  return getBytes(ccsdsPacketPos, ccsdsPacketSize);
+}
+
+//-----------------------------------------------------------------------------
+void SPW::PACKET::CCSDSpacket::setCCSDSpacketByte(size_t p_bytePos,
+                                                  uint8_t p_byte)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // check if there is a writable buffer with proper size
+  if(bufferIsReadonly())
+  {
+    throw UTIL::Exception("CCSDS packet is configured for Read Only");
+  }
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // copy the data
+  size_t ccsdsPacketPos = getSPWaddrSize() + headerSize + p_bytePos;
+  setUnsigned(ccsdsPacketPos, 1, p_byte);
+}
+
+//-----------------------------------------------------------------------------
+uint8_t SPW::PACKET::CCSDSpacket::getCCSDSpacketByte(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // force a check of the header size
+  size_t headerSize = getHeaderSize();
+  // fetch the data
+  size_t ccsdsPacketPos = getSPWaddrSize() + headerSize + p_bytePos;
+  return ((uint8_t) getUnsigned(ccsdsPacketPos, 1));
 }
 
