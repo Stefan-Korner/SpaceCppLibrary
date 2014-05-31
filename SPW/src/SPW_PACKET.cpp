@@ -1300,9 +1300,9 @@ uint8_t SPW::PACKET::RMAPreply::getTargetLogAddr() const throw(UTIL::Exception)
   return getSenderLogAddr();
 }
 
-////////////////
+/////////////////
 // CCSDSpacket //
-////////////////
+/////////////////
 
 //-----------------------------------------------------------------------------
 SPW::PACKET::CCSDSpacket::CCSDSpacket()
@@ -1312,8 +1312,7 @@ SPW::PACKET::CCSDSpacket::CCSDSpacket()
 //-----------------------------------------------------------------------------
 SPW::PACKET::CCSDSpacket::CCSDSpacket(size_t p_spwAddrSize,
                                       size_t p_ccsdsPacketSize):
-  SPW::PACKET::Packet::Packet(p_spwAddrSize,
-                              getHeaderSize() + p_ccsdsPacketSize) 
+  SPW::PACKET::Packet::Packet(p_spwAddrSize, 4 + p_ccsdsPacketSize) 
 //-----------------------------------------------------------------------------
 {
   // set protocol ID
