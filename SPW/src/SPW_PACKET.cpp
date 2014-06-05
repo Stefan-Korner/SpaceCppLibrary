@@ -1145,7 +1145,7 @@ void SPW::PACKET::RMAPcommand::setExtendedMemAddr(uint8_t p_extMemAddr)
   size_t headerSize = getHeaderSize();
   // copy the extended memory address
   size_t extMemAddrPos = getSPWaddrSize() + headerSize - 9;
-  setUnsigned(extMemAddrPos, 4, p_extMemAddr);
+  setUnsigned(extMemAddrPos, 1, p_extMemAddr);
 }
 
 //-----------------------------------------------------------------------------
@@ -1157,7 +1157,7 @@ uint8_t SPW::PACKET::RMAPcommand::getExtendedMemAddr() const
   size_t headerSize = getHeaderSize();
   // fetch the extended memory address
   size_t extMemAddrPos = getSPWaddrSize() + headerSize - 9;
-  return getUnsigned(extMemAddrPos, 4);
+  return getUnsigned(extMemAddrPos, 1);
 }
 
 //-----------------------------------------------------------------------------
