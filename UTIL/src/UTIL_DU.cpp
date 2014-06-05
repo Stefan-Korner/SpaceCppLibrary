@@ -614,9 +614,8 @@ void UTIL::DU::set(BitAccessor p_acc, uint32_t p_value) throw(UTIL::Exception)
 
 //-----------------------------------------------------------------------------
 // extract bytes
-const uint8_t* UTIL::DU::getBytes(size_t p_bytePos,
-                                  size_t p_byteLength)
-  const throw(UTIL::Exception)
+const uint8_t* UTIL::DU::getBytes(size_t p_bytePos, size_t p_byteLength) const
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // consistency checks
@@ -667,6 +666,42 @@ void UTIL::DU::set(ByteAccessor p_acc, const void* p_bytes)
 //-----------------------------------------------------------------------------
 {
   setBytes(p_acc.bytePos, p_acc.byteLength, p_bytes);
+}
+
+//-----------------------------------------------------------------------------
+// extract bytes
+UTIL::DU::VarByteHelper UTIL::DU::getVarBytes(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::getVarBytes must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+// set bytes
+void UTIL::DU::setVarBytes(size_t p_bytePos,
+                           size_t p_byteLength,
+                           const void* p_bytes) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::setVarBytes must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+UTIL::DU::VarByteHelper UTIL::DU::get(VarByteAccessor p_acc) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getVarBytes(p_acc.bytePos);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::set(VarByteAccessor p_acc,
+                   size_t p_byteLength,
+                   const void* p_bytes) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setVarBytes(p_acc.bytePos, p_byteLength, p_bytes);
 }
 
 //-----------------------------------------------------------------------------
@@ -867,7 +902,7 @@ std::string UTIL::DU::getString(size_t p_bytePos,
 }
 
 //-----------------------------------------------------------------------------
-// get a fixed sized string
+// get a fixed size string
 void UTIL::DU::setString(size_t p_bytePos,
                          size_t p_byteLength,
                          const std::string& p_string) throw(UTIL::Exception)
@@ -918,6 +953,39 @@ void UTIL::DU::set(StringAccessor p_acc, const std::string& p_string)
 //-----------------------------------------------------------------------------
 {
   setString(p_acc.bytePos, p_acc.byteLength, p_string);
+}
+
+//-----------------------------------------------------------------------------
+// set a variable size string
+std::string UTIL::DU::getVarString(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::getVarString must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+// get a fixed size string
+void UTIL::DU::setVarString(size_t p_bytePos, const std::string& p_string)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::setVarString must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+std::string UTIL::DU::get(VarStringAccessor p_acc) const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getVarString(p_acc.bytePos);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::set(VarStringAccessor p_acc, const std::string& p_string)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setVarString(p_acc.bytePos, p_string);
 }
 
 //-----------------------------------------------------------------------------

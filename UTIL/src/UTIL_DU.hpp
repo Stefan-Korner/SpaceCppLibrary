@@ -39,6 +39,10 @@ namespace UTIL
       size_t bytePos;
       size_t byteLength;
     };
+    struct VarByteAccessor
+    {
+      size_t bytePos;
+    };
     struct UnsignedAccessor
     {
       size_t bytePos;
@@ -54,10 +58,21 @@ namespace UTIL
       size_t bytePos;
       size_t byteLength;
     };
+    struct VarStringAccessor
+    {
+      size_t bytePos;
+    };
     struct AbsTimeAccessor
     {
       size_t bytePos;
       uint32_t timeCode;
+    };
+
+    // helper for variable byte array access
+    struct VarByteHelper
+    {
+      size_t byteLength;
+      const uint8_t* p_bytes;
     };
 
     // constructors and destructur
@@ -113,6 +128,18 @@ namespace UTIL
     const uint8_t* get(ByteAccessor p_acc) const throw(UTIL::Exception);
     void set(ByteAccessor p_acc, const void* p_bytes) throw(UTIL::Exception);
 
+    // variable byte array access
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual VarByteHelper getVarBytes(size_t p_bytePos) const
+      throw(UTIL::Exception);
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual void setVarBytes(size_t p_bytePos,
+                             size_t p_byteLength,
+                             const void* p_bytes) throw(UTIL::Exception);
+    VarByteHelper get(VarByteAccessor p_acc) const throw(UTIL::Exception);
+    void set(VarByteAccessor p_acc, size_t p_byteLength, const void* p_bytes)
+      throw(UTIL::Exception);
+
     // unsigned integer access
     virtual uint32_t getUnsigned(size_t p_bytePos,
                                  size_t p_byteLength)
@@ -125,13 +152,14 @@ namespace UTIL
 
     // big unsigned integer access
     virtual uint64_t getBigUnsigned(size_t p_bytePos,
-                                    size_t p_byteLength)
-      const throw(UTIL::Exception);
+                                    size_t p_byteLength) const
+      throw(UTIL::Exception);
     virtual void setBigUnsigned(size_t p_bytePos,
                                 size_t p_byteLength,
                                 uint64_t p_value) throw(UTIL::Exception);
     uint64_t get(BigUnsignedAccessor p_acc) const throw(UTIL::Exception);
-    void set(BigUnsignedAccessor p_acc, uint64_t p_value) throw(UTIL::Exception);
+    void set(BigUnsignedAccessor p_acc, uint64_t p_value)
+      throw(UTIL::Exception);
 
     // fixed size string access
     // smaller sized strings may be passed with setString() and set(),
@@ -147,6 +175,17 @@ namespace UTIL
     void set(StringAccessor p_acc, const std::string& p_string)
       throw(UTIL::Exception);
 
+    // variable size string access
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual std::string getVarString(size_t p_bytePos) const
+      throw(UTIL::Exception);
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual void setVarString(size_t p_bytePos, const std::string& p_string)
+      throw(UTIL::Exception);
+    std::string get(VarStringAccessor p_acc) const throw(UTIL::Exception);
+    void set(VarStringAccessor p_acc, const std::string& p_string)
+      throw(UTIL::Exception);
+
     // absolute time access
     // shall be overloaded in derived class (this impl. raises an exception)
     virtual UTIL::AbsTime getAbsTime(size_t p_bytePos,
@@ -158,8 +197,8 @@ namespace UTIL
                             const UTIL::AbsTime& p_time)
       throw(UTIL::Exception);
     UTIL::AbsTime get(AbsTimeAccessor p_acc) const throw(UTIL::Exception);
-    void set(AbsTimeAccessor p_acc,
-             const UTIL::AbsTime& p_time) throw(UTIL::Exception);
+    void set(AbsTimeAccessor p_acc, const UTIL::AbsTime& p_time)
+      throw(UTIL::Exception);
 
   private:
     uint8_t* m_buffer;
