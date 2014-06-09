@@ -25,20 +25,37 @@ INCLUDES = -I. \
            -I../src \
            -I../../UTIL/src
 
-all:	../bin/test_CCSDS_TIME
+all:	../bin/test_CCSDS_PACKET \
+	../bin/test_CCSDS_TIME
 
 clean:
+	\rm -f ../bin/test_CCSDS_PACKET
 	\rm -f ../bin/test_CCSDS_TIME
 	\rm -f *.o
 
+tst_CCSDS_PACKET: ../bin/test_CCSDS_PACKET
+	cd ../bin; ./test_CCSDS_PACKET
+
 tst_CCSDS_TIME: ../bin/test_CCSDS_TIME
 	cd ../bin; ./test_CCSDS_TIME
+
+../bin/test_CCSDS_PACKET: test_CCSDS_PACKET.o
+	${LINK} -otest_CCSDS_PACKET \
+	test_CCSDS_PACKET.o \
+	${LIBS}
+	mv test_CCSDS_PACKET ../bin
 
 ../bin/test_CCSDS_TIME: test_CCSDS_TIME.o
 	${LINK} -otest_CCSDS_TIME \
 	test_CCSDS_TIME.o \
 	${LIBS}
 	mv test_CCSDS_TIME ../bin
+
+test_CCSDS_PACKET.o: test_CCSDS_PACKET.cpp \
+	${LIB_CCSDS} \
+	${LIB_UTIL}
+	${CPP} -otest_CCSDS_PACKET.o ${INCLUDES} \
+	test_CCSDS_PACKET.cpp
 
 test_CCSDS_TIME.o: test_CCSDS_TIME.cpp \
 	${LIB_CCSDS} \

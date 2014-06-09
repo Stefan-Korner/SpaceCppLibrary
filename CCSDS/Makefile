@@ -22,5 +22,8 @@ clean:
 	cd src; make clean
 	cd test; make clean
 
+tst_CCSDS_PACKET:
+	cd test; make tst_CCSDS_PACKET
+
 tst_CCSDS_TIME:
 	cd test; make tst_CCSDS_TIME
