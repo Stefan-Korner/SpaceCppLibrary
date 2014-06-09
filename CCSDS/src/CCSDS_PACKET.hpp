@@ -34,6 +34,7 @@ namespace CCSDS
     static const uint32_t SEGMENTATION_NONE = 3;
     static const size_t CRC_BYTE_SIZE = 2;
     static const size_t PRIMARY_HEADER_BYTE_SIZE = 6;
+    static const size_t N_BYTE_SIZE = 4;
     namespace PRIMARY_HEADER
     {
       static const UTIL::DU::BitAccessor VERSION_NUMBER =         { 0,  3};
@@ -78,6 +79,19 @@ namespace CCSDS
       virtual uint32_t sequenceControlCount() const throw(UTIL::Exception);
       virtual void packetLength(uint32_t p_val) throw(UTIL::Exception);
       virtual uint32_t packetLength() const throw(UTIL::Exception);
+
+      // variable byte array access: overloaded from UTIL::DU
+      virtual UTIL::DU::VarByteHelper getVarBytes(size_t p_bytePos) const
+        throw(UTIL::Exception);
+      virtual void setVarBytes(size_t p_bytePos,
+                               size_t p_byteLength,
+                               const void* p_bytes) throw(UTIL::Exception);
+
+      // variable size string access: overloaded from UTIL::DU
+      virtual std::string getVarString(size_t p_bytePos) const
+        throw(UTIL::Exception);
+      virtual void setVarString(size_t p_bytePos, const std::string& p_string)
+        throw(UTIL::Exception);
 
       // absolute time access: overloaded from UTIL::DU
       virtual UTIL::AbsTime getAbsTime(size_t p_bytePos,

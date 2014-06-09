@@ -190,9 +190,58 @@ uint32_t CCSDS::PACKET::Packet::packetLength() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+UTIL::DU::VarByteHelper
+CCSDS::PACKET::Packet::getVarBytes(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  uint32_t n = getUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE);
+  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  UTIL::DU::VarByteHelper retVal;
+  retVal.byteLength = n;
+  retVal.bytes = getBytes(p_bytePos, n);
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+void CCSDS::PACKET::Packet::setVarBytes(size_t p_bytePos,
+                                        size_t p_byteLength,
+                                        const void* p_bytes)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  uint32_t n = (uint32_t) p_byteLength;
+  setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
+  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  setBytes(p_bytePos, p_byteLength, p_bytes);
+}
+
+//-----------------------------------------------------------------------------
+std::string CCSDS::PACKET::Packet::getVarString(size_t p_bytePos) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  uint32_t n = getUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE);
+  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  return getString(p_bytePos, n);
+}
+
+//-----------------------------------------------------------------------------
+void CCSDS::PACKET::Packet::setVarString(size_t p_bytePos,
+                                         const std::string& p_string)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  uint32_t n = (uint32_t) p_string.size();
+  setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
+  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  setString(p_bytePos, n, p_string);
+}
+
+//-----------------------------------------------------------------------------
 UTIL::AbsTime CCSDS::PACKET::Packet::getAbsTime(size_t p_bytePos,
-                                                uint32_t p_timeCode)
-   const throw(UTIL::Exception)
+                                                uint32_t p_timeCode) const
+  throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // check if there are sufficient data bytes via getBytes()

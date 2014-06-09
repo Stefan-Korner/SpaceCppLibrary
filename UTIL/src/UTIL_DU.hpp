@@ -72,7 +72,7 @@ namespace UTIL
     struct VarByteHelper
     {
       size_t byteLength;
-      const uint8_t* p_bytes;
+      const uint8_t* bytes;
     };
 
     // constructors and destructur
