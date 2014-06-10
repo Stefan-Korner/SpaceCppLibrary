@@ -214,6 +214,9 @@ void CCSDS::PACKET::Packet::setVarBytes(size_t p_bytePos,
   setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
   p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
   setBytes(p_bytePos, p_byteLength, p_bytes);
+  // resize the DU
+  size_t expectedDUsize = p_bytePos + n + CRC_BYTE_SIZE;
+  resize(expectedDUsize);
 }
 
 //-----------------------------------------------------------------------------
@@ -236,6 +239,9 @@ void CCSDS::PACKET::Packet::setVarString(size_t p_bytePos,
   setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
   p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
   setString(p_bytePos, n, p_string);
+  // resize the DU
+  size_t expectedDUsize = p_bytePos + n + CRC_BYTE_SIZE;
+  resize(expectedDUsize);
 }
 
 //-----------------------------------------------------------------------------
@@ -370,6 +376,33 @@ void CCSDS::PACKET::Packet::setAbsTime(size_t p_bytePos,
 }
 
 //-----------------------------------------------------------------------------
+size_t CCSDS::PACKET::Packet::getGroupRepeater(size_t p_repBytePos,
+                                               size_t p_repByteLength,
+                                               size_t) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return ((size_t) getBigUnsigned(p_repBytePos, p_repByteLength));
+}
+
+//-----------------------------------------------------------------------------
+void CCSDS::PACKET::Packet::setGroupRepeater(size_t p_repBytePos,
+                                             size_t p_repByteLength,
+                                             size_t p_grpByteLength,
+                                             size_t p_repValue)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setBigUnsigned(p_repBytePos, p_repByteLength, p_repValue);
+  // resize the DU
+  size_t expectedDUsize = p_repBytePos +
+                          p_repByteLength +
+                          (p_grpByteLength * p_repValue) +
+                          CRC_BYTE_SIZE;
+  resize(expectedDUsize);
+}
+
+//-----------------------------------------------------------------------------
 // sets the packetLength according to the data unit's buffer size
 void CCSDS::PACKET::Packet::setPacketLength() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
@@ -395,9 +428,9 @@ void CCSDS::PACKET::Packet::setChecksum() throw(UTIL::Exception)
   {
     throw UTIL::Exception("inconsistent packetLength");
   }
-  size_t crcPos = bufferSize() - 2;
+  size_t crcPos = bufferSize() - CRC_BYTE_SIZE;
   uint16_t crc = UTIL::CRC::calculate16(buffer(), crcPos);
-  setUnsigned(crcPos, 2, crc);
+  setUnsigned(crcPos, CRC_BYTE_SIZE, crc);
 }
 
 //-----------------------------------------------------------------------------
@@ -410,9 +443,9 @@ bool CCSDS::PACKET::Packet::checkChecksum() const throw(UTIL::Exception)
   {
     return false;
   }
-  size_t crcPos = bufferSize() - 2;
+  size_t crcPos = bufferSize() - CRC_BYTE_SIZE;
   uint16_t crc = UTIL::CRC::calculate16(buffer(), crcPos);
-  return (getUnsigned(crcPos, 2) == crc);
+  return (getUnsigned(crcPos, CRC_BYTE_SIZE) == crc);
 }
 
 //////////////

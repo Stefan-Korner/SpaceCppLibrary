@@ -83,6 +83,7 @@ namespace CCSDS
       // variable byte array access: overloaded from UTIL::DU
       virtual UTIL::DU::VarByteHelper getVarBytes(size_t p_bytePos) const
         throw(UTIL::Exception);
+      // performs a resizing
       virtual void setVarBytes(size_t p_bytePos,
                                size_t p_byteLength,
                                const void* p_bytes) throw(UTIL::Exception);
@@ -90,6 +91,7 @@ namespace CCSDS
       // variable size string access: overloaded from UTIL::DU
       virtual std::string getVarString(size_t p_bytePos) const
         throw(UTIL::Exception);
+      // performs a resizing
       virtual void setVarString(size_t p_bytePos, const std::string& p_string)
         throw(UTIL::Exception);
 
@@ -100,6 +102,18 @@ namespace CCSDS
       virtual void setAbsTime(size_t p_bytePos,
                               uint32_t p_timeCode,
                               const UTIL::AbsTime& p_time)
+        throw(UTIL::Exception);
+
+      // group access: overloaded from UTIL::DU
+      virtual size_t getGroupRepeater(size_t p_repBytePos,
+                                      size_t p_repByteLength,
+                                      size_t p_grpByteLength) const
+        throw(UTIL::Exception);
+      // performs a resizing
+      virtual void setGroupRepeater(size_t p_repBytePos,
+                                    size_t p_repByteLength,
+                                    size_t p_grpByteLength,
+                                    size_t p_repValue)
         throw(UTIL::Exception);
 
       // other methods

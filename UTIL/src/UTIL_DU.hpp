@@ -67,6 +67,25 @@ namespace UTIL
       size_t bytePos;
       uint32_t timeCode;
     };
+    struct GroupAccessor
+    {
+      size_t repeaterBytePos;
+      size_t repeaterByteLength;
+      size_t groupByteLength;
+      // supports only fixed size groups
+      BitAccessor operator()(size_t p_grpNr,
+                             BitAccessor p_fieldAcc);
+      ByteAccessor operator()(size_t p_grpNr,
+                              ByteAccessor p_fieldAcc);
+      UnsignedAccessor operator()(size_t p_grpNr,
+                                  UnsignedAccessor p_fieldAcc);
+      BigUnsignedAccessor operator()(size_t p_grpNr,
+                                     BigUnsignedAccessor p_fieldAcc);
+      StringAccessor operator()(size_t p_grpNr,
+                                StringAccessor p_fieldAcc);
+      AbsTimeAccessor operator()(size_t p_grpNr,
+                                 AbsTimeAccessor p_fieldAcc);
+    };
 
     // helper for variable byte array access
     struct VarByteHelper
@@ -198,6 +217,22 @@ namespace UTIL
       throw(UTIL::Exception);
     UTIL::AbsTime get(AbsTimeAccessor p_acc) const throw(UTIL::Exception);
     void set(AbsTimeAccessor p_acc, const UTIL::AbsTime& p_time)
+      throw(UTIL::Exception);
+
+    // group access
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual size_t getGroupRepeater(size_t p_repBytePos,
+                                    size_t p_repByteLength,
+                                    size_t p_grpByteLength) const
+      throw(UTIL::Exception);
+    // shall be overloaded in derived class (this impl. raises an exception)
+    virtual void setGroupRepeater(size_t p_repBytePos,
+                                  size_t p_repByteLength,
+                                  size_t p_grpByteLength,
+                                  size_t p_repValue)
+      throw(UTIL::Exception);
+    size_t get(GroupAccessor p_acc) const throw(UTIL::Exception);
+    void set(GroupAccessor p_acc, size_t p_repValue)
       throw(UTIL::Exception);
 
   private:

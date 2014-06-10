@@ -32,6 +32,86 @@ static const uint8_t BIT_FILTER[8][8] =
   {   0,    0,    0,    0,    0,    0,    0, 0xFE}
 };
 
+///////////////////
+// GroupAccessor //
+///////////////////
+
+//-----------------------------------------------------------------------------
+UTIL::DU::BitAccessor
+UTIL::DU::GroupAccessor::operator()(size_t p_grpNr,
+                                    UTIL::DU::BitAccessor p_fieldAcc)
+//-----------------------------------------------------------------------------
+{
+  UTIL::DU::BitAccessor retVal(p_fieldAcc);
+  size_t groupBitOffset = groupByteLength * p_grpNr * 8;
+  retVal.bitPos += groupBitOffset;
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::DU::ByteAccessor 
+UTIL::DU::GroupAccessor::operator()(size_t p_grpNr,
+                                    UTIL::DU::ByteAccessor p_fieldAcc)
+//-----------------------------------------------------------------------------
+{
+  UTIL::DU::ByteAccessor retVal(p_fieldAcc);
+  size_t groupByteOffset = groupByteLength * p_grpNr;
+  retVal.bytePos += groupByteOffset;
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::DU::UnsignedAccessor
+UTIL::DU::GroupAccessor::operator()(size_t p_grpNr,
+                                    UTIL::DU::UnsignedAccessor p_fieldAcc)
+//-----------------------------------------------------------------------------
+{
+  UTIL::DU::UnsignedAccessor retVal(p_fieldAcc);
+  size_t groupByteOffset = groupByteLength * p_grpNr;
+  retVal.bytePos += groupByteOffset;
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::DU::BigUnsignedAccessor
+UTIL::DU::GroupAccessor::operator()(size_t p_grpNr,
+                                    UTIL::DU::BigUnsignedAccessor p_fieldAcc)
+//-----------------------------------------------------------------------------
+{
+  UTIL::DU::BigUnsignedAccessor retVal(p_fieldAcc);
+  size_t groupByteOffset = groupByteLength * p_grpNr;
+  retVal.bytePos += groupByteOffset;
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::DU::StringAccessor
+UTIL::DU::GroupAccessor::operator()(size_t p_grpNr,
+                                    UTIL::DU::StringAccessor p_fieldAcc)
+//-----------------------------------------------------------------------------
+{
+  UTIL::DU::StringAccessor retVal(p_fieldAcc);
+  size_t groupByteOffset = groupByteLength * p_grpNr;
+  retVal.bytePos += groupByteOffset;
+  return retVal;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::DU::AbsTimeAccessor
+UTIL::DU::GroupAccessor::operator()(size_t p_grpNr,
+                                    UTIL::DU::AbsTimeAccessor p_fieldAcc)
+//-----------------------------------------------------------------------------
+{
+  UTIL::DU::AbsTimeAccessor retVal(p_fieldAcc);
+  size_t groupByteOffset = groupByteLength * p_grpNr;
+  retVal.bytePos += groupByteOffset;
+  return retVal;
+}
+
+//////////////
+// UTIL::DU //
+//////////////
+
 //-----------------------------------------------------------------------------
 UTIL::DU::DU():
   m_buffer(NULL), m_constBuffer(NULL), m_bufferSize(0), m_usedBufferSize(0)
@@ -1017,6 +1097,43 @@ void UTIL::DU::set(AbsTimeAccessor p_acc, const UTIL::AbsTime& p_time)
 //-----------------------------------------------------------------------------
 {
   setAbsTime(p_acc.bytePos, p_acc.timeCode, p_time);
+}
+
+
+//-----------------------------------------------------------------------------
+size_t UTIL::DU::getGroupRepeater(size_t, size_t, size_t) const
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::getGroupRepeater must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::setGroupRepeater(size_t, size_t, size_t, size_t)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("UTIL::DU::setGroupRepeater must be overloaded in subclass");
+}
+
+//-----------------------------------------------------------------------------
+size_t UTIL::DU::get(GroupAccessor p_acc) const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return getGroupRepeater(p_acc.repeaterBytePos,
+                          p_acc.repeaterByteLength,
+                          p_acc.groupByteLength);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::DU::set(GroupAccessor p_acc, size_t p_repValue)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  setGroupRepeater(p_acc.repeaterBytePos,
+                   p_acc.repeaterByteLength,
+                   p_acc.groupByteLength,
+                   p_repValue);
 }
 
 //-----------------------------------------------------------------------------
