@@ -213,10 +213,12 @@ void CCSDS::PACKET::Packet::setVarBytes(size_t p_bytePos,
   uint32_t n = (uint32_t) p_byteLength;
   setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
   p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
-  setBytes(p_bytePos, p_byteLength, p_bytes);
   // resize the DU
   size_t expectedDUsize = p_bytePos + n + CRC_BYTE_SIZE;
   resize(expectedDUsize);
+  setPacketLength();  // added by R.H.
+  // DU has proper size --> set the data
+  setBytes(p_bytePos, p_byteLength, p_bytes);
 }
 
 //-----------------------------------------------------------------------------
@@ -238,10 +240,12 @@ void CCSDS::PACKET::Packet::setVarString(size_t p_bytePos,
   uint32_t n = (uint32_t) p_string.size();
   setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
   p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
-  setString(p_bytePos, n, p_string);
   // resize the DU
   size_t expectedDUsize = p_bytePos + n + CRC_BYTE_SIZE;
   resize(expectedDUsize);
+  setPacketLength();  // added by R.H.
+  // DU has proper size --> set the data
+  setString(p_bytePos, n, p_string);
 }
 
 //-----------------------------------------------------------------------------
