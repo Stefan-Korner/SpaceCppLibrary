@@ -35,6 +35,8 @@ namespace CCSDS
     static const size_t CRC_BYTE_SIZE = 2;
     static const size_t PRIMARY_HEADER_BYTE_SIZE = 6;
     static const size_t N_BYTE_SIZE = 4;
+    static const size_t TM_N_BYTE_SIZE = 4;
+    static const size_t TC_N_BYTE_SIZE = 0;
     namespace PRIMARY_HEADER
     {
       static const UTIL::DU::BitAccessor VERSION_NUMBER =         { 0,  3};
@@ -121,6 +123,7 @@ namespace CCSDS
       virtual bool checkPacketLength() const throw(UTIL::Exception);
       virtual void setChecksum() throw(UTIL::Exception);
       virtual bool checkChecksum() const throw(UTIL::Exception);
+      virtual size_t getNByteSize() const;
     };
 
     //-------------------------------------------------------------------------
@@ -136,6 +139,7 @@ namespace CCSDS
       TMpacket(const TMpacket& p_du);
       const TMpacket& operator=(const TMpacket& p_du);
       virtual ~TMpacket();
+      virtual size_t getNByteSize() const;
     };
 
     //-------------------------------------------------------------------------
@@ -151,6 +155,7 @@ namespace CCSDS
       TCpacket(const TCpacket& p_du);
       const TCpacket& operator=(const TCpacket& p_du);
       virtual ~TCpacket();
+      virtual size_t getNByteSize() const;
     };
   }
 }

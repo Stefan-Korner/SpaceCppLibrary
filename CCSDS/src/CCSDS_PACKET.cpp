@@ -195,8 +195,18 @@ CCSDS::PACKET::Packet::getVarBytes(size_t p_bytePos) const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  uint32_t n = getUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE);
-  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  size_t nByteSize = getNByteSize();
+  // encoding with or without size field n is supported
+  uint32_t n = 0;
+  if(nByteSize > 1)
+  {
+    n = getUnsigned(p_bytePos, nByteSize);
+    p_bytePos += nByteSize;
+  }
+  else
+  {
+    n = (bufferSize() - CRC_BYTE_SIZE) - p_bytePos;
+  }
   UTIL::DU::VarByteHelper retVal;
   retVal.byteLength = n;
   retVal.bytes = getBytes(p_bytePos, n);
@@ -211,8 +221,13 @@ void CCSDS::PACKET::Packet::setVarBytes(size_t p_bytePos,
 //-----------------------------------------------------------------------------
 {
   uint32_t n = (uint32_t) p_byteLength;
-  setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
-  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  size_t nByteSize = getNByteSize();
+  // encoding with or without size field n is supported
+  if(nByteSize > 1)
+  {
+    setUnsigned(p_bytePos, nByteSize, n);
+    p_bytePos += nByteSize;
+  }
   // resize the DU
   size_t expectedDUsize = p_bytePos + n + CRC_BYTE_SIZE;
   resize(expectedDUsize);
@@ -226,8 +241,18 @@ std::string CCSDS::PACKET::Packet::getVarString(size_t p_bytePos) const
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  uint32_t n = getUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE);
-  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  size_t nByteSize = getNByteSize();
+  // encoding with or without size field n is supported
+  uint32_t n = 0;
+  if(nByteSize > 1)
+  {
+    n = getUnsigned(p_bytePos, nByteSize);
+    p_bytePos += nByteSize;
+  }
+  else
+  {
+    n = (bufferSize() - CRC_BYTE_SIZE) - p_bytePos;
+  }
   return getString(p_bytePos, n);
 }
 
@@ -238,8 +263,13 @@ void CCSDS::PACKET::Packet::setVarString(size_t p_bytePos,
 //-----------------------------------------------------------------------------
 {
   uint32_t n = (uint32_t) p_string.size();
-  setUnsigned(p_bytePos, CCSDS::PACKET::N_BYTE_SIZE, n);
-  p_bytePos += CCSDS::PACKET::N_BYTE_SIZE;
+  size_t nByteSize = getNByteSize();
+  // encoding with or without size field n is supported
+  if(nByteSize > 1)
+  {
+    setUnsigned(p_bytePos, nByteSize, n);
+    p_bytePos += nByteSize;
+  }
   // resize the DU
   size_t expectedDUsize = p_bytePos + n + CRC_BYTE_SIZE;
   resize(expectedDUsize);
@@ -452,6 +482,14 @@ bool CCSDS::PACKET::Packet::checkChecksum() const throw(UTIL::Exception)
   return (getUnsigned(crcPos, CRC_BYTE_SIZE) == crc);
 }
 
+//-----------------------------------------------------------------------------
+// hook to support different encoding of variable types for TM and TC
+size_t CCSDS::PACKET::Packet::getNByteSize() const
+//-----------------------------------------------------------------------------
+{
+  return N_BYTE_SIZE;
+}
+
 //////////////
 // TMpacket //
 //////////////
@@ -505,6 +543,14 @@ CCSDS::PACKET::TMpacket::~TMpacket()
 //-----------------------------------------------------------------------------
 {}
 
+//-----------------------------------------------------------------------------
+// overloaded from CCSDS::PACKET::Packet
+size_t CCSDS::PACKET::TMpacket::getNByteSize() const
+//-----------------------------------------------------------------------------
+{
+  return TM_N_BYTE_SIZE;
+}
+
 //////////////
 // TCpacket //
 //////////////
@@ -557,3 +603,11 @@ const CCSDS::PACKET::TCpacket& CCSDS::PACKET::TCpacket::operator=(
 CCSDS::PACKET::TCpacket::~TCpacket()
 //-----------------------------------------------------------------------------
 {}
+
+//-----------------------------------------------------------------------------
+// overloaded from CCSDS::PACKET::Packet
+size_t CCSDS::PACKET::TCpacket::getNByteSize() const
+//-----------------------------------------------------------------------------
+{
+  return TC_N_BYTE_SIZE;
+}
