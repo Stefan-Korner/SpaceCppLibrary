@@ -17,8 +17,14 @@
 include_directories(src)
 
 add_library(UTIL
+  src/UTIL_CircBuffer.cpp
   src/UTIL_CRC.cpp
   src/UTIL_DU.cpp)
+
+add_executable(test_UTIL_CircBuffer
+  test/test_UTIL_CircBuffer.cpp)
+target_link_libraries(test_UTIL_CircBuffer
+  UTIL)
 
 add_executable(test_UTIL_CRC
   test/test_UTIL_CRC.cpp)

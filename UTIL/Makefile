@@ -22,6 +22,9 @@ clean:
 	cd src; make clean
 	cd test; make clean
 
+tst_UTIL_CircBuffer:
+	cd test; make tst_UTIL_CircBuffer
+
 tst_UTIL_CRC:
 	cd test; make tst_UTIL_CRC
 

@@ -24,20 +24,29 @@ clean:
 	\rm -f ../lib/libUTIL.so ../lib/libUTIL.a *.o
 
 ../lib/libUTIL.so: \
+	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o
 	${LIB_DYNAMIC} -olibUTIL.so \
+	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o
 	mv libUTIL.so ../lib
 
 ../lib/libUTIL.a: \
+	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o
 	${LIB_STATIC} libUTIL.a \
+	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o
 	mv libUTIL.a ../lib
+
+UTIL_CircBuffer.o: UTIL_CircBuffer.cpp \
+	UTIL_CircBuffer.hpp
+	${CPP} -oUTIL_CircBuffer.o ${INCLUDES} \
+	UTIL_CircBuffer.cpp
 
 UTIL_CRC.o: UTIL_CRC.cpp \
 	UTIL_CRC.hpp
