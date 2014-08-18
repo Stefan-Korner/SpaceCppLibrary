@@ -36,6 +36,8 @@ namespace UTIL
     virtual size_t size() const;
     virtual size_t freeSize() const;
     virtual bool pushBack(const void* p_data, size_t p_dataSize);
+    // p_data shall point to a writeable memory with proper size
+    virtual bool front(uint8_t* p_data, size_t p_dataSize) const;
     virtual bool popFront(size_t p_dataSize);
     virtual uint8_t operator[](size_t p_index) const;
   private:

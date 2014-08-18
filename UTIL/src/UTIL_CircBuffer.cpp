@@ -106,6 +106,30 @@ bool UTIL::CircBuffer::pushBack(const void* p_data, size_t p_dataSize)
 }
 
 //-----------------------------------------------------------------------------
+bool UTIL::CircBuffer::front(uint8_t* p_data, size_t p_dataSize) const
+//-----------------------------------------------------------------------------
+{
+  if(p_dataSize > size())
+  {
+    return false;
+  }
+  if((m_firstPos + p_dataSize) > m_bufferSize)
+  {
+    // the returned data are split
+    size_t firstPartSize = m_bufferSize - m_firstPos;
+    size_t secondPartSize = p_dataSize - firstPartSize;
+    memcpy(p_data, m_buffer + m_firstPos, firstPartSize);
+    memcpy(p_data + firstPartSize, m_buffer, secondPartSize);
+  }
+  else
+  {
+    // the returned data fit directly
+    memcpy(p_data, m_buffer + m_firstPos, p_dataSize);
+  }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
 bool UTIL::CircBuffer::popFront(size_t p_dataSize)
 //-----------------------------------------------------------------------------
 {

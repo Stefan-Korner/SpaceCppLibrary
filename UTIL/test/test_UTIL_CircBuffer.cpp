@@ -22,9 +22,22 @@ using namespace std;
 void dump(const UTIL::CircBuffer& p_buffer)
 //-----------------------------------------------------------------------------
 {
+  cout << "--- Circular Buffer ---" << endl;
   cout << "size() = " << p_buffer.size() << endl;
   cout << "freeSize() = " << p_buffer.freeSize() << endl;
   for(size_t i = 0; i < p_buffer.size(); i++)
+  {
+    cout << "p_buffer[" << i << "] = " << ((int) p_buffer[i]) << endl;
+  }
+}
+
+//-----------------------------------------------------------------------------
+void dump(const uint8_t* p_buffer, size_t p_bufferSize)
+//-----------------------------------------------------------------------------
+{
+  cout << "--- Linear Buffer ---" << endl;
+  cout << "p_bufferSize = " << p_bufferSize << endl;
+  for(size_t i = 0; i < p_bufferSize; i++)
   {
     cout << "p_buffer[" << i << "] = " << ((int) p_buffer[i]) << endl;
   }
@@ -35,19 +48,30 @@ int main()
 //-----------------------------------------------------------------------------
 {
   UTIL::CircBuffer cBuffer(10);
+  uint8_t lBuffer[10];
   cout << "*** empty buffer ***" << endl;
+  cBuffer.front(lBuffer, cBuffer.size());
   dump(cBuffer);
+  dump(lBuffer, cBuffer.size());
   cout << "*** pushBack(\"0123\") ***" << endl;
   cBuffer.pushBack("0123", 4);
+  cBuffer.front(lBuffer, cBuffer.size());
   dump(cBuffer);
+  dump(lBuffer, cBuffer.size());
   cout << "*** popFront(2) ***" << endl;
   cBuffer.popFront(2);
+  cBuffer.front(lBuffer, cBuffer.size());
   dump(cBuffer);
+  dump(lBuffer, cBuffer.size());
   cout << "*** pushBack(\"456\") ***" << endl;
   cBuffer.pushBack("456", 3);
+  cBuffer.front(lBuffer, cBuffer.size());
   dump(cBuffer);
+  dump(lBuffer, cBuffer.size());
   cout << "*** pushBack(\"789A\") ***" << endl;
   cBuffer.pushBack("789A", 4);
+  cBuffer.front(lBuffer, cBuffer.size());
   dump(cBuffer);
+  dump(lBuffer, cBuffer.size());
   return 0;
 }
