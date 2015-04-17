@@ -1,0 +1,10 @@
+PAR1	Bit Parameter 1			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR2	Bit Parameter 2			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR3	Bit Parameter 3			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR4	Bit Parameter 4			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR5	Bit Parameter 5			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR6	Bit Parameter 6			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR7	Bit Parameter 7			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR8	Bit Parameter 8			2	1	1			N	R		F	N	0		1234	1	R	Y		0	B
+PAR9	Unsigned Integer Parameter			3	14	32			N	R		F	N	0		1234	1	R	Y		0	B
+PAR10	String Parameter			8	8	64			T	R		F	N	0		1234	1	R	Y		0	B
