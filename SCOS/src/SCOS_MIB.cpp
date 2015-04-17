@@ -16,8 +16,121 @@
 #include "SCOS_MIB.hpp"
 
 #include <iostream>
+#include "UTIL_STRING.hpp"
 
 using namespace std;
+using namespace UTIL::STRING;
+
+///////////////
+// PIDrecord //
+///////////////
+
+//-----------------------------------------------------------------------------
+// initialise selected attributes from the record
+SCOS::MIB::PIDrecord::PIDrecord(const vector<string>& p_fields):
+  pidType(asInt(p_fields[0])),
+  pidSType(asInt(p_fields[1])),
+  pidAPID(asInt(p_fields[2])),
+  pidPI1(asInt(p_fields[3])),
+  pidPI2(asInt(p_fields[4])),
+  pidSPID(asInt(p_fields[5])),
+  pidDescr(p_fields[6]),
+  pidDFHsize(asInt(p_fields[9])),
+  pidCheck(p_fields[13] == "1")
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+// record key
+int SCOS::MIB::PIDrecord::key() const
+//-----------------------------------------------------------------------------
+{
+  return pidSPID;
+}
+
+//-----------------------------------------------------------------------------
+// foreign key to PICrecord
+string SCOS::MIB::PIDrecord::picKey() const
+//-----------------------------------------------------------------------------
+{
+  return ("[" + str(pidType) + ", " + str(pidSType) + "]");
+}
+
+///////////////
+// PICrecord //
+///////////////
+
+//-----------------------------------------------------------------------------
+// initialise selected attributes from the record
+SCOS::MIB::PICrecord::PICrecord(const vector<string>& p_fields)
+//-----------------------------------------------------------------------------
+{
+}
+
+//-----------------------------------------------------------------------------
+// record key
+string SCOS::MIB::PICrecord::key() const
+//-----------------------------------------------------------------------------
+{
+  return ("[" + str(picType) + ", " + str(picSType) + "]");
+}
+
+////////////////
+// TPCFrecord //
+////////////////
+
+//-----------------------------------------------------------------------------
+// initialise selected attributes from the record
+SCOS::MIB::TPCFrecord::TPCFrecord(const vector<string>& p_fields)
+//-----------------------------------------------------------------------------
+{
+}
+
+//-----------------------------------------------------------------------------
+// record key
+int SCOS::MIB::TPCFrecord::key() const
+//-----------------------------------------------------------------------------
+{
+  return tpcfSPID;
+}
+
+///////////////
+// PCFrecord //
+///////////////
+
+//-----------------------------------------------------------------------------
+// initialise selected attributes from the record
+SCOS::MIB::PCFrecord::PCFrecord(const vector<string>& p_fields)
+//-----------------------------------------------------------------------------
+{
+}
+
+//-----------------------------------------------------------------------------
+// record key
+string SCOS::MIB::PCFrecord::key() const
+//-----------------------------------------------------------------------------
+{
+  return pcfName;
+}
+
+///////////////
+// PLFrecord //
+///////////////
+
+//-----------------------------------------------------------------------------
+// initialise selected attributes from the record
+SCOS::MIB::PLFrecord::PLFrecord(const vector<string>& p_fields)
+//-----------------------------------------------------------------------------
+{
+}
+
+//-----------------------------------------------------------------------------
+// record key
+string SCOS::MIB::PLFrecord::key() const
+//-----------------------------------------------------------------------------
+{
+  return plfName;
+}
 
 /////////////
 // Manager //

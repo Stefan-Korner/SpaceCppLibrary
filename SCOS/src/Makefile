@@ -16,7 +16,9 @@
 include ../../Makefile.include
 
 LIB_SCOS = ../lib/libSCOS.a
-INCLUDES = -I.
+LIB_UTIL = ../../UTIL/lib/libUTIL.a
+INCLUDES = -I. \
+           -I../../UTIL/src
 
 all: ${LIB_SCOS}
 
@@ -44,7 +46,8 @@ SCOS_ENV.o: SCOS_ENV.cpp \
 	${CPP} -oSCOS_ENV.o ${INCLUDES} \
 	SCOS_ENV.cpp
 
-SCOS_ENV.o: SCOS_MIB.cpp \
-	SCOS_MIB.hpp
+SCOS_MIB.o: SCOS_MIB.cpp \
+	SCOS_MIB.hpp \
+	${LIB_UTIL}
 	${CPP} -oSCOS_MIB.o ${INCLUDES} \
 	SCOS_MIB.cpp

@@ -16,6 +16,8 @@
 #ifndef SCOS_ENV_hpp
 #define SCOS_ENV_hpp
 
+#include <string>
+
 namespace SCOS
 {
   namespace ENV
@@ -27,13 +29,20 @@ namespace SCOS
     public:
       // the manager (or a derived class) shall
       // be created and destroyed in main()
-      Manager();
+      Manager(const char* p_runtimeRoot);
       virtual ~Manager();
 
       // the manager is a singleton
       static Manager* instance();
 
+      // Get the MIB directory
+      virtual std::string mibDir();
+
+    protected:
+      std::string m_runtimeRoot;
+
     private:
+      Manager();
       Manager(const Manager& p_service);
       const Manager& operator=(const Manager& p_task);
 

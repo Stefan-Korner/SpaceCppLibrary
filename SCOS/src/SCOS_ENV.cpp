@@ -15,8 +15,6 @@
 //*****************************************************************************
 #include "SCOS_ENV.hpp"
 
-#include <iostream>
-
 using namespace std;
 
 /////////////
@@ -27,7 +25,8 @@ using namespace std;
 SCOS::ENV::Manager* SCOS::ENV::Manager::s_instance = NULL;
 
 //-----------------------------------------------------------------------------
-SCOS::ENV::Manager::Manager()
+SCOS::ENV::Manager::Manager(const char* p_runtimeRoot):
+  m_runtimeRoot(p_runtimeRoot)
 //-----------------------------------------------------------------------------
 {
   s_instance = this;
@@ -45,4 +44,11 @@ SCOS::ENV::Manager* SCOS::ENV::Manager::instance()
 //-----------------------------------------------------------------------------
 {
   return s_instance;
+}
+
+//-----------------------------------------------------------------------------
+string SCOS::ENV::Manager::mibDir()
+//-----------------------------------------------------------------------------
+{
+  return m_runtimeRoot + "/data/ASCII";
 }
