@@ -24,18 +24,27 @@ clean:
 	\rm -f ../lib/libSCOS.so ../lib/libSCOS.a *.o
 
 ../lib/libSCOS.so: \
-	SCOS_Dummy.o
+	SCOS_ENV.o \
+	SCOS_MIB.o
 	${LIB_DYNAMIC} -olibSCOS.so \
-	SCOS_Dummy.o
+	SCOS_ENV.o \
+	SCOS_MIB.o
 	mv libSCOS.so ../lib
 
 ../lib/libSCOS.a: \
-	SCOS_Dummy.o
+	SCOS_ENV.o \
+	SCOS_MIB.o
 	${LIB_STATIC} libSCOS.a \
-	SCOS_Dummy.o
+	SCOS_ENV.o \
+	SCOS_MIB.o
 	mv libSCOS.a ../lib
 
-SCOS_Dummy.o: SCOS_Dummy.cpp \
-	SCOS_Dummy.hpp
-	${CPP} -oSCOS_Dummy.o ${INCLUDES} \
-	SCOS_Dummy.cpp
+SCOS_ENV.o: SCOS_ENV.cpp \
+	SCOS_ENV.hpp
+	${CPP} -oSCOS_ENV.o ${INCLUDES} \
+	SCOS_ENV.cpp
+
+SCOS_ENV.o: SCOS_MIB.cpp \
+	SCOS_MIB.hpp
+	${CPP} -oSCOS_MIB.o ${INCLUDES} \
+	SCOS_MIB.cpp
