@@ -16,13 +16,18 @@
 #ifndef SCOS_MIB_hpp
 #define SCOS_MIB_hpp
 
-#include <string>
+#include <map>
 #include <vector>
+#include "UTIL_EXCEPTION.hpp"
 
 namespace SCOS
 {
   namespace MIB
   {
+    /////////////
+    // structs //
+    /////////////
+
     //-------------------------------------------------------------------------
     // MIB record from pid.dat
     struct PIDrecord
@@ -129,25 +134,22 @@ namespace SCOS
       PLFrecord();
     };
 
-    //-------------------------------------------------------------------------
-    class Manager
-    //-------------------------------------------------------------------------
-    {
-    public:
-      // the manager (or a derived class) shall
-      // be created and destroyed in main()
-      Manager();
-      virtual ~Manager();
+    typedef std::map<std::string, PIDrecord> PIDmap;
+    typedef std::map<std::string, PICrecord> PICmap;
+    typedef std::map<std::string, TPCFrecord> TPCFmap;
+    typedef std::map<std::string, PCFrecord> PCFmap;
+    typedef std::map<std::string, PLFrecord> PLFmap;
 
-      // the manager is a singleton
-      static Manager* instance();
+    ///////////////
+    // functions //
+    ///////////////
 
-    private:
-      Manager(const Manager& p_service);
-      const Manager& operator=(const Manager& p_task);
-
-      static Manager* s_instance;
-    };
+    // Reads a MIB table
+    void readTable(PIDmap& p_map) throw(UTIL::Exception);
+    void readTable(PICmap& p_map) throw(UTIL::Exception);
+    void readTable(TPCFmap& p_map) throw(UTIL::Exception);
+    void readTable(PCFmap& p_map) throw(UTIL::Exception);
+    void readTable(PLFmap& p_map) throw(UTIL::Exception);
   }
 }
 
