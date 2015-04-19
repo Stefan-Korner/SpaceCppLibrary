@@ -31,10 +31,10 @@ namespace UTIL
     int asInt(const char* p_string);
     int asInt(const std::string& p_string);
     void split(const char* p_text,
-               const char* p_seperator,
+               const char* p_separator,
                std::vector<std::string>& p_tokens);
     void split(const std::string& p_text,
-               const char* p_seperator,
+               const char* p_separator,
                std::vector<std::string>& p_tokens);
     void readTextFile(const char* p_filePath, std::list<std::string>& p_lines)
       throw(UTIL::Exception);

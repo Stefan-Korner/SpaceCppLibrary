@@ -21,11 +21,10 @@ using namespace std;
 
 const char* TEST_TOKENS[] =
 {
-  "This",
-  "is",
-  "a",
-  "test",
-  "string."
+  "word1",
+  "",
+  "word3",
+  ""
 };
 
 const char* TEST_FILE_CONTENTS[] =
@@ -54,9 +53,9 @@ const char* TABLE_TOKENS[] =
 bool test_splitOperation()
 //-----------------------------------------------------------------------------
 {
-  string testString = "This is a test string.";
+  string testString = "word1##word3#";
   vector<string> tokens;
-  UTIL::STRING::split(testString, " ", tokens);
+  UTIL::STRING::split(testString, "#", tokens);
   size_t i = 0;
   for(vector<string>::iterator iter = tokens.begin();
       iter != tokens.end();

@@ -47,29 +47,39 @@ int UTIL::STRING::asInt(const string& p_string)
 
 //-----------------------------------------------------------------------------
 void UTIL::STRING::split(const char* p_text,
-                         const char* p_seperator,
+                         const char* p_separator,
                          vector<string>& p_tokens)
 //-----------------------------------------------------------------------------
 {
   p_tokens.clear();
+  size_t sepLength = strlen(p_separator);
   char* text = strdup(p_text);
-  char* saveptr;
-  char* token = strtok_r(text, p_seperator, &saveptr);
-  while(token != NULL)
+  char* token = text;
+  while(true)
   {
+    char* nextSeparator = strstr(token, p_separator);
+    if(nextSeparator == NULL)
+    {
+      // no separator found --> this must be the last token
+      p_tokens.push_back(token);
+      break;
+    }
+    // separator found: extract token
+    *nextSeparator = '\0';
     p_tokens.push_back(token);
-    token = strtok_r(NULL, p_seperator, &saveptr);
+    token = nextSeparator;
+    token += sepLength;
   }
   free(text);
 }
 
 //-----------------------------------------------------------------------------
 void UTIL::STRING::split(const string& p_text,
-                         const char* p_seperator,
+                         const char* p_separator,
                          vector<string>& p_tokens)
 //-----------------------------------------------------------------------------
 {
-  split(p_text.c_str(), p_seperator, p_tokens);
+  split(p_text.c_str(), p_separator, p_tokens);
 }
 
 //-----------------------------------------------------------------------------
