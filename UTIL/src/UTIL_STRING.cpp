@@ -83,7 +83,7 @@ void UTIL::STRING::readTextFile(const char* p_filePath, list<string>& p_lines)
     string errorMessage = "cannot open ";
     errorMessage += p_filePath;
     errorMessage += " for reading";
-    throw UTIL::Exception(errorMessage.c_str());
+    throw UTIL::Exception(errorMessage);
   }
   p_lines.clear();
   char* line = NULL;

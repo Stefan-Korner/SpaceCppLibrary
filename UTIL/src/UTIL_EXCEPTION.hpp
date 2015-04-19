@@ -30,6 +30,7 @@ namespace UTIL
     Exception() throw() {}
     Exception(const Exception& p_ex) throw(): std::exception(p_ex) {}
     Exception(const char* p_what) throw(): m_what(p_what) {}
+    Exception(const std::string& p_what) throw(): m_what(p_what) {}
     const Exception& operator=(const Exception& p_ex) throw()
     {
       if(&p_ex != this) {m_what = p_ex.m_what;}
