@@ -87,11 +87,16 @@ void UTIL::STRING::readTextFile(const char* p_filePath, list<string>& p_lines)
   }
   p_lines.clear();
   char* line = NULL;
-  size_t len = 0;
-  ssize_t read;
+  size_t len = 0; // buffer size, is bigger than the line
+  ssize_t read; // this is the size of the line
   read = getline(&line, &len, fp);
   while(read != -1)
   {
+    // remove the line break in the string
+    if(read > 0)
+    {
+      line[read - 1] = '\0';
+    }
     p_lines.push_back(line);
     read = getline(&line, &len, fp);
   }

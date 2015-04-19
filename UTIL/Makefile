@@ -30,3 +30,6 @@ tst_UTIL_CRC:
 
 tst_UTIL_DU:
 	cd test; make tst_UTIL_DU
+
+tst_UTIL_STRING:
+	cd test; make tst_UTIL_STRING

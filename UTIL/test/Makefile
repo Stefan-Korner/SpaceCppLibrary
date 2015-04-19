@@ -23,12 +23,14 @@ INCLUDES = -I. -I../src
 
 all:	../bin/test_UTIL_CircBuffer \
 	../bin/test_UTIL_CRC \
-	../bin/test_UTIL_DU
+	../bin/test_UTIL_DU \
+	../bin/test_UTIL_STRING
 
 clean:
 	\rm -f ../bin/test_UTIL_CircBuffer
 	\rm -f ../bin/test_UTIL_CRC
 	\rm -f ../bin/test_UTIL_DU
+	\rm -f ../bin/test_UTIL_STRING
 	\rm -f *.o
 
 tst_UTIL_CircBuffer: ../bin/test_UTIL_CircBuffer
@@ -39,6 +41,9 @@ tst_UTIL_CRC: ../bin/test_UTIL_CRC
 
 tst_UTIL_DU: ../bin/test_UTIL_DU
 	cd ../bin; ./test_UTIL_DU
+
+tst_UTIL_STRING: ../bin/test_UTIL_STRING
+	cd ../bin; ./test_UTIL_STRING
 
 ../bin/test_UTIL_CircBuffer: test_UTIL_CircBuffer.o
 	${LINK} -otest_UTIL_CircBuffer \
@@ -58,6 +63,12 @@ tst_UTIL_DU: ../bin/test_UTIL_DU
 	${LIBS}
 	mv test_UTIL_DU ../bin
 
+../bin/test_UTIL_STRING: test_UTIL_STRING.o
+	${LINK} -otest_UTIL_STRING \
+	test_UTIL_STRING.o \
+	${LIBS}
+	mv test_UTIL_STRING ../bin
+
 test_UTIL_CircBuffer.o: test_UTIL_CircBuffer.cpp \
 	${LIB_UTIL}
 	${CPP} -otest_UTIL_Circbuffer.o ${INCLUDES} \
@@ -72,3 +83,8 @@ test_UTIL_DU.o: test_UTIL_DU.cpp \
 	${LIB_UTIL}
 	${CPP} -otest_UTIL_DU.o ${INCLUDES} \
 	test_UTIL_DU.cpp
+
+test_UTIL_STRING.o: test_UTIL_STRING.cpp \
+	${LIB_UTIL}
+	${CPP} -otest_UTIL_STRING.o ${INCLUDES} \
+	test_UTIL_STRING.cpp
