@@ -15,7 +15,9 @@
 //*****************************************************************************
 #include "UTIL_STRING.hpp"
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 using namespace std;
 
@@ -41,4 +43,61 @@ int UTIL::STRING::asInt(const string& p_string)
 //-----------------------------------------------------------------------------
 {
   return asInt(p_string.c_str());
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::STRING::split(const char* p_text,
+                         const char* p_seperator,
+                         vector<string>& p_tokens)
+//-----------------------------------------------------------------------------
+{
+  p_tokens.clear();
+  char* text = strdup(p_text);
+  char* saveptr;
+  char* token = strtok_r(text, p_seperator, &saveptr);
+  while(token != NULL)
+  {
+    p_tokens.push_back(token);
+    token = strtok_r(NULL, p_seperator, &saveptr);
+  }
+  free(text);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::STRING::split(const string& p_text,
+                         const char* p_seperator,
+                         vector<string>& p_tokens)
+//-----------------------------------------------------------------------------
+{
+  split(p_text.c_str(), p_seperator, p_tokens);
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::STRING::readTextFile(const char* p_filePath, list<string>& p_lines)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  FILE* fp = fopen(p_filePath, "r");
+  if(fp == NULL)
+  {
+    string errorMessage = "cannot open ";
+    errorMessage += p_filePath;
+    errorMessage += " for reading";
+    throw UTIL::Exception(errorMessage.c_str());
+  }
+  p_lines.clear();
+  char* line = NULL;
+  size_t len = 0;
+  ssize_t read;
+  read = getline(&line, &len, fp);
+  while(read != -1)
+  {
+    p_lines.push_back(line);
+    read = getline(&line, &len, fp);
+  }
+  fclose(fp);
+  if(line != NULL)
+  {
+    free(line);
+  }
 }

@@ -16,7 +16,10 @@
 #ifndef UTIL_STRING_hpp
 #define UTIL_STRING_hpp
 
+#include <list>
 #include <string>
+#include <vector>
+#include "UTIL_EXCEPTION.hpp"
 
 namespace UTIL
 {
@@ -27,6 +30,14 @@ namespace UTIL
     std::string str(int p_val);
     int asInt(const char* p_string);
     int asInt(const std::string& p_string);
+    void split(const char* p_text,
+               const char* p_seperator,
+               std::vector<std::string>& p_tokens);
+    void split(const std::string& p_text,
+               const char* p_seperator,
+               std::vector<std::string>& p_tokens);
+    void readTextFile(const char* p_filePath, std::list<std::string>& p_lines)
+      throw(UTIL::Exception);
   }
 }
 
