@@ -23,17 +23,17 @@ namespace SCOS
   namespace ENV
   {
     //-------------------------------------------------------------------------
-    class Manager
+    class Environment
     //-------------------------------------------------------------------------
     {
     public:
       // the manager (or a derived class) shall
       // be created and destroyed in main()
-      Manager(const char* p_runtimeRoot);
-      virtual ~Manager();
+      Environment(const char* p_runtimeRoot);
+      virtual ~Environment();
 
       // the manager is a singleton
-      static Manager* instance();
+      static Environment* instance();
 
       // Get the MIB directory
       virtual std::string mibDir();
@@ -42,11 +42,11 @@ namespace SCOS
       std::string m_runtimeRoot;
 
     private:
-      Manager();
-      Manager(const Manager& p_service);
-      const Manager& operator=(const Manager& p_task);
+      Environment();
+      Environment(const Environment& p_service);
+      const Environment& operator=(const Environment& p_task);
 
-      static Manager* s_instance;
+      static Environment* s_instance;
     };
   }
 }

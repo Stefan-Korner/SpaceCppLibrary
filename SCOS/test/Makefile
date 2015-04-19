@@ -17,26 +17,31 @@ include ../../Makefile.include
 
 # keep the linking order of the libraries
 LIBS = -L../lib -lSCOS \
+       -L../../UTIL/lib -lUTIL \
        -lpthread
 LIB_SCOS = ../lib/libSCOS.a
-INCLUDES = -I. -I../src
+LIB_UTIL = ../../UTIL/lib/libUTIL.a
+INCLUDES = -I. \
+           -I../src \
+           -I../../UTIL/src
 
-all:	../bin/test_SCOS_Dummy
+all:	../bin/test_SCOS_MIB
 
 clean:
-	\rm -f ../bin/test_SCOS_Dummy
+	\rm -f ../bin/test_SCOS_MIB
 	\rm -f *.o
 
-tst_SCOS_Dummy: ../bin/test_SCOS_Dummy
-	cd ../bin; ./test_SCOS_Dummy
+tst_SCOS_MIB: ../bin/test_SCOS_MIB
+	cd ../bin; ./test_SCOS_MIB
 
-../bin/test_SCOS_Dummy: test_SCOS_Dummy.o
-	${LINK} -otest_SCOS_Dummy \
-	test_SCOS_Dummy.o \
+../bin/test_SCOS_MIB: test_SCOS_MIB.o
+	${LINK} -otest_SCOS_MIB \
+	test_SCOS_MIB.o \
 	${LIBS}
-	mv test_SCOS_Dummy ../bin
+	mv test_SCOS_MIB ../bin
 
-test_SCOS_Dummy.o: test_SCOS_Dummy.cpp \
+test_SCOS_MIB.o: test_SCOS_MIB.cpp \
+	${LIB_SCOS} \
 	${LIB_UTIL}
-	${CPP} -otest_SCOS_Dummy.o ${INCLUDES} \
-	test_SCOSL_Dummy.cpp
+	${CPP} -otest_SCOS_MIB.o ${INCLUDES} \
+	test_SCOS_MIB.cpp

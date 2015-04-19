@@ -19,9 +19,11 @@ all:
 	cd CCSDS; make
 	cd PUS; make
 	cd SPW; make
+	cd SCOS; make
 
 clean:
 	cd UTIL; make clean
 	cd CCSDS; make clean
 	cd PUS; make clean
 	cd SPW; make clean
+	cd SCOS; make clean
