@@ -20,6 +20,7 @@ all:
 	cd PUS; make
 	cd SPW; make
 	cd SCOS; make
+	cd SPACE; make
 
 clean:
 	cd UTIL; make clean
@@ -27,3 +28,4 @@ clean:
 	cd PUS; make clean
 	cd SPW; make clean
 	cd SCOS; make clean
+	cd SPACE; make clean
