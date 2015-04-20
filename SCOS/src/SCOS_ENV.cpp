@@ -17,9 +17,9 @@
 
 using namespace std;
 
-/////////////
-// Manager //
-/////////////
+/////////////////
+// Environment //
+/////////////////
 
 // global variables
 SCOS::ENV::Environment* SCOS::ENV::Environment::s_instance = NULL;

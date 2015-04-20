@@ -27,12 +27,12 @@ namespace SCOS
     //-------------------------------------------------------------------------
     {
     public:
-      // the manager (or a derived class) shall
+      // an instance of this class (or a derived class) shall
       // be created and destroyed in main()
       Environment(const char* p_runtimeRoot);
       virtual ~Environment();
 
-      // the manager is a singleton
+      // Environment is a singleton
       static Environment* instance();
 
       // Get the MIB directory
