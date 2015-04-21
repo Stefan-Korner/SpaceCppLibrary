@@ -174,6 +174,7 @@ namespace SPACE
                     const TMparamDef& p_paramDef2);
 
     //-------------------------------------------------------------------------
+    // Manager for definition data
     class Definitions
     //-------------------------------------------------------------------------
     {
