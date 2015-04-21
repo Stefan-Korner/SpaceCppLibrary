@@ -16,10 +16,163 @@
 #ifndef SPACE_DEF_hpp
 #define SPACE_DEF_hpp
 
+#include "SCOS_MIB.hpp"
+
 namespace SPACE
 {
   namespace DEF
   {
+    struct TMparamDef;
+    struct TMpktDef;
+
+    //-------------------------------------------------------------------------
+    // Contains the data for a single raw value extraction
+    struct TMparamToPkt
+    //-------------------------------------------------------------------------
+    {
+      TMparamDef* paramDef;
+      std::string paramName;
+      TMpktDef* pktDef;
+      int pktSPID;
+      int locOffby;
+      int locOffbi;
+      int locNbocc;
+      int locLgocc;
+
+      TMparamToPkt(TMparamDef* p_paramDef,
+                   TMpktDef* p_pktDef,
+                   const SCOS::MIB::PLFrecord& p_plfRecord);
+      // for debugging
+      void dump(const std::string& prefix) const;
+    };
+
+    //-------------------------------------------------------------------------
+    // Defines a dedicated parameter extraction in a packet
+    struct TMparamExtraction
+    //-------------------------------------------------------------------------
+    {
+      int bitPos;
+      int bitWidth;
+      std::string name;
+      std::string descr;
+      bool isInteger;
+      int piValue;
+
+      TMparamExtraction(int p_bitPos,
+                        int p_bitWidth,
+                        const std::string& p_name,
+                        const std::string& p_descr,
+                        bool p_isInteger,
+                        int p_piValue=0);
+      int compare(const TMparamExtraction& p_paramExtr) const;
+      // for debugging
+      void dump(const std::string& prefix) const;
+    };
+
+    // compare operators
+    bool operator==(const TMparamExtraction& p_paramExtr1,
+                    const TMparamExtraction& p_paramExtr2);
+    bool operator!=(const TMparamExtraction& p_paramExtr1,
+                    const TMparamExtraction& p_paramExtr2);
+    bool operator< (const TMparamExtraction& p_paramExtr1,
+                    const TMparamExtraction& p_paramExtr2);
+    bool operator> (const TMparamExtraction& p_paramExtr1,
+                    const TMparamExtraction& p_paramExtr2);
+    bool operator<=(const TMparamExtraction& p_paramExtr1,
+                    const TMparamExtraction& p_paramExtr2);
+    bool operator>=(const TMparamExtraction& p_paramExtr1,
+                    const TMparamExtraction& p_paramExtr2);
+
+    //-------------------------------------------------------------------------
+    // Contains the most important definition data of a TM packet
+    struct TMpktDef
+    //-------------------------------------------------------------------------
+    {
+      int pktSPID;
+      bool pktIsVP;
+      std::string pktName;
+      std::string pktDescr;
+      int pktAPID;
+      int pktType;
+      int pktSType;
+      int pktDFHsize;
+      bool pktHasDFhdr;
+      bool pktCheck;
+      int pktPI1off;
+      int pktPI1wid;
+      int pktPI1val;
+      int pktPI2off;
+      int pktPI2wid;
+      int pktPI2val;
+      int pktSPsize;
+      int pktS2Ksize;
+      int pktSPDFsize;
+      int pktSPDFdataSize;
+      std::map<std::string, const TMparamToPkt*> paramLinks;
+
+      TMpktDef();
+      int compare(const TMpktDef& p_pktDef) const;
+      // for debugging
+      void dump(const std::string& prefix) const;
+      // used to append later on links to related parameters
+      void appendParamLink(const TMparamToPkt* p_paramToPacket);
+      // checks if two ranges overlap
+      static bool rangeOverlap(int p_bitPos1,
+                               int p_bitWidth1,
+                               int p_bitPos2,
+                               int p_bitWidth2);
+      // returns a parameter extraction of a related parameters
+      TMparamExtraction
+      getParamExtraction(const std::string& p_paramName) const;
+      // returns all parameter extractions, ordered by packet location
+      const std::list<TMparamExtraction>& getParamExtractions() const;
+    };
+
+    // compare operators
+    bool operator==(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
+    bool operator!=(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
+    bool operator< (const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
+    bool operator> (const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
+    bool operator<=(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
+    bool operator>=(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
+
+    //-------------------------------------------------------------------------
+    // Contains the most important definition data of a TM parameter
+    struct TMparamDef
+    //-------------------------------------------------------------------------
+    {
+      std::string paramName;
+      std::string paramDescr;
+      int paramPtc;
+      int paramPfc;
+      int minCommutations;
+      int maxCommutations;
+
+      TMparamDef();
+      int compare(const TMparamDef& p_paramDef) const;
+      // for debugging
+      void dump(const std::string& prefix) const;
+      // returns the commutated param name
+      std::string getCommutatedParamName(int p_commutation) const;
+      // tells if the parameter is signed or unsigned integer
+      bool isInteger();
+      int getBitWidth() throw(UTIL::Exception);
+    };
+
+    // compare operators
+    bool operator==(const TMparamDef& p_paramDef1,
+                    const TMparamDef& p_paramDef2);
+    bool operator!=(const TMparamDef& p_paramDef1,
+                    const TMparamDef& p_paramDef2);
+    bool operator< (const TMparamDef& p_paramDef1,
+                    const TMparamDef& p_paramDef2);
+    bool operator> (const TMparamDef& p_paramDef1,
+                    const TMparamDef& p_paramDef2);
+    bool operator<=(const TMparamDef& p_paramDef1,
+                    const TMparamDef& p_paramDef2);
+    bool operator>=(const TMparamDef& p_paramDef1,
+                    const TMparamDef& p_paramDef2);
+
     //-------------------------------------------------------------------------
     class Definitions
     //-------------------------------------------------------------------------
@@ -32,6 +185,21 @@ namespace SPACE
 
       // Definitions is a singleton
       static Definitions* instance();
+
+      // creates the definition data
+      void createDefinitions();
+      // initialise the definition data from file or MIB
+      void initDefinitions();
+      // returns a TM packet definition
+      const TMpktDef* getTMpktDefByIndex(int p_index) const;
+      // returns a TM packet definition
+      const TMpktDef* getTMpktDefBySPID(int p_spid) const;
+      // returns the packet SPID for a packet name
+      int getSPIDbyPktName(const std::string& p_name) const;
+      // returns the TM packet definitions
+      const std::list<const TMpktDef*> getTMpktDefs() const;
+      // returns the TM parameter definitions
+      const std::list<const TMparamDef*> getTMparamDefs() const;
 
     private:
       Definitions(const Definitions& p_service);
