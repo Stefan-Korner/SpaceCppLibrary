@@ -1,1 +1,2 @@
-3	25	1234	0	0	12345	houskeeping telemetry packet with 10 parameters		-1	10	N		Y	1	N	
+3	12	1234	0	0	12344	TM(3,12) diagnostic parameter report - variable packet		123	10	N		Y	1	N	
+3	25	1234	0	0	12345	TM(3,25) houskeeping telemetry packet with 10 parameters		-1	10	N		Y	1	N	

@@ -32,16 +32,19 @@ int main()
     SCOS::MIB::TPCFmap tpcfMap;
     SCOS::MIB::PCFmap pcfMap;
     SCOS::MIB::PLFmap plfMap;
+    SCOS::MIB::VPDmap vpdMap;
     SCOS::MIB::readTable(pidMap);
     SCOS::MIB::readTable(picMap);
     SCOS::MIB::readTable(tpcfMap);
     SCOS::MIB::readTable(pcfMap);
     SCOS::MIB::readTable(plfMap);
+    SCOS::MIB::readTable(vpdMap);
     SCOS::MIB::dumpTable(pidMap);
     SCOS::MIB::dumpTable(picMap);
     SCOS::MIB::dumpTable(tpcfMap);
     SCOS::MIB::dumpTable(pcfMap);
     SCOS::MIB::dumpTable(plfMap);
+    SCOS::MIB::dumpTable(vpdMap);
   }
   catch(const UTIL::Exception& ex)
   {

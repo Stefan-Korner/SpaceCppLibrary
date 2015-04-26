@@ -36,6 +36,7 @@ SCOS::MIB::PIDrecord::PIDrecord():
   pidPI2(-1),
   pidSPID(-1),
   pidDescr(),
+  pidTPSD(-1),
   pidDFHsize(-1),
   pidCheck(false)
 //-----------------------------------------------------------------------------
@@ -51,6 +52,7 @@ SCOS::MIB::PIDrecord::PIDrecord(const vector<string>& p_fields):
   pidPI2(asInt(p_fields[4])),
   pidSPID(asInt(p_fields[5])),
   pidDescr(p_fields[6]),
+  pidTPSD(asInt(p_fields[8])),
   pidDFHsize(asInt(p_fields[9])),
   pidCheck(p_fields[13] == "1")
 //-----------------------------------------------------------------------------
@@ -84,6 +86,7 @@ void SCOS::MIB::PIDrecord::dump(const string& prefix) const
   cout << prefix << ".pidPI2 = " << pidPI2 << endl;
   cout << prefix << ".pidSPID = " << pidSPID << endl;
   cout << prefix << ".pidDescr = " << pidDescr << endl;
+  cout << prefix << ".pidTPSD = " << pidTPSD << endl;
   cout << prefix << ".pidDFHsize = " << pidDFHsize << endl;
   cout << prefix << ".pidCheck = " << pidCheck << endl;
 }
@@ -265,6 +268,54 @@ void SCOS::MIB::PLFrecord::dump(const string& prefix) const
   cout << prefix << ".plfLgocc = " << plfLgocc << endl;
 }
 
+///////////////
+// VPDrecord //
+///////////////
+
+//-----------------------------------------------------------------------------
+SCOS::MIB::VPDrecord::VPDrecord():
+  vpdTPSD(-1),
+  vpdPos(-1),
+  vpdName(),
+  vpdGrpSize(-1),
+  vpdFixRep(-1),
+  vpdOffset(-1)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+// initialise selected attributes from the record
+SCOS::MIB::VPDrecord::VPDrecord(const vector<string>& p_fields):
+  vpdTPSD(asInt(p_fields[0])),
+  vpdPos(asInt(p_fields[1])),
+  vpdName(p_fields[2]),
+  vpdGrpSize(asInt(p_fields[3])),
+  vpdFixRep(asInt(p_fields[4])),
+  vpdOffset(asInt(p_fields[13]))
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+// record key
+int SCOS::MIB::VPDrecord::key() const
+//-----------------------------------------------------------------------------
+{
+  return vpdTPSD;
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
+void SCOS::MIB::VPDrecord::dump(const string& prefix) const
+//-----------------------------------------------------------------------------
+{
+  cout << prefix << ".vpdTPSD = " << vpdTPSD << endl;
+  cout << prefix << ".vpdPos = " << vpdPos << endl;
+  cout << prefix << ".vpdName = " << vpdName << endl;
+  cout << prefix << ".vpdGrpSize = " << vpdGrpSize << endl;
+  cout << prefix << ".vpdFixRep = " << vpdFixRep << endl;
+  cout << prefix << ".vpdOffset = " << vpdOffset << endl;
+}
+
 //////////////
 // funtions //
 //////////////
@@ -430,6 +481,13 @@ void SCOS::MIB::readTable(SCOS::MIB::PLFmap& p_map) throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+void SCOS::MIB::readTable(SCOS::MIB::VPDmap& p_map) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  readMultiKeyTable("vpd.dat", 14, p_map);
+}
+
+//-----------------------------------------------------------------------------
 void SCOS::MIB::dumpTable(const SCOS::MIB::PIDmap& p_map)
 //-----------------------------------------------------------------------------
 {
@@ -462,4 +520,11 @@ void SCOS::MIB::dumpTable(const SCOS::MIB::PLFmap& p_map)
 //-----------------------------------------------------------------------------
 {
   dumpMultiKeyTable("PLFmap", p_map);
+}
+
+//-----------------------------------------------------------------------------
+void SCOS::MIB::dumpTable(const SCOS::MIB::VPDmap& p_map)
+//-----------------------------------------------------------------------------
+{
+  dumpMultiKeyTable("VPDmap", p_map);
 }

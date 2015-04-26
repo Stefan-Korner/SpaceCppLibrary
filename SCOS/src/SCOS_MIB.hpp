@@ -41,6 +41,7 @@ namespace SCOS
       int pidPI2;
       int pidSPID;
       std::string pidDescr;
+      int pidTPSD;
       int pidDFHsize;
       bool pidCheck;
 
@@ -135,11 +136,33 @@ namespace SCOS
       void dump(const std::string& prefix) const;
     };
 
+    //-------------------------------------------------------------------------
+    // MIB record from vpd.dat
+    struct VPDrecord
+    //-------------------------------------------------------------------------
+    {
+      int vpdTPSD;
+      int vpdPos;
+      std::string vpdName;
+      int vpdGrpSize;
+      int vpdFixRep;
+      int vpdOffset;
+
+      VPDrecord();
+      // initialise selected attributes from the record
+      VPDrecord(const std::vector<std::string>& p_fields);
+      // record key
+      int key() const;
+      // for debugging
+      void dump(const std::string& prefix) const;
+    };
+
     typedef std::map<int, PIDrecord> PIDmap;
     typedef std::map<std::string, PICrecord> PICmap;
     typedef std::map<int, TPCFrecord> TPCFmap;
     typedef std::map<std::string, PCFrecord> PCFmap;
     typedef std::map<std::string, std::list<PLFrecord> > PLFmap;
+    typedef std::map<int, std::list<VPDrecord> > VPDmap;
 
     ///////////////
     // functions //
@@ -151,6 +174,7 @@ namespace SCOS
     void readTable(TPCFmap& p_map) throw(UTIL::Exception);
     void readTable(PCFmap& p_map) throw(UTIL::Exception);
     void readTable(PLFmap& p_map) throw(UTIL::Exception);
+    void readTable(VPDmap& p_map) throw(UTIL::Exception);
 
     // Dumps a MIB table
     void dumpTable(const PIDmap& p_map);
@@ -158,6 +182,7 @@ namespace SCOS
     void dumpTable(const TPCFmap& p_map);
     void dumpTable(const PCFmap& p_map);
     void dumpTable(const PLFmap& p_map);
+    void dumpTable(const VPDmap& p_map);
   }
 }
 
