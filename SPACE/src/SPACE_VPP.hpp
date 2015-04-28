@@ -18,6 +18,7 @@
 
 #include <list>
 #include <string>
+#include "UTIL_EXCEPTION.hpp"
 
 namespace SPACE
 {
@@ -52,6 +53,7 @@ namespace SPACE
       virtual ~ListDef();
       // takes over the ownership of p_entryDef
       virtual void setEntryDef(NodeDef* p_entryDef);
+      virtual const NodeDef* getEntryDef() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -69,7 +71,7 @@ namespace SPACE
       virtual ~StructDef();
       // takes over the ownership of p_attributeDef
       virtual void addAttributeDef(NodeDef* p_attributeDef);
-      const std::list<NodeDef*> getAttributesDef() const;
+      const std::list<NodeDef*>& getAttributesDef() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -105,6 +107,9 @@ namespace SPACE
       virtual ~Node();
       const NodeDef* getNodeDef() const;
       virtual std::string getNodeName() const;
+      // generic access to sub-nodes
+      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
+      virtual Node* addNode() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -121,6 +126,10 @@ namespace SPACE
       List(const ListDef* p_listDef);
       virtual ~List();
       const ListDef* getListDef() const;
+      std::list<Node*>& getEntries();
+      // generic access to sub-nodes
+      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
+      virtual Node* addNode() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -137,6 +146,10 @@ namespace SPACE
       Struct(const StructDef* p_structDef);
       virtual ~Struct();
       const StructDef* getStructDef() const;
+      std::list<Node*>& getAttributes();
+      // generic access to sub-nodes
+      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
+      virtual Node* addNode() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -152,6 +165,9 @@ namespace SPACE
       Field(const FieldDef* p_fieldDef);
       virtual ~Field();
       const FieldDef* getFieldDef() const;
+      // generic access to sub-nodes
+      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
+      virtual Node* addNode() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:

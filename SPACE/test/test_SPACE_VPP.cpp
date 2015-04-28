@@ -54,40 +54,34 @@ int main()
   struct1Def->dump("Def");
   cout << endl;
 
-  // construct instance tree
-  SPACE::VPP::Struct* struct1 = new SPACE::VPP::Struct(struct1Def);
-/*
-   SPACE::VPP::FieldDef* field1Def = new SPACE::VPP::FieldDef("field1Def");
-   struct1Def->addAttributeDef(field1Def);
-   SPACE::VPP::FieldDef* field2Def = new SPACE::VPP::FieldDef("field2Def");
-   struct1Def->addAttributeDef(field2Def);
-   SPACE::VPP::ListDef* list1Def = new SPACE::VPP::ListDef("list1Def");
-    SPACE::VPP::FieldDef* field3Def = new SPACE::VPP::FieldDef("field3Def");
-    list1Def->setEntryDef(field3Def);
-   struct1Def->addAttributeDef(list1Def);
-   SPACE::VPP::StructDef* struct2Def = new SPACE::VPP::StructDef("struct2Def");
-    SPACE::VPP::FieldDef* field4Def = new SPACE::VPP::FieldDef("field4Def");
-    struct2Def->addAttributeDef(field4Def);
-    SPACE::VPP::FieldDef* field5Def = new SPACE::VPP::FieldDef("field5Def");
-    struct2Def->addAttributeDef(field5Def);
-    SPACE::VPP::ListDef* list2Def = new SPACE::VPP::ListDef("list2Def");
-     SPACE::VPP::StructDef* struct3Def = new SPACE::VPP::StructDef("struct3Def");
-      SPACE::VPP::FieldDef* field6Def = new SPACE::VPP::FieldDef("field6Def");
-      struct3Def->addAttributeDef(field6Def);
-      SPACE::VPP::ListDef* list4Def = new SPACE::VPP::ListDef("list4Def");
-       SPACE::VPP::FieldDef* field7Def = new SPACE::VPP::FieldDef("field7Def");
-       list4Def->setEntryDef(field7Def);
-      struct3Def->addAttributeDef(list4Def);
-     list2Def->setEntryDef(struct3Def);
-    struct2Def->addAttributeDef(list2Def);
-   struct1Def->addAttributeDef(struct2Def);
-*/
-  // dump instance tree
-  struct1->dump("Inst");
-  cout << endl;
-
-  // delete instance tree
-  delete struct1;
+  try
+  {
+    // construct instance tree
+    SPACE::VPP::Struct* struct1 = new SPACE::VPP::Struct(struct1Def);
+    struct1->at(2)->addNode();
+    struct1->at(2)->addNode();
+    struct1->at(2)->addNode();
+    struct1->at(2)->addNode();
+    struct1->at(2)->addNode();
+    struct1->at(3)->at(2)->addNode();
+    struct1->at(3)->at(2)->at(0)->at(1)->addNode();
+    struct1->at(3)->at(2)->at(0)->at(1)->addNode();
+    struct1->at(3)->at(2)->addNode();
+    struct1->at(3)->at(2)->at(1)->at(1)->addNode();
+    struct1->at(3)->at(2)->at(1)->at(1)->addNode();
+    struct1->at(3)->at(2)->at(1)->at(1)->addNode();
+    struct1->at(3)->at(2)->addNode();
+    // dump instance tree
+    struct1->dump("Inst");
+    cout << endl;
+    // delete instance tree
+    delete struct1;
+  }
+  catch(const UTIL::Exception& ex)
+  {
+    cout << "Exception: " << ex.what() << endl;
+    return -1;
+  }
 
   // delete definition tree
   delete struct1Def;

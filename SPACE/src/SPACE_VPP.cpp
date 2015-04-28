@@ -43,6 +43,7 @@ std::string SPACE::VPP::NodeDef::getNodeName() const
 }
 
 //-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::NodeDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -78,6 +79,14 @@ void SPACE::VPP::ListDef::setEntryDef(SPACE::VPP::NodeDef* p_entryDef)
 }
 
 //-----------------------------------------------------------------------------
+const SPACE::VPP::NodeDef* SPACE::VPP::ListDef::getEntryDef() const
+//-----------------------------------------------------------------------------
+{
+  return m_entryDef;
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::ListDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -122,7 +131,7 @@ SPACE::VPP::StructDef::addAttributeDef(SPACE::VPP::NodeDef* p_attributeDef)
 }
 
 //-----------------------------------------------------------------------------
-const std::list<SPACE::VPP::NodeDef*>
+const std::list<SPACE::VPP::NodeDef*>&
 SPACE::VPP::StructDef::getAttributesDef() const
 //-----------------------------------------------------------------------------
 {
@@ -130,6 +139,7 @@ SPACE::VPP::StructDef::getAttributesDef() const
 }
 
 //-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::StructDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -166,6 +176,7 @@ SPACE::VPP::FieldDef::~FieldDef()
 {}
 
 //-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::FieldDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -202,6 +213,23 @@ std::string SPACE::VPP::Node::getNodeName() const
 }
 
 //-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::Node::at(size_t) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("SPACE::VPP::Node does not have child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::Node::addNode() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("SPACE::VPP::Node does support adding of child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::Node::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -234,6 +262,44 @@ const SPACE::VPP::ListDef* SPACE::VPP::List::getListDef() const
 }
 
 //-----------------------------------------------------------------------------
+list<SPACE::VPP::Node*>& SPACE::VPP::List::getEntries()
+//-----------------------------------------------------------------------------
+{
+  return m_entries;
+}
+
+//-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::List::at(size_t p_pos) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  size_t i = 0;
+  for(list<SPACE::VPP::Node*>::iterator nIter = m_entries.begin();
+      nIter != m_entries.end();
+      nIter++)
+  {
+    if(i == p_pos)
+    {
+      return (*nIter);
+    }
+    i++;
+  }
+  throw UTIL::Exception("SPACE::VPP::List::at(" + UTIL::STRING::str(i) + ") out of range");
+}
+
+//-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::List::addNode() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  const SPACE::VPP::NodeDef* entryDef = getListDef()->getEntryDef();
+  SPACE::VPP::Node* entry = SPACE::VPP::createNode(entryDef);
+  m_entries.push_back(entry);
+  return entry;
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::List::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -296,6 +362,42 @@ const SPACE::VPP::StructDef* SPACE::VPP::Struct::getStructDef() const
 }
 
 //-----------------------------------------------------------------------------
+std::list<SPACE::VPP::Node*>&
+SPACE::VPP::Struct::getAttributes()
+//-----------------------------------------------------------------------------
+{
+  return m_attributes;
+}
+
+//-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::Struct::at(size_t p_pos) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  size_t i = 0;
+  for(list<SPACE::VPP::Node*>::iterator nIter = m_attributes.begin();
+      nIter != m_attributes.end();
+      nIter++)
+  {
+    if(i == p_pos)
+    {
+      return (*nIter);
+    }
+    i++;
+  }
+  throw UTIL::Exception("SPACE::VPP::Struct::at(" + UTIL::STRING::str(i) + ") out of range");
+}
+
+//-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::Struct::addNode() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("SPACE::VPP::Struct does support adding of child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::Struct::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
@@ -338,6 +440,23 @@ const SPACE::VPP::FieldDef* SPACE::VPP::Field::getFieldDef() const
 }
 
 //-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::Field::at(size_t) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("SPACE::VPP::Field does not have child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// generic access to sub-nodes
+SPACE::VPP::Node* SPACE::VPP::Field::addNode() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("SPACE::VPP::Field does support adding of child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
 void SPACE::VPP::Field::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
