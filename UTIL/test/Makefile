@@ -71,7 +71,7 @@ tst_UTIL_STRING: ../bin/test_UTIL_STRING
 
 test_UTIL_CircBuffer.o: test_UTIL_CircBuffer.cpp \
 	${LIB_UTIL}
-	${CPP} -otest_UTIL_Circbuffer.o ${INCLUDES} \
+	${CPP} -otest_UTIL_CircBuffer.o ${INCLUDES} \
 	test_UTIL_CircBuffer.cpp
 
 test_UTIL_CRC.o: test_UTIL_CRC.cpp \
