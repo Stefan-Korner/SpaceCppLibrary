@@ -28,14 +28,19 @@ INCLUDES = -I. \
            -I../../SCOS/src \
            -I../../UTIL/src
 
-all:	../bin/test_SPACE_DEF
+all:	../bin/test_SPACE_DEF \
+	../bin/test_SPACE_VPP
 
 clean:
 	\rm -f ../bin/test_SPACE_DEF
+	\rm -f ../bin/test_SPACE_VPP
 	\rm -f *.o
 
 tst_SPACE_DEF: ../bin/test_SPACE_DEF
 	cd ../bin; ./test_SPACE_DEF
+
+tst_SPACE_VPP: ../bin/test_SPACE_VPP
+	cd ../bin; ./test_SPACE_VPP
 
 ../bin/test_SPACE_DEF: test_SPACE_DEF.o
 	${LINK} -otest_SPACE_DEF \
@@ -43,9 +48,22 @@ tst_SPACE_DEF: ../bin/test_SPACE_DEF
 	${LIBS}
 	mv test_SPACE_DEF ../bin
 
+../bin/test_SPACE_VPP: test_SPACE_VPP.o
+	${LINK} -otest_SPACE_VPP \
+	test_SPACE_VPP.o \
+	${LIBS}
+	mv test_SPACE_VPP ../bin
+
 test_SPACE_DEF.o: test_SPACE_DEF.cpp \
 	${LIB_SCOS} \
 	${LIB_SPACE} \
 	${LIB_UTIL}
 	${CPP} -otest_SPACE_DEF.o ${INCLUDES} \
 	test_SPACE_DEF.cpp
+
+test_SPACE_VPP.o: test_SPACE_VPP.cpp \
+	${LIB_SCOS} \
+	${LIB_SPACE} \
+	${LIB_UTIL}
+	${CPP} -otest_SPACE_VPP.o ${INCLUDES} \
+	test_SPACE_VPP.cpp

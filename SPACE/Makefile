@@ -21,3 +21,9 @@ all:
 clean:
 	cd src; make clean
 	cd test; make clean
+
+tst_SPACE_DEF:
+	cd test; make tst_SPACE_DEF
+
+tst_SPACE_VPP:
+	cd test; make tst_SPACE_VPP

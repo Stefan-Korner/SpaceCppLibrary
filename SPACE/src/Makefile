@@ -28,15 +28,19 @@ clean:
 	\rm -f ../lib/libSPACE.so ../lib/libSPACE.a *.o
 
 ../lib/libSPACE.so: \
-	SPACE_DEF.o
+	SPACE_DEF.o \
+	SPACE_VPP.o
 	${LIB_DYNAMIC} -olibSPACE.so \
-	SPACE_DEF.o
+	SPACE_DEF.o \
+	SPACE_VPP.o
 	mv libSPACE.so ../lib
 
 ../lib/libSPACE.a: \
-	SPACE_DEF.o
+	SPACE_DEF.o \
+	SPACE_VPP.o
 	${LIB_STATIC} libSPACE.a \
-	SPACE_DEF.o
+	SPACE_DEF.o \
+	SPACE_VPP.o
 	mv libSPACE.a ../lib
 
 SPACE_DEF.o: SPACE_DEF.cpp \
@@ -45,3 +49,10 @@ SPACE_DEF.o: SPACE_DEF.cpp \
 	${LIB_UTIL}
 	${CPP} -oSPACE_DEF.o ${INCLUDES} \
 	SPACE_DEF.cpp
+
+SPACE_VPP.o: SPACE_VPP.cpp \
+	SPACE_VPP.hpp \
+	${LIB_SCOS} \
+	${LIB_UTIL}
+	${CPP} -oSPACE_VPP.o ${INCLUDES} \
+	SPACE_VPP.cpp
