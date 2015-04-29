@@ -27,25 +27,32 @@ int main()
 
   // construct definition tree
   PUS::VPP::StructDef* struct1Def = new PUS::VPP::StructDef("struct1Def");
-   PUS::VPP::FieldDef* field1Def = new PUS::VPP::FieldDef("field1Def", 0, 0);
+   PUS::VPP::FieldDef* field1Def =
+     new PUS::VPP::FieldDef("field1Def", PUS::VPP::FieldDef::BIT_FIELD, 0, 0);
    struct1Def->addAttributeDef(field1Def);
-   PUS::VPP::FieldDef* field2Def = new PUS::VPP::FieldDef("field2Def", 0, 0);
+   PUS::VPP::FieldDef* field2Def =
+     new PUS::VPP::FieldDef("field2Def", PUS::VPP::FieldDef::BYTE_FIELD, 0, 0);
    struct1Def->addAttributeDef(field2Def);
    PUS::VPP::ListDef* list1Def = new PUS::VPP::ListDef("list1Def", 0, 0);
-    PUS::VPP::FieldDef* field3Def = new PUS::VPP::FieldDef("field3Def", 0, 0);
+    PUS::VPP::FieldDef* field3Def =
+      new PUS::VPP::FieldDef("field3Def", PUS::VPP::FieldDef::UNSIGNED_FIELD, 0, 0);
     list1Def->setEntryDef(field3Def);
    struct1Def->addAttributeDef(list1Def);
    PUS::VPP::StructDef* struct2Def = new PUS::VPP::StructDef("struct2Def");
-    PUS::VPP::FieldDef* field4Def = new PUS::VPP::FieldDef("field4Def", 0, 0);
+    PUS::VPP::FieldDef* field4Def =
+      new PUS::VPP::FieldDef("field4Def", PUS::VPP::FieldDef::STRING_FIELD, 0, 0);
     struct2Def->addAttributeDef(field4Def);
-    PUS::VPP::FieldDef* field5Def = new PUS::VPP::FieldDef("field5Def", 0, 0);
+    PUS::VPP::FieldDef* field5Def =
+      new PUS::VPP::FieldDef("field5Def", PUS::VPP::FieldDef::ABS_TIME_FIELD, 0, 0);
     struct2Def->addAttributeDef(field5Def);
     PUS::VPP::ListDef* list2Def = new PUS::VPP::ListDef("list2Def", 0, 0);
      PUS::VPP::StructDef* struct3Def = new PUS::VPP::StructDef("struct3Def");
-      PUS::VPP::FieldDef* field6Def = new PUS::VPP::FieldDef("field6Def", 0, 0);
+      PUS::VPP::FieldDef* field6Def =
+        new PUS::VPP::FieldDef("field6Def", PUS::VPP::FieldDef::BIT_FIELD, 0, 0);
       struct3Def->addAttributeDef(field6Def);
       PUS::VPP::ListDef* list4Def = new PUS::VPP::ListDef("list4Def", 0, 0);
-       PUS::VPP::FieldDef* field7Def = new PUS::VPP::FieldDef("field7Def", 0, 0);
+       PUS::VPP::FieldDef* field7Def =
+         new PUS::VPP::FieldDef("field7Def", PUS::VPP::FieldDef::BYTE_FIELD, 0, 0);
        list4Def->setEntryDef(field7Def);
       struct3Def->addAttributeDef(list4Def);
      list2Def->setEntryDef(struct3Def);

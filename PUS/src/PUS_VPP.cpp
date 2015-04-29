@@ -223,9 +223,11 @@ PUS::VPP::StructDef::~StructDef()
 
 //-----------------------------------------------------------------------------
 PUS::VPP::FieldDef::FieldDef(const string& p_nodeName,
+                             PUS::VPP::FieldDef::FieldType p_fieldType,
                              size_t p_bitOffset,
                              size_t p_bitLength):
   UTIL::VPP::FieldDef(p_nodeName),
+  m_fieldType(p_fieldType),
   m_bitOffset(p_bitOffset),
   m_bitLength(p_bitLength)
 //-----------------------------------------------------------------------------
@@ -235,6 +237,13 @@ PUS::VPP::FieldDef::FieldDef(const string& p_nodeName,
 PUS::VPP::FieldDef::~FieldDef()
 //-----------------------------------------------------------------------------
 {}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::FieldDef::FieldType PUS::VPP::FieldDef::getFieldType() const
+//-----------------------------------------------------------------------------
+{
+  return m_fieldType;
+}
 
 //-----------------------------------------------------------------------------
 size_t PUS::VPP::FieldDef::getBitOffset() const
@@ -255,10 +264,31 @@ size_t PUS::VPP::FieldDef::getBitLength() const
 void PUS::VPP::FieldDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
+  const char* fieldTypeStr = "???";
+  switch(m_fieldType)
+  {
+  case BIT_FIELD:
+    fieldTypeStr = "BIT_FIELD";
+    break;
+  case BYTE_FIELD:
+    fieldTypeStr = "BYTE_FIELD";
+    break;
+  case UNSIGNED_FIELD:
+    fieldTypeStr = "UNSIGNED_FIELD";
+    break;
+  case STRING_FIELD:
+    fieldTypeStr = "STRING_FIELD";
+    break;
+  case ABS_TIME_FIELD:
+    fieldTypeStr = "ABS_TIME_FIELD";
+    break;
+  }
   cout << p_prefix
        << "."
        << getNodeName()
        << "("
+       << fieldTypeStr
+       << ","
        << m_bitOffset
        << ","
        << m_bitLength
