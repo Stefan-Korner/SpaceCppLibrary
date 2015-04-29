@@ -15,6 +15,11 @@
 //*****************************************************************************
 #include "PUS_VPP.hpp"
 
+#include <iostream>
+#include "UTIL_STRING.hpp"
+
+using namespace std;
+
 //////////////
 // TMpacket //
 //////////////
@@ -147,4 +152,203 @@ PUS::VPP::TCpacket::setParameterRootType(const UTIL::VPP::NodeDef* p_rootType)
   {
     m_parameters = UTIL::VPP::NodeFactory::instance()->createNode(p_rootType);
   }
+}
+
+//////////////////////
+// Node Definitions //
+//////////////////////
+
+//-----------------------------------------------------------------------------
+PUS::VPP::ListDef::ListDef(const string& p_nodeName,
+                           size_t p_counterBitOffset,
+                           size_t p_counterBitLength):
+  UTIL::VPP::ListDef(p_nodeName),
+  m_counterBitOffset(p_counterBitOffset),
+  m_counterBitLength(p_counterBitLength)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::ListDef::~ListDef()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+size_t PUS::VPP::ListDef::getCounterBitOffset() const
+//-----------------------------------------------------------------------------
+{
+  return m_counterBitOffset;
+}
+
+//-----------------------------------------------------------------------------
+size_t PUS::VPP::ListDef::getCounterBitLength() const
+//-----------------------------------------------------------------------------
+{
+  return m_counterBitLength;
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
+void PUS::VPP::ListDef::dump(const string& p_prefix) const
+//-----------------------------------------------------------------------------
+{
+  string prefix(p_prefix);
+  prefix += ".";
+  prefix += getNodeName();
+  prefix += "(";
+  prefix += UTIL::STRING::str(m_counterBitOffset);
+  prefix += ",";
+  prefix += UTIL::STRING::str(m_counterBitLength);
+  prefix += ")";
+  if(m_entryDef != NULL)
+  {
+    m_entryDef->dump(prefix);
+  }
+  else
+  {
+    cout << prefix << ".NULL" << endl;
+  }
+}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::StructDef::StructDef(const string& p_nodeName):
+  UTIL::VPP::StructDef(p_nodeName)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::StructDef::~StructDef()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::FieldDef::FieldDef(const string& p_nodeName,
+                             size_t p_bitOffset,
+                             size_t p_bitLength):
+  UTIL::VPP::FieldDef(p_nodeName),
+  m_bitOffset(p_bitOffset),
+  m_bitLength(p_bitLength)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::FieldDef::~FieldDef()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+size_t PUS::VPP::FieldDef::getBitOffset() const
+//-----------------------------------------------------------------------------
+{
+  return m_bitOffset;
+}
+
+//-----------------------------------------------------------------------------
+size_t PUS::VPP::FieldDef::getBitLength() const
+//-----------------------------------------------------------------------------
+{
+  return m_bitLength;
+}
+
+//-----------------------------------------------------------------------------
+// for debugging
+void PUS::VPP::FieldDef::dump(const string& p_prefix) const
+//-----------------------------------------------------------------------------
+{
+  cout << p_prefix
+       << "."
+       << getNodeName()
+       << "("
+       << m_bitOffset
+       << ","
+       << m_bitLength
+       << ")"
+       << endl;
+}
+
+////////////////////
+// Node Instances //
+////////////////////
+
+//-----------------------------------------------------------------------------
+PUS::VPP::List::List(const UTIL::VPP::ListDef* p_listDef):
+  UTIL::VPP::List(p_listDef)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::List::~List()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::Struct::Struct(const UTIL::VPP::StructDef* p_structDef):
+  UTIL::VPP::Struct(p_structDef)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::Struct::~Struct()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::Field::Field(const UTIL::VPP::FieldDef* p_fieldDef):
+  UTIL::VPP::Field(p_fieldDef)
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::Field::~Field()
+//-----------------------------------------------------------------------------
+{}
+
+//////////////////
+// Node Factory //
+//////////////////
+
+//-----------------------------------------------------------------------------
+PUS::VPP::NodeFactory::NodeFactory()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+PUS::VPP::NodeFactory::~NodeFactory()
+//-----------------------------------------------------------------------------
+{}
+
+//-----------------------------------------------------------------------------
+UTIL::VPP::Node*
+PUS::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
+//-----------------------------------------------------------------------------
+{
+  // try creation of UTIL::VPP::List
+  {
+    const UTIL::VPP::ListDef* listDef =
+      dynamic_cast<const UTIL::VPP::ListDef*>(p_nodeDef);
+    if(listDef != NULL)
+    {
+      return new PUS::VPP::List(listDef);
+    }
+  }
+  // try creation of UTIL::VPP::Struct
+  {
+    const UTIL::VPP::StructDef* structDef =
+      dynamic_cast<const UTIL::VPP::StructDef*>(p_nodeDef);
+    if(structDef != NULL)
+    {
+      return new PUS::VPP::Struct(structDef);
+    }
+  }
+  // try creation of UTIL::VPP::Field
+  {
+    const UTIL::VPP::FieldDef* fieldDef =
+      dynamic_cast<const UTIL::VPP::FieldDef*>(p_nodeDef);
+    if(fieldDef != NULL)
+    {
+      return new PUS::VPP::Field(fieldDef);
+    }
+  }
+  // no specific instance type (should not happen) --> delegate to superclass
+  return UTIL::VPP::NodeFactory::createNode(p_nodeDef);
 }

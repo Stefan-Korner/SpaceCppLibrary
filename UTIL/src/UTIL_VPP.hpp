@@ -33,13 +33,18 @@ namespace UTIL
     class NodeDef
     //-------------------------------------------------------------------------
     {
-      std::string m_nodeName;
     public:
       NodeDef(const std::string& p_nodeName);
       virtual ~NodeDef();
       virtual std::string getNodeName() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      std::string m_nodeName;
+    private:
+      NodeDef();
+      NodeDef(const NodeDef& p_other);
+      const NodeDef& operator=(const NodeDef& p_other);
     };
 
     //-------------------------------------------------------------------------
@@ -47,7 +52,6 @@ namespace UTIL
     class ListDef: public NodeDef
     //-------------------------------------------------------------------------
     {
-      NodeDef* m_entryDef;
     public:
       ListDef(const std::string& p_nodeName);
       virtual ~ListDef();
@@ -56,8 +60,12 @@ namespace UTIL
       virtual const NodeDef* getEntryDef() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      NodeDef* m_entryDef;
     private:
       ListDef();
+      ListDef(const ListDef& p_other);
+      const ListDef& operator=(const ListDef& p_other);
     };
 
     //-------------------------------------------------------------------------
@@ -65,7 +73,6 @@ namespace UTIL
     class StructDef: public NodeDef
     //-------------------------------------------------------------------------
     {
-      std::list<NodeDef*> m_attributesDef;
     public:
       StructDef(const std::string& p_nodeName);
       virtual ~StructDef();
@@ -74,8 +81,12 @@ namespace UTIL
       const std::list<NodeDef*>& getAttributesDef() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      std::list<NodeDef*> m_attributesDef;
     private:
       StructDef();
+      StructDef(const StructDef& p_other);
+      const StructDef& operator=(const StructDef& p_other);
     };
 
     //-------------------------------------------------------------------------
@@ -90,6 +101,8 @@ namespace UTIL
       virtual void dump(const std::string& p_prefix) const;
     private:
       FieldDef();
+      FieldDef(const FieldDef& p_other);
+      const FieldDef& operator=(const FieldDef& p_other);
     };
 
     ////////////////////
@@ -203,9 +216,9 @@ namespace UTIL
       const Field& operator=(const Field& p_other);
     };
 
-    ///////////////////////////
-    // Node Instance Factory //
-    ///////////////////////////
+    //////////////////
+    // Node Factory //
+    //////////////////
 
     //-------------------------------------------------------------------------
     // Supports specialization
@@ -222,7 +235,7 @@ namespace UTIL
       static NodeFactory* instance();
 
       // factory method
-      Node* createNode(const NodeDef* p_nodeDef);
+      virtual Node* createNode(const NodeDef* p_nodeDef);
 
     private:
       NodeFactory(const NodeFactory& p_service);

@@ -549,9 +549,9 @@ void UTIL::VPP::Field::dump(const string& p_prefix) const
   cout << p_prefix << "." << getNodeName() << endl;
 }
 
-///////////////////////////
-// Node Instance Factory //
-///////////////////////////
+//////////////////
+// Node Factory //
+//////////////////
 
 // global variables
 UTIL::VPP::NodeFactory* UTIL::VPP::NodeFactory::s_instance = NULL;

@@ -23,6 +23,10 @@ namespace PUS
 {
   namespace VPP
   {
+    /////////////
+    // Packets //
+    /////////////
+
     //-------------------------------------------------------------------------
     class TMpacket: public PUS::PACKET::TMpacket
     //-------------------------------------------------------------------------
@@ -61,6 +65,147 @@ namespace PUS
 
     protected:
       UTIL::VPP::Node* m_parameters;
+    };
+
+    //////////////////////
+    // Node Definitions //
+    //////////////////////
+
+    //-------------------------------------------------------------------------
+    // Definition of a list in the data tree
+    class ListDef: public UTIL::VPP::ListDef
+    //-------------------------------------------------------------------------
+    {
+    public:
+      ListDef(const std::string& p_nodeName,
+              size_t p_counterBitOffset,
+              size_t p_counterBitLength);
+      virtual ~ListDef();
+      virtual size_t getCounterBitOffset() const;
+      virtual size_t getCounterBitLength() const;
+      // for debugging
+      virtual void dump(const std::string& p_prefix) const;
+    protected:
+      size_t m_counterBitOffset;
+      size_t m_counterBitLength;
+    private:
+      ListDef();
+      ListDef(const ListDef& p_other);
+      const ListDef& operator=(const ListDef& p_other);
+    };
+
+    //-------------------------------------------------------------------------
+    // Definition of a struct in the data tree
+    class StructDef: public UTIL::VPP::StructDef
+    //-------------------------------------------------------------------------
+    {
+    public:
+      StructDef(const std::string& p_nodeName);
+      virtual ~StructDef();
+    private:
+      StructDef();
+      StructDef(const StructDef& p_other);
+      const StructDef& operator=(const StructDef& p_other);
+    };
+
+    //-------------------------------------------------------------------------
+    // Definition of a field in the data tree
+    class FieldDef: public UTIL::VPP::FieldDef
+    //-------------------------------------------------------------------------
+    {
+    public:
+      FieldDef(const std::string& p_nodeName,
+               size_t p_bitOffset,
+               size_t p_bitLength);
+      virtual ~FieldDef();
+      virtual size_t getBitOffset() const;
+      virtual size_t getBitLength() const;
+      // for debugging
+      virtual void dump(const std::string& p_prefix) const;
+    protected:
+      size_t m_bitOffset;
+      size_t m_bitLength;
+    private:
+      FieldDef();
+      FieldDef(const FieldDef& p_other);
+      const FieldDef& operator=(const FieldDef& p_other);
+    };
+
+    ////////////////////
+    // Node Instances //
+    ////////////////////
+
+    //-------------------------------------------------------------------------
+    // Instance of a list in the data tree
+    class List: public UTIL::VPP::List
+    //-------------------------------------------------------------------------
+    {
+      friend class NodeFactory;
+    public:
+      virtual ~List();
+    protected:
+      List(const UTIL::VPP::ListDef* p_listDef);
+    private:
+      List();
+      List(const List& p_other);
+      const List& operator=(const List& p_other);
+    };
+
+    //-------------------------------------------------------------------------
+    // Instance of a struct in the data tree
+    class Struct: public UTIL::VPP::Struct
+    //-------------------------------------------------------------------------
+    {
+      friend class NodeFactory;
+    public:
+      virtual ~Struct();
+    protected:
+      Struct(const UTIL::VPP::StructDef* p_structDef);
+      std::list<Node*> m_attributes;
+    private:
+      Struct();
+      Struct(const Struct& p_other);
+      const Struct& operator=(const Struct& p_other);
+    };
+
+    //-------------------------------------------------------------------------
+    // Instance of a field in the data tree
+    class Field: public UTIL::VPP::Field
+    //-------------------------------------------------------------------------
+    {
+      friend class NodeFactory;
+    public:
+      virtual ~Field();
+    protected:
+      Field(const UTIL::VPP::FieldDef* p_fieldDef);
+    private:
+      Field();
+      Field(const Field& p_other);
+      const Field& operator=(const Field& p_other);
+    };
+
+    //////////////////
+    // Node Factory //
+    //////////////////
+
+    //-------------------------------------------------------------------------
+    // Supports specialization
+    class NodeFactory: public UTIL::VPP::NodeFactory
+    //-------------------------------------------------------------------------
+    {
+    public:
+      // an instance of this class (or a derived class) shall
+      // be created and destroyed in main()
+      NodeFactory();
+      virtual ~NodeFactory();
+
+      // factory method
+      virtual UTIL::VPP::Node*
+      createNode(const UTIL::VPP::NodeDef* p_nodeDef);
+
+    private:
+      NodeFactory(const NodeFactory& p_service);
+      const NodeFactory& operator=(const NodeFactory& p_task);
     };
   }
 }

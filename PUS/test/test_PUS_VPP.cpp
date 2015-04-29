@@ -23,29 +23,29 @@ using namespace std;
 int main()
 //-----------------------------------------------------------------------------
 {
-  UTIL::VPP::NodeFactory nodeFactory;
+  PUS::VPP::NodeFactory nodeFactory;
 
   // construct definition tree
-  UTIL::VPP::StructDef* struct1Def = new UTIL::VPP::StructDef("struct1Def");
-   UTIL::VPP::FieldDef* field1Def = new UTIL::VPP::FieldDef("field1Def");
+  PUS::VPP::StructDef* struct1Def = new PUS::VPP::StructDef("struct1Def");
+   PUS::VPP::FieldDef* field1Def = new PUS::VPP::FieldDef("field1Def", 0, 0);
    struct1Def->addAttributeDef(field1Def);
-   UTIL::VPP::FieldDef* field2Def = new UTIL::VPP::FieldDef("field2Def");
+   PUS::VPP::FieldDef* field2Def = new PUS::VPP::FieldDef("field2Def", 0, 0);
    struct1Def->addAttributeDef(field2Def);
-   UTIL::VPP::ListDef* list1Def = new UTIL::VPP::ListDef("list1Def");
-    UTIL::VPP::FieldDef* field3Def = new UTIL::VPP::FieldDef("field3Def");
+   PUS::VPP::ListDef* list1Def = new PUS::VPP::ListDef("list1Def", 0, 0);
+    PUS::VPP::FieldDef* field3Def = new PUS::VPP::FieldDef("field3Def", 0, 0);
     list1Def->setEntryDef(field3Def);
    struct1Def->addAttributeDef(list1Def);
-   UTIL::VPP::StructDef* struct2Def = new UTIL::VPP::StructDef("struct2Def");
-    UTIL::VPP::FieldDef* field4Def = new UTIL::VPP::FieldDef("field4Def");
+   PUS::VPP::StructDef* struct2Def = new PUS::VPP::StructDef("struct2Def");
+    PUS::VPP::FieldDef* field4Def = new PUS::VPP::FieldDef("field4Def", 0, 0);
     struct2Def->addAttributeDef(field4Def);
-    UTIL::VPP::FieldDef* field5Def = new UTIL::VPP::FieldDef("field5Def");
+    PUS::VPP::FieldDef* field5Def = new PUS::VPP::FieldDef("field5Def", 0, 0);
     struct2Def->addAttributeDef(field5Def);
-    UTIL::VPP::ListDef* list2Def = new UTIL::VPP::ListDef("list2Def");
-     UTIL::VPP::StructDef* struct3Def = new UTIL::VPP::StructDef("struct3Def");
-      UTIL::VPP::FieldDef* field6Def = new UTIL::VPP::FieldDef("field6Def");
+    PUS::VPP::ListDef* list2Def = new PUS::VPP::ListDef("list2Def", 0, 0);
+     PUS::VPP::StructDef* struct3Def = new PUS::VPP::StructDef("struct3Def");
+      PUS::VPP::FieldDef* field6Def = new PUS::VPP::FieldDef("field6Def", 0, 0);
       struct3Def->addAttributeDef(field6Def);
-      UTIL::VPP::ListDef* list4Def = new UTIL::VPP::ListDef("list4Def");
-       UTIL::VPP::FieldDef* field7Def = new UTIL::VPP::FieldDef("field7Def");
+      PUS::VPP::ListDef* list4Def = new PUS::VPP::ListDef("list4Def", 0, 0);
+       PUS::VPP::FieldDef* field7Def = new PUS::VPP::FieldDef("field7Def", 0, 0);
        list4Def->setEntryDef(field7Def);
       struct3Def->addAttributeDef(list4Def);
      list2Def->setEntryDef(struct3Def);
