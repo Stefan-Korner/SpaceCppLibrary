@@ -27,24 +27,28 @@ clean:
 	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o \
-	UTIL_STRING.o
+	UTIL_STRING.o \
+	UTIL_VPP.o
 	${LIB_DYNAMIC} -olibUTIL.so \
 	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o \
-	UTIL_STRING.o
+	UTIL_STRING.o \
+	UTIL_VPP.o
 	mv libUTIL.so ../lib
 
 ../lib/libUTIL.a: \
 	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o \
-	UTIL_STRING.o
+	UTIL_STRING.o \
+	UTIL_VPP.o
 	${LIB_STATIC} libUTIL.a \
 	UTIL_CircBuffer.o \
 	UTIL_CRC.o \
 	UTIL_DU.o \
-	UTIL_STRING.o
+	UTIL_STRING.o \
+	UTIL_VPP.o
 	mv libUTIL.a ../lib
 
 UTIL_CircBuffer.o: UTIL_CircBuffer.cpp \
@@ -68,3 +72,8 @@ UTIL_STRING.o: UTIL_STRING.cpp \
 	UTIL_STRING.hpp
 	${CPP} -oUTIL_STRING.o ${INCLUDES} \
 	UTIL_STRING.cpp
+
+UTIL_VPP.o: UTIL_VPP.cpp \
+	UTIL_VPP.hpp
+	${CPP} -oUTIL_VPP.o ${INCLUDES} \
+	UTIL_VPP.cpp

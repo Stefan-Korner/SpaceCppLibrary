@@ -11,12 +11,12 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser    *
 // General Public License for more details.                                   *
 //*****************************************************************************
-// Space Simulation - Variable Packets - Unit Tests                           *
+// Variable Packets - Unit Tests                                              *
 //*****************************************************************************
-#include "SPACE_VPP.hpp"
+#include "UTIL_VPP.hpp"
 
 #include <iostream>
-#include "SPACE_VPP.hpp"
+#include "UTIL_VPP.hpp"
 
 using namespace std;
 
@@ -25,26 +25,26 @@ int main()
 //-----------------------------------------------------------------------------
 {
   // construct definition tree
-  SPACE::VPP::StructDef* struct1Def = new SPACE::VPP::StructDef("struct1Def");
-   SPACE::VPP::FieldDef* field1Def = new SPACE::VPP::FieldDef("field1Def");
+  UTIL::VPP::StructDef* struct1Def = new UTIL::VPP::StructDef("struct1Def");
+   UTIL::VPP::FieldDef* field1Def = new UTIL::VPP::FieldDef("field1Def");
    struct1Def->addAttributeDef(field1Def);
-   SPACE::VPP::FieldDef* field2Def = new SPACE::VPP::FieldDef("field2Def");
+   UTIL::VPP::FieldDef* field2Def = new UTIL::VPP::FieldDef("field2Def");
    struct1Def->addAttributeDef(field2Def);
-   SPACE::VPP::ListDef* list1Def = new SPACE::VPP::ListDef("list1Def");
-    SPACE::VPP::FieldDef* field3Def = new SPACE::VPP::FieldDef("field3Def");
+   UTIL::VPP::ListDef* list1Def = new UTIL::VPP::ListDef("list1Def");
+    UTIL::VPP::FieldDef* field3Def = new UTIL::VPP::FieldDef("field3Def");
     list1Def->setEntryDef(field3Def);
    struct1Def->addAttributeDef(list1Def);
-   SPACE::VPP::StructDef* struct2Def = new SPACE::VPP::StructDef("struct2Def");
-    SPACE::VPP::FieldDef* field4Def = new SPACE::VPP::FieldDef("field4Def");
+   UTIL::VPP::StructDef* struct2Def = new UTIL::VPP::StructDef("struct2Def");
+    UTIL::VPP::FieldDef* field4Def = new UTIL::VPP::FieldDef("field4Def");
     struct2Def->addAttributeDef(field4Def);
-    SPACE::VPP::FieldDef* field5Def = new SPACE::VPP::FieldDef("field5Def");
+    UTIL::VPP::FieldDef* field5Def = new UTIL::VPP::FieldDef("field5Def");
     struct2Def->addAttributeDef(field5Def);
-    SPACE::VPP::ListDef* list2Def = new SPACE::VPP::ListDef("list2Def");
-     SPACE::VPP::StructDef* struct3Def = new SPACE::VPP::StructDef("struct3Def");
-      SPACE::VPP::FieldDef* field6Def = new SPACE::VPP::FieldDef("field6Def");
+    UTIL::VPP::ListDef* list2Def = new UTIL::VPP::ListDef("list2Def");
+     UTIL::VPP::StructDef* struct3Def = new UTIL::VPP::StructDef("struct3Def");
+      UTIL::VPP::FieldDef* field6Def = new UTIL::VPP::FieldDef("field6Def");
       struct3Def->addAttributeDef(field6Def);
-      SPACE::VPP::ListDef* list4Def = new SPACE::VPP::ListDef("list4Def");
-       SPACE::VPP::FieldDef* field7Def = new SPACE::VPP::FieldDef("field7Def");
+      UTIL::VPP::ListDef* list4Def = new UTIL::VPP::ListDef("list4Def");
+       UTIL::VPP::FieldDef* field7Def = new UTIL::VPP::FieldDef("field7Def");
        list4Def->setEntryDef(field7Def);
       struct3Def->addAttributeDef(list4Def);
      list2Def->setEntryDef(struct3Def);
@@ -57,7 +57,7 @@ int main()
   try
   {
     // construct instance tree
-    SPACE::VPP::Struct struct1(struct1Def);
+    UTIL::VPP::Struct struct1(struct1Def);
     struct1[2].addNodes(5);
     struct1[3][2].addNodes(3);
     struct1[3][2][0][1].addNodes(2);

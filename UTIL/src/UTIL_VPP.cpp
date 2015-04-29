@@ -11,9 +11,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser    *
 // General Public License for more details.                                   *
 //*****************************************************************************
-// Space Simulation - Variable Packets Definition and Instances               *
+// Variable Packets Definition and Instances                                  *
 //*****************************************************************************
-#include "SPACE_VPP.hpp"
+#include "UTIL_VPP.hpp"
 
 #include <iostream>
 #include "UTIL_STRING.hpp"
@@ -25,18 +25,18 @@ using namespace std;
 //////////////////////
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::NodeDef::NodeDef(const string& p_nodeName):
+UTIL::VPP::NodeDef::NodeDef(const string& p_nodeName):
   m_nodeName(p_nodeName)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::NodeDef::~NodeDef()
+UTIL::VPP::NodeDef::~NodeDef()
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-std::string SPACE::VPP::NodeDef::getNodeName() const
+std::string UTIL::VPP::NodeDef::getNodeName() const
 //-----------------------------------------------------------------------------
 {
   return m_nodeName;
@@ -44,20 +44,20 @@ std::string SPACE::VPP::NodeDef::getNodeName() const
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::NodeDef::dump(const string& p_prefix) const
+void UTIL::VPP::NodeDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   cout << p_prefix << "." << m_nodeName << endl;
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::ListDef::ListDef(const string& p_nodeName):
-  SPACE::VPP::NodeDef(p_nodeName), m_entryDef(NULL)
+UTIL::VPP::ListDef::ListDef(const string& p_nodeName):
+  UTIL::VPP::NodeDef(p_nodeName), m_entryDef(NULL)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::ListDef::~ListDef()
+UTIL::VPP::ListDef::~ListDef()
 //-----------------------------------------------------------------------------
 {
   if(m_entryDef != NULL)
@@ -68,7 +68,7 @@ SPACE::VPP::ListDef::~ListDef()
 
 //-----------------------------------------------------------------------------
 // takes over the ownership of p_entryDef
-void SPACE::VPP::ListDef::setEntryDef(SPACE::VPP::NodeDef* p_entryDef)
+void UTIL::VPP::ListDef::setEntryDef(UTIL::VPP::NodeDef* p_entryDef)
 //-----------------------------------------------------------------------------
 {
   if(m_entryDef != NULL)
@@ -79,7 +79,7 @@ void SPACE::VPP::ListDef::setEntryDef(SPACE::VPP::NodeDef* p_entryDef)
 }
 
 //-----------------------------------------------------------------------------
-const SPACE::VPP::NodeDef* SPACE::VPP::ListDef::getEntryDef() const
+const UTIL::VPP::NodeDef* UTIL::VPP::ListDef::getEntryDef() const
 //-----------------------------------------------------------------------------
 {
   return m_entryDef;
@@ -87,7 +87,7 @@ const SPACE::VPP::NodeDef* SPACE::VPP::ListDef::getEntryDef() const
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::ListDef::dump(const string& p_prefix) const
+void UTIL::VPP::ListDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   string prefix(p_prefix);
@@ -104,16 +104,16 @@ void SPACE::VPP::ListDef::dump(const string& p_prefix) const
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::StructDef::StructDef(const string& p_nodeName):
-  SPACE::VPP::NodeDef(p_nodeName)
+UTIL::VPP::StructDef::StructDef(const string& p_nodeName):
+  UTIL::VPP::NodeDef(p_nodeName)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::StructDef::~StructDef()
+UTIL::VPP::StructDef::~StructDef()
 //-----------------------------------------------------------------------------
 {
-  for(list<SPACE::VPP::NodeDef*>::iterator nIter = m_attributesDef.begin();
+  for(list<UTIL::VPP::NodeDef*>::iterator nIter = m_attributesDef.begin();
       nIter != m_attributesDef.end();
       nIter++)
   {
@@ -124,15 +124,15 @@ SPACE::VPP::StructDef::~StructDef()
 //-----------------------------------------------------------------------------
 // takes over the ownership of p_attributeDef
 void
-SPACE::VPP::StructDef::addAttributeDef(SPACE::VPP::NodeDef* p_attributeDef)
+UTIL::VPP::StructDef::addAttributeDef(UTIL::VPP::NodeDef* p_attributeDef)
 //-----------------------------------------------------------------------------
 {
   m_attributesDef.push_back(p_attributeDef);
 }
 
 //-----------------------------------------------------------------------------
-const std::list<SPACE::VPP::NodeDef*>&
-SPACE::VPP::StructDef::getAttributesDef() const
+const std::list<UTIL::VPP::NodeDef*>&
+UTIL::VPP::StructDef::getAttributesDef() const
 //-----------------------------------------------------------------------------
 {
   return m_attributesDef;
@@ -140,7 +140,7 @@ SPACE::VPP::StructDef::getAttributesDef() const
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::StructDef::dump(const string& p_prefix) const
+void UTIL::VPP::StructDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   string prefix(p_prefix);
@@ -149,7 +149,7 @@ void SPACE::VPP::StructDef::dump(const string& p_prefix) const
   if(m_attributesDef.size() > 0)
   {
     size_t i = 0;
-    for(list<SPACE::VPP::NodeDef*>::const_iterator nIter =
+    for(list<UTIL::VPP::NodeDef*>::const_iterator nIter =
           m_attributesDef.begin();
         nIter != m_attributesDef.end();
         nIter++)
@@ -165,19 +165,19 @@ void SPACE::VPP::StructDef::dump(const string& p_prefix) const
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::FieldDef::FieldDef(const string& p_nodeName):
-  SPACE::VPP::NodeDef(p_nodeName)
+UTIL::VPP::FieldDef::FieldDef(const string& p_nodeName):
+  UTIL::VPP::NodeDef(p_nodeName)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::FieldDef::~FieldDef()
+UTIL::VPP::FieldDef::~FieldDef()
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::FieldDef::dump(const string& p_prefix) const
+void UTIL::VPP::FieldDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   cout << p_prefix << "." << getNodeName() << endl;
@@ -188,25 +188,25 @@ void SPACE::VPP::FieldDef::dump(const string& p_prefix) const
 ////////////////////
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Node::Node(const SPACE::VPP::NodeDef* p_nodeDef):
+UTIL::VPP::Node::Node(const UTIL::VPP::NodeDef* p_nodeDef):
   m_nodeDef(p_nodeDef)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Node::~Node()
+UTIL::VPP::Node::~Node()
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-const SPACE::VPP::NodeDef* SPACE::VPP::Node::getNodeDef() const
+const UTIL::VPP::NodeDef* UTIL::VPP::Node::getNodeDef() const
 //-----------------------------------------------------------------------------
 {
   return m_nodeDef;
 }
 
 //-----------------------------------------------------------------------------
-std::string SPACE::VPP::Node::getNodeName() const
+std::string UTIL::VPP::Node::getNodeName() const
 //-----------------------------------------------------------------------------
 {
   return m_nodeDef->getNodeName();
@@ -214,7 +214,7 @@ std::string SPACE::VPP::Node::getNodeName() const
 
 //-----------------------------------------------------------------------------
 // generic access to sub-nodes, only provided by List and Struct
-SPACE::VPP::Node& SPACE::VPP::Node::operator[](size_t) throw(UTIL::Exception)
+UTIL::VPP::Node& UTIL::VPP::Node::operator[](size_t) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   throw UTIL::Exception("This Node does not have child nodes");
@@ -222,14 +222,14 @@ SPACE::VPP::Node& SPACE::VPP::Node::operator[](size_t) throw(UTIL::Exception)
 
 //-----------------------------------------------------------------------------
 // only provided by List
-SPACE::VPP::Node& SPACE::VPP::Node::addNode() throw(UTIL::Exception)
+UTIL::VPP::Node& UTIL::VPP::Node::addNode() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   throw UTIL::Exception("This Node does support adding of child nodes");
 }
 
 //-----------------------------------------------------------------------------
-void SPACE::VPP::Node::addNodes(size_t p_nr) throw(UTIL::Exception)
+void UTIL::VPP::Node::addNodes(size_t p_nr) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   for(size_t i = 0; i < p_nr; i++)
@@ -240,23 +240,23 @@ void SPACE::VPP::Node::addNodes(size_t p_nr) throw(UTIL::Exception)
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::Node::dump(const string& p_prefix) const
+void UTIL::VPP::Node::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   cout << p_prefix << "." << getNodeName() << ".NIL" << endl;
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::List::List(const SPACE::VPP::ListDef* p_listDef):
-  SPACE::VPP::Node(p_listDef)
+UTIL::VPP::List::List(const UTIL::VPP::ListDef* p_listDef):
+  UTIL::VPP::Node(p_listDef)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::List::~List()
+UTIL::VPP::List::~List()
 //-----------------------------------------------------------------------------
 {
-  for(list<SPACE::VPP::Node*>::iterator nIter = m_entries.begin();
+  for(list<UTIL::VPP::Node*>::iterator nIter = m_entries.begin();
       nIter != m_entries.end();
       nIter++)
   {
@@ -265,14 +265,14 @@ SPACE::VPP::List::~List()
 }
 
 //-----------------------------------------------------------------------------
-const SPACE::VPP::ListDef* SPACE::VPP::List::getListDef() const
+const UTIL::VPP::ListDef* UTIL::VPP::List::getListDef() const
 //-----------------------------------------------------------------------------
 {
-  return dynamic_cast<const SPACE::VPP::ListDef*>(getNodeDef());
+  return dynamic_cast<const UTIL::VPP::ListDef*>(getNodeDef());
 }
 
 //-----------------------------------------------------------------------------
-list<SPACE::VPP::Node*>& SPACE::VPP::List::getEntries()
+list<UTIL::VPP::Node*>& UTIL::VPP::List::getEntries()
 //-----------------------------------------------------------------------------
 {
   return m_entries;
@@ -280,12 +280,12 @@ list<SPACE::VPP::Node*>& SPACE::VPP::List::getEntries()
 
 //-----------------------------------------------------------------------------
 // overloaded from Node
-SPACE::VPP::Node&
-SPACE::VPP::List::operator[](size_t p_pos) throw(UTIL::Exception)
+UTIL::VPP::Node&
+UTIL::VPP::List::operator[](size_t p_pos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   size_t i = 0;
-  for(list<SPACE::VPP::Node*>::iterator nIter = m_entries.begin();
+  for(list<UTIL::VPP::Node*>::iterator nIter = m_entries.begin();
       nIter != m_entries.end();
       nIter++)
   {
@@ -295,23 +295,23 @@ SPACE::VPP::List::operator[](size_t p_pos) throw(UTIL::Exception)
     }
     i++;
   }
-  throw UTIL::Exception("SPACE::VPP::List::at(" + UTIL::STRING::str(i) + ") out of range");
+  throw UTIL::Exception("UTIL::VPP::List::at(" + UTIL::STRING::str(i) + ") out of range");
 }
 
 //-----------------------------------------------------------------------------
 // overloaded from Node
-SPACE::VPP::Node& SPACE::VPP::List::addNode() throw(UTIL::Exception)
+UTIL::VPP::Node& UTIL::VPP::List::addNode() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  const SPACE::VPP::NodeDef* entryDef = getListDef()->getEntryDef();
-  SPACE::VPP::Node* entry = SPACE::VPP::createNode(entryDef);
+  const UTIL::VPP::NodeDef* entryDef = getListDef()->getEntryDef();
+  UTIL::VPP::Node* entry = UTIL::VPP::createNode(entryDef);
   m_entries.push_back(entry);
   return *entry;
 }
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::List::dump(const string& p_prefix) const
+void UTIL::VPP::List::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   string prefix(p_prefix);
@@ -320,7 +320,7 @@ void SPACE::VPP::List::dump(const string& p_prefix) const
   if(m_entries.size() > 0)
   {
     size_t i = 0;
-    for(list<SPACE::VPP::Node*>::const_iterator nIter = m_entries.begin();
+    for(list<UTIL::VPP::Node*>::const_iterator nIter = m_entries.begin();
         nIter != m_entries.end();
         nIter++)
     {
@@ -335,29 +335,29 @@ void SPACE::VPP::List::dump(const string& p_prefix) const
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Struct::Struct(const SPACE::VPP::StructDef* p_structDef):
-  SPACE::VPP::Node(p_structDef)
+UTIL::VPP::Struct::Struct(const UTIL::VPP::StructDef* p_structDef):
+  UTIL::VPP::Node(p_structDef)
 //-----------------------------------------------------------------------------
 {
   // create the attributes according to the struct definition
-  const list<SPACE::VPP::NodeDef*>& attributesDef =
+  const list<UTIL::VPP::NodeDef*>& attributesDef =
     p_structDef->getAttributesDef();
-  for(list<SPACE::VPP::NodeDef*>::const_iterator nIter =
+  for(list<UTIL::VPP::NodeDef*>::const_iterator nIter =
         attributesDef.begin();
       nIter != attributesDef.end();
       nIter++)
   {
-    const SPACE::VPP::NodeDef* attributeDef = *nIter;
-    SPACE::VPP::Node* attribute = SPACE::VPP::createNode(attributeDef);
+    const UTIL::VPP::NodeDef* attributeDef = *nIter;
+    UTIL::VPP::Node* attribute = UTIL::VPP::createNode(attributeDef);
     m_attributes.push_back(attribute);
   }
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Struct::~Struct()
+UTIL::VPP::Struct::~Struct()
 //-----------------------------------------------------------------------------
 {
-  for(list<SPACE::VPP::Node*>::iterator nIter = m_attributes.begin();
+  for(list<UTIL::VPP::Node*>::iterator nIter = m_attributes.begin();
       nIter != m_attributes.end();
       nIter++)
   {
@@ -366,15 +366,15 @@ SPACE::VPP::Struct::~Struct()
 }
 
 //-----------------------------------------------------------------------------
-const SPACE::VPP::StructDef* SPACE::VPP::Struct::getStructDef() const
+const UTIL::VPP::StructDef* UTIL::VPP::Struct::getStructDef() const
 //-----------------------------------------------------------------------------
 {
-  return dynamic_cast<const SPACE::VPP::StructDef*>(getNodeDef());
+  return dynamic_cast<const UTIL::VPP::StructDef*>(getNodeDef());
 }
 
 //-----------------------------------------------------------------------------
-std::list<SPACE::VPP::Node*>&
-SPACE::VPP::Struct::getAttributes()
+std::list<UTIL::VPP::Node*>&
+UTIL::VPP::Struct::getAttributes()
 //-----------------------------------------------------------------------------
 {
   return m_attributes;
@@ -382,12 +382,12 @@ SPACE::VPP::Struct::getAttributes()
 
 //-----------------------------------------------------------------------------
 // overloaded from Node
-SPACE::VPP::Node&
-SPACE::VPP::Struct::operator[](size_t p_pos) throw(UTIL::Exception)
+UTIL::VPP::Node&
+UTIL::VPP::Struct::operator[](size_t p_pos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   size_t i = 0;
-  for(list<SPACE::VPP::Node*>::iterator nIter = m_attributes.begin();
+  for(list<UTIL::VPP::Node*>::iterator nIter = m_attributes.begin();
       nIter != m_attributes.end();
       nIter++)
   {
@@ -397,12 +397,12 @@ SPACE::VPP::Struct::operator[](size_t p_pos) throw(UTIL::Exception)
     }
     i++;
   }
-  throw UTIL::Exception("SPACE::VPP::Struct::at(" + UTIL::STRING::str(i) + ") out of range");
+  throw UTIL::Exception("UTIL::VPP::Struct::at(" + UTIL::STRING::str(i) + ") out of range");
 }
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::Struct::dump(const string& p_prefix) const
+void UTIL::VPP::Struct::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   string prefix(p_prefix);
@@ -411,7 +411,7 @@ void SPACE::VPP::Struct::dump(const string& p_prefix) const
   if(m_attributes.size() > 0)
   {
     size_t i = 0;
-    for(list<SPACE::VPP::Node*>::const_iterator nIter = m_attributes.begin();
+    for(list<UTIL::VPP::Node*>::const_iterator nIter = m_attributes.begin();
         nIter != m_attributes.end();
         nIter++)
     {
@@ -426,26 +426,26 @@ void SPACE::VPP::Struct::dump(const string& p_prefix) const
 }
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Field::Field(const SPACE::VPP::FieldDef* p_fieldDef):
-  SPACE::VPP::Node(p_fieldDef)
+UTIL::VPP::Field::Field(const UTIL::VPP::FieldDef* p_fieldDef):
+  UTIL::VPP::Node(p_fieldDef)
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Field::~Field()
+UTIL::VPP::Field::~Field()
 //-----------------------------------------------------------------------------
 {}
 
 //-----------------------------------------------------------------------------
-const SPACE::VPP::FieldDef* SPACE::VPP::Field::getFieldDef() const
+const UTIL::VPP::FieldDef* UTIL::VPP::Field::getFieldDef() const
 //-----------------------------------------------------------------------------
 {
-  return dynamic_cast<const SPACE::VPP::FieldDef*>(getNodeDef());
+  return dynamic_cast<const UTIL::VPP::FieldDef*>(getNodeDef());
 }
 
 //-----------------------------------------------------------------------------
 // for debugging
-void SPACE::VPP::Field::dump(const string& p_prefix) const
+void UTIL::VPP::Field::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   cout << p_prefix << "." << getNodeName() << endl;
@@ -456,36 +456,36 @@ void SPACE::VPP::Field::dump(const string& p_prefix) const
 ///////////////////////////
 
 //-----------------------------------------------------------------------------
-SPACE::VPP::Node* SPACE::VPP::createNode(const SPACE::VPP::NodeDef* p_nodeDef)
+UTIL::VPP::Node* UTIL::VPP::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
 //-----------------------------------------------------------------------------
 {
-  // try creation of SPACE::VPP::List
+  // try creation of UTIL::VPP::List
   {
-    const SPACE::VPP::ListDef* listDef =
-      dynamic_cast<const SPACE::VPP::ListDef*>(p_nodeDef);
+    const UTIL::VPP::ListDef* listDef =
+      dynamic_cast<const UTIL::VPP::ListDef*>(p_nodeDef);
     if(listDef != NULL)
     {
-      return new SPACE::VPP::List(listDef);
+      return new UTIL::VPP::List(listDef);
     }
   }
-  // try creation of SPACE::VPP::Struct
+  // try creation of UTIL::VPP::Struct
   {
-    const SPACE::VPP::StructDef* structDef =
-      dynamic_cast<const SPACE::VPP::StructDef*>(p_nodeDef);
+    const UTIL::VPP::StructDef* structDef =
+      dynamic_cast<const UTIL::VPP::StructDef*>(p_nodeDef);
     if(structDef != NULL)
     {
-      return new SPACE::VPP::Struct(structDef);
+      return new UTIL::VPP::Struct(structDef);
     }
   }
-  // try creation of SPACE::VPP::Field
+  // try creation of UTIL::VPP::Field
   {
-    const SPACE::VPP::FieldDef* fieldDef =
-      dynamic_cast<const SPACE::VPP::FieldDef*>(p_nodeDef);
+    const UTIL::VPP::FieldDef* fieldDef =
+      dynamic_cast<const UTIL::VPP::FieldDef*>(p_nodeDef);
     if(fieldDef != NULL)
     {
-      return new SPACE::VPP::Field(fieldDef);
+      return new UTIL::VPP::Field(fieldDef);
     }
   }
   // no specific instance type --> create general instance type
-  return new SPACE::VPP::Node(p_nodeDef);
+  return new UTIL::VPP::Node(p_nodeDef);
 }

@@ -11,16 +11,16 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser    *
 // General Public License for more details.                                   *
 //*****************************************************************************
-// Space Simulation - Variable Packets Definition and Instances               *
+// Variable Packets Definition and Instances                                  *
 //*****************************************************************************
-#ifndef SPACE_VPP_hpp
-#define SPACE_VPP_hpp
+#ifndef UTIL_VPP_hpp
+#define UTIL_VPP_hpp
 
 #include <list>
 #include <string>
 #include "UTIL_EXCEPTION.hpp"
 
-namespace SPACE
+namespace UTIL
 {
   namespace VPP
   {
