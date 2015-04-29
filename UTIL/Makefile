@@ -35,4 +35,4 @@ tst_UTIL_STRING:
 	cd test; make tst_UTIL_STRING
 
 tst_UTIL_VPP:
-	cd test; make tst_SPACE_VPP
+	cd test; make tst_UTIL_VPP
