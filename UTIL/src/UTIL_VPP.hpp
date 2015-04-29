@@ -101,9 +101,8 @@ namespace UTIL
     class Node
     //-------------------------------------------------------------------------
     {
-      const NodeDef* m_nodeDef;
+      friend class NodeFactory;
     public:
-      Node(const NodeDef* p_nodeDef);
       virtual ~Node();
       const NodeDef* getNodeDef() const;
       virtual std::string getNodeName() const;
@@ -112,10 +111,21 @@ namespace UTIL
       // only provided by List
       virtual Node& addNode() throw(UTIL::Exception);
       virtual void addNodes(size_t p_nr) throw(UTIL::Exception);
+      // only provided by List, takes over the ownership of p_node
+      virtual void appendNode(Node* p_node) throw(UTIL::Exception);
+      // only provided by List, ownership passed to caller
+      virtual Node* popNode() throw(UTIL::Exception);
+      // moves the childs from p_node to this
+      virtual void moveNodes(Node& p_node) throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      Node(const NodeDef* p_nodeDef);
+      const NodeDef* m_nodeDef;
     private:
       Node();
+      Node(const Node& p_other);
+      const Node& operator=(const Node& p_other);
     };
 
     //-------------------------------------------------------------------------
@@ -123,9 +133,8 @@ namespace UTIL
     class List: public Node
     //-------------------------------------------------------------------------
     {
-      std::list<Node*> m_entries;
+      friend class NodeFactory;
     public:
-      List(const ListDef* p_listDef);
       virtual ~List();
       const ListDef* getListDef() const;
       std::list<Node*>& getEntries();
@@ -133,10 +142,21 @@ namespace UTIL
       virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
       // overloaded from Node
       virtual Node& addNode() throw(UTIL::Exception);
+      // overloaded from Node, takes over the ownership of p_node
+      virtual void appendNode(Node* p_node) throw(UTIL::Exception);
+      // overloaded from Node, ownership passed to caller
+      virtual Node* popNode() throw(UTIL::Exception);
+      // moves the childs from p_node to this
+      virtual void moveNodes(Node& p_node) throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      List(const ListDef* p_listDef);
+      std::list<Node*> m_entries;
     private:
       List();
+      List(const List& p_other);
+      const List& operator=(const List& p_other);
     };
 
     //-------------------------------------------------------------------------
@@ -144,18 +164,24 @@ namespace UTIL
     class Struct: public Node
     //-------------------------------------------------------------------------
     {
-      std::list<Node*> m_attributes;
+      friend class NodeFactory;
     public:
-      Struct(const StructDef* p_structDef);
       virtual ~Struct();
       const StructDef* getStructDef() const;
       std::list<Node*>& getAttributes();
       // overloaded from Node
       virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
+      // moves the childs from p_node to this
+      virtual void moveNodes(Node& p_node) throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      Struct(const StructDef* p_structDef);
+      std::list<Node*> m_attributes;
     private:
       Struct();
+      Struct(const Struct& p_other);
+      const Struct& operator=(const Struct& p_other);
     };
 
     //-------------------------------------------------------------------------
@@ -163,20 +189,47 @@ namespace UTIL
     class Field: public Node
     //-------------------------------------------------------------------------
     {
+      friend class NodeFactory;
     public:
-      Field(const FieldDef* p_fieldDef);
       virtual ~Field();
       const FieldDef* getFieldDef() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      Field(const FieldDef* p_fieldDef);
     private:
       Field();
+      Field(const Field& p_other);
+      const Field& operator=(const Field& p_other);
     };
 
     ///////////////////////////
     // Node Instance Factory //
     ///////////////////////////
-    Node* createNode(const NodeDef* p_nodeDef);
+
+    //-------------------------------------------------------------------------
+    // Supports specialization
+    class NodeFactory
+    //-------------------------------------------------------------------------
+    {
+    public:
+      // an instance of this class (or a derived class) shall
+      // be created and destroyed in main()
+      NodeFactory();
+      virtual ~NodeFactory();
+
+      // NodeFactory is a singleton
+      static NodeFactory* instance();
+
+      // factory method
+      Node* createNode(const NodeDef* p_nodeDef);
+
+    private:
+      NodeFactory(const NodeFactory& p_service);
+      const NodeFactory& operator=(const NodeFactory& p_task);
+
+      static NodeFactory* s_instance;
+    };
   }
 }
 

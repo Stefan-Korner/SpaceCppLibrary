@@ -24,6 +24,8 @@ using namespace std;
 int main()
 //-----------------------------------------------------------------------------
 {
+  UTIL::VPP::NodeFactory nodeFactory;
+
   // construct definition tree
   UTIL::VPP::StructDef* struct1Def = new UTIL::VPP::StructDef("struct1Def");
    UTIL::VPP::FieldDef* field1Def = new UTIL::VPP::FieldDef("field1Def");
@@ -57,13 +59,38 @@ int main()
   try
   {
     // construct instance tree
-    UTIL::VPP::Struct struct1(struct1Def);
-    struct1[2].addNodes(5);
-    struct1[3][2].addNodes(3);
-    struct1[3][2][0][1].addNodes(2);
-    struct1[3][2][1][1].addNodes(3);
+    // this code creates a memory leak (but no problem for functional tests)
+    UTIL::VPP::Node& instA =
+      *(UTIL::VPP::NodeFactory::instance()->createNode(struct1Def));
+    instA[2].addNodes(5);
+    instA[3][2].addNodes(3);
+    instA[3][2][0][1].addNodes(2);
+    instA[3][2][1][1].addNodes(3);
     // dump instance tree
-    struct1.dump("Inst");
+    instA.dump("instA");
+    cout << endl;
+
+    // this code creates a memory leak (but no problem for functional tests)
+    UTIL::VPP::Node& instB =
+      *(UTIL::VPP::NodeFactory::instance()->createNode(struct1Def));
+    instB[2].addNodes(5);
+    instB[3][2].addNodes(3);
+    instB[3][2][0][1].addNodes(2);
+    instB[3][2][1][1].addNodes(3);
+    // dump instance tree
+    instB.dump("instB");
+    cout << endl;
+
+    cout << "--- move ---" << endl;
+    instA.moveNodes(instB);
+    cout << endl;
+
+    // dump instance tree
+    instA.dump("InstA");
+    cout << endl;
+
+    // dump instance tree
+    instB.dump("instB");
     cout << endl;
   }
   catch(const UTIL::Exception& ex)

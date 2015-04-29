@@ -239,6 +239,34 @@ void UTIL::VPP::Node::addNodes(size_t p_nr) throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+// only provided by List, takes over the ownership of p_node
+void
+UTIL::VPP::Node::appendNode(UTIL::VPP::Node* p_node) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("This Node does support appending of child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// only provided by List, ownership passed to caller
+UTIL::VPP::Node* UTIL::VPP::Node::popNode() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("This Node does support retrieving of child nodes");
+}
+
+//-----------------------------------------------------------------------------
+// moves the childs from p_node to this
+void UTIL::VPP::Node::moveNodes(UTIL::VPP::Node& p_node) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(p_node.getNodeDef() != getNodeDef())
+  {
+    throw UTIL::Exception("Source and target Nodes have different types for move");
+  }
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::Node::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
@@ -304,9 +332,55 @@ UTIL::VPP::Node& UTIL::VPP::List::addNode() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   const UTIL::VPP::NodeDef* entryDef = getListDef()->getEntryDef();
-  UTIL::VPP::Node* entry = UTIL::VPP::createNode(entryDef);
+  UTIL::VPP::Node* entry =
+    UTIL::VPP::NodeFactory::instance()->createNode(entryDef);
   m_entries.push_back(entry);
   return *entry;
+}
+
+//-----------------------------------------------------------------------------
+// overloaded from Node, takes over the ownership of p_node
+void
+UTIL::VPP::List::appendNode(UTIL::VPP::Node* p_node) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  const UTIL::VPP::NodeDef* entryDef = getListDef()->getEntryDef();
+  if(p_node->getNodeDef() != entryDef)
+  {
+    throw UTIL::Exception("Append node has invalid definition type");
+  }
+  m_entries.push_back(p_node);
+}
+
+//-----------------------------------------------------------------------------
+// overloaded from Node, ownership passed to caller
+UTIL::VPP::Node* UTIL::VPP::List::popNode() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(m_entries.size() == 0)
+  {
+    return NULL;
+  }
+  UTIL::VPP::Node* entry = m_entries.front();
+  m_entries.pop_front();
+  return entry;
+}
+
+//-----------------------------------------------------------------------------
+// overloaded from Node, moves the childs from p_node to this
+void UTIL::VPP::List::moveNodes(UTIL::VPP::Node& p_node) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(p_node.getNodeDef() != getNodeDef())
+  {
+    throw UTIL::Exception("Source and target Nodes have different types for move");
+  }
+  UTIL::VPP::Node* child = p_node.popNode();
+  while(child != NULL)
+  {
+    appendNode(child);
+    child = p_node.popNode();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -348,7 +422,8 @@ UTIL::VPP::Struct::Struct(const UTIL::VPP::StructDef* p_structDef):
       nIter++)
   {
     const UTIL::VPP::NodeDef* attributeDef = *nIter;
-    UTIL::VPP::Node* attribute = UTIL::VPP::createNode(attributeDef);
+    UTIL::VPP::Node* attribute =
+      UTIL::VPP::NodeFactory::instance()->createNode(attributeDef);
     m_attributes.push_back(attribute);
   }
 }
@@ -398,6 +473,29 @@ UTIL::VPP::Struct::operator[](size_t p_pos) throw(UTIL::Exception)
     i++;
   }
   throw UTIL::Exception("UTIL::VPP::Struct::at(" + UTIL::STRING::str(i) + ") out of range");
+}
+
+//-----------------------------------------------------------------------------
+// overloaded from Node, moves the childs from p_node to this
+void
+UTIL::VPP::Struct::moveNodes(UTIL::VPP::Node& p_node) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(p_node.getNodeDef() != getNodeDef())
+  {
+    throw UTIL::Exception("Source and target Nodes have different types for move");
+  }
+  // delegate the move to all attributes
+  size_t i = 0;
+  for(list<UTIL::VPP::Node*>::iterator nIterTarget = m_attributes.begin();
+      nIterTarget != m_attributes.end();
+      nIterTarget++)
+  {
+    UTIL::VPP::Node& sourceAttribute = p_node[i];
+    UTIL::VPP::Node* targetAttribute = *nIterTarget;
+    targetAttribute->moveNodes(sourceAttribute);
+    i++;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -455,8 +553,33 @@ void UTIL::VPP::Field::dump(const string& p_prefix) const
 // Node Instance Factory //
 ///////////////////////////
 
+// global variables
+UTIL::VPP::NodeFactory* UTIL::VPP::NodeFactory::s_instance = NULL;
+
 //-----------------------------------------------------------------------------
-UTIL::VPP::Node* UTIL::VPP::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
+UTIL::VPP::NodeFactory::NodeFactory()
+//-----------------------------------------------------------------------------
+{
+  s_instance = this;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::VPP::NodeFactory::~NodeFactory()
+//-----------------------------------------------------------------------------
+{
+  s_instance = NULL;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::VPP::NodeFactory* UTIL::VPP::NodeFactory::instance()
+//-----------------------------------------------------------------------------
+{
+  return s_instance;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::VPP::Node*
+UTIL::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
 //-----------------------------------------------------------------------------
 {
   // try creation of UTIL::VPP::List
