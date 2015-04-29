@@ -107,9 +107,11 @@ namespace SPACE
       virtual ~Node();
       const NodeDef* getNodeDef() const;
       virtual std::string getNodeName() const;
-      // generic access to sub-nodes
-      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
-      virtual Node* addNode() throw(UTIL::Exception);
+      // generic access to sub-nodes, only provided by List and Struct
+      virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
+      // only provided by List
+      virtual Node& addNode() throw(UTIL::Exception);
+      virtual void addNodes(size_t p_nr) throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -127,9 +129,10 @@ namespace SPACE
       virtual ~List();
       const ListDef* getListDef() const;
       std::list<Node*>& getEntries();
-      // generic access to sub-nodes
-      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
-      virtual Node* addNode() throw(UTIL::Exception);
+      // overloaded from Node
+      virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
+      // overloaded from Node
+      virtual Node& addNode() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -147,9 +150,8 @@ namespace SPACE
       virtual ~Struct();
       const StructDef* getStructDef() const;
       std::list<Node*>& getAttributes();
-      // generic access to sub-nodes
-      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
-      virtual Node* addNode() throw(UTIL::Exception);
+      // overloaded from Node
+      virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:
@@ -165,9 +167,6 @@ namespace SPACE
       Field(const FieldDef* p_fieldDef);
       virtual ~Field();
       const FieldDef* getFieldDef() const;
-      // generic access to sub-nodes
-      virtual Node* at(size_t p_pos) throw(UTIL::Exception);
-      virtual Node* addNode() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     private:

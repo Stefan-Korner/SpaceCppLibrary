@@ -57,25 +57,14 @@ int main()
   try
   {
     // construct instance tree
-    SPACE::VPP::Struct* struct1 = new SPACE::VPP::Struct(struct1Def);
-    struct1->at(2)->addNode();
-    struct1->at(2)->addNode();
-    struct1->at(2)->addNode();
-    struct1->at(2)->addNode();
-    struct1->at(2)->addNode();
-    struct1->at(3)->at(2)->addNode();
-    struct1->at(3)->at(2)->at(0)->at(1)->addNode();
-    struct1->at(3)->at(2)->at(0)->at(1)->addNode();
-    struct1->at(3)->at(2)->addNode();
-    struct1->at(3)->at(2)->at(1)->at(1)->addNode();
-    struct1->at(3)->at(2)->at(1)->at(1)->addNode();
-    struct1->at(3)->at(2)->at(1)->at(1)->addNode();
-    struct1->at(3)->at(2)->addNode();
+    SPACE::VPP::Struct struct1(struct1Def);
+    struct1[2].addNodes(5);
+    struct1[3][2].addNodes(3);
+    struct1[3][2][0][1].addNodes(2);
+    struct1[3][2][1][1].addNodes(3);
     // dump instance tree
-    struct1->dump("Inst");
+    struct1.dump("Inst");
     cout << endl;
-    // delete instance tree
-    delete struct1;
   }
   catch(const UTIL::Exception& ex)
   {

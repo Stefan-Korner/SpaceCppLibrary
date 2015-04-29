@@ -213,19 +213,29 @@ std::string SPACE::VPP::Node::getNodeName() const
 }
 
 //-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::Node::at(size_t) throw(UTIL::Exception)
+// generic access to sub-nodes, only provided by List and Struct
+SPACE::VPP::Node& SPACE::VPP::Node::operator[](size_t) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  throw UTIL::Exception("SPACE::VPP::Node does not have child nodes");
+  throw UTIL::Exception("This Node does not have child nodes");
 }
 
 //-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::Node::addNode() throw(UTIL::Exception)
+// only provided by List
+SPACE::VPP::Node& SPACE::VPP::Node::addNode() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  throw UTIL::Exception("SPACE::VPP::Node does support adding of child nodes");
+  throw UTIL::Exception("This Node does support adding of child nodes");
+}
+
+//-----------------------------------------------------------------------------
+void SPACE::VPP::Node::addNodes(size_t p_nr) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  for(size_t i = 0; i < p_nr; i++)
+  {
+    addNode();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -269,8 +279,9 @@ list<SPACE::VPP::Node*>& SPACE::VPP::List::getEntries()
 }
 
 //-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::List::at(size_t p_pos) throw(UTIL::Exception)
+// overloaded from Node
+SPACE::VPP::Node&
+SPACE::VPP::List::operator[](size_t p_pos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   size_t i = 0;
@@ -280,7 +291,7 @@ SPACE::VPP::Node* SPACE::VPP::List::at(size_t p_pos) throw(UTIL::Exception)
   {
     if(i == p_pos)
     {
-      return (*nIter);
+      return *(*nIter);
     }
     i++;
   }
@@ -288,14 +299,14 @@ SPACE::VPP::Node* SPACE::VPP::List::at(size_t p_pos) throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::List::addNode() throw(UTIL::Exception)
+// overloaded from Node
+SPACE::VPP::Node& SPACE::VPP::List::addNode() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   const SPACE::VPP::NodeDef* entryDef = getListDef()->getEntryDef();
   SPACE::VPP::Node* entry = SPACE::VPP::createNode(entryDef);
   m_entries.push_back(entry);
-  return entry;
+  return *entry;
 }
 
 //-----------------------------------------------------------------------------
@@ -370,8 +381,9 @@ SPACE::VPP::Struct::getAttributes()
 }
 
 //-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::Struct::at(size_t p_pos) throw(UTIL::Exception)
+// overloaded from Node
+SPACE::VPP::Node&
+SPACE::VPP::Struct::operator[](size_t p_pos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   size_t i = 0;
@@ -381,19 +393,11 @@ SPACE::VPP::Node* SPACE::VPP::Struct::at(size_t p_pos) throw(UTIL::Exception)
   {
     if(i == p_pos)
     {
-      return (*nIter);
+      return *(*nIter);
     }
     i++;
   }
   throw UTIL::Exception("SPACE::VPP::Struct::at(" + UTIL::STRING::str(i) + ") out of range");
-}
-
-//-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::Struct::addNode() throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  throw UTIL::Exception("SPACE::VPP::Struct does support adding of child nodes");
 }
 
 //-----------------------------------------------------------------------------
@@ -437,22 +441,6 @@ const SPACE::VPP::FieldDef* SPACE::VPP::Field::getFieldDef() const
 //-----------------------------------------------------------------------------
 {
   return dynamic_cast<const SPACE::VPP::FieldDef*>(getNodeDef());
-}
-
-//-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::Field::at(size_t) throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  throw UTIL::Exception("SPACE::VPP::Field does not have child nodes");
-}
-
-//-----------------------------------------------------------------------------
-// generic access to sub-nodes
-SPACE::VPP::Node* SPACE::VPP::Field::addNode() throw(UTIL::Exception)
-//-----------------------------------------------------------------------------
-{
-  throw UTIL::Exception("SPACE::VPP::Field does support adding of child nodes");
 }
 
 //-----------------------------------------------------------------------------
