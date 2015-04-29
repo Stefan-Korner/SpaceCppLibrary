@@ -11,9 +11,9 @@
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser    *
 // General Public License for more details.                                   *
 //*****************************************************************************
-// Variable Packets - Unit Tests                                              *
+// PUS Services - Variable Packet Module - Unit Tests                         *
 //*****************************************************************************
-#include "UTIL_VPP.hpp"
+#include "PUS_VPP.hpp"
 
 #include <iostream>
 
