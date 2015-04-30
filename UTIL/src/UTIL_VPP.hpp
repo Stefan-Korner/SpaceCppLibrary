@@ -19,6 +19,7 @@
 #include <list>
 #include <string>
 #include "UTIL_EXCEPTION.hpp"
+#include "UTIL_VALUE.hpp"
 
 namespace UTIL
 {
@@ -36,6 +37,7 @@ namespace UTIL
     public:
       NodeDef(const std::string& p_nodeName);
       virtual ~NodeDef();
+      // getter(s)
       virtual std::string getNodeName() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
@@ -53,15 +55,22 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      ListDef(const std::string& p_nodeName);
+      ListDef(const std::string& p_nodeName,
+              size_t p_counterBitOffset = 0,
+              size_t p_counterBitLength = 0);
       virtual ~ListDef();
       // takes over the ownership of p_entryDef
       virtual void setEntryDef(NodeDef* p_entryDef);
+      // getter(s)
       virtual const NodeDef* getEntryDef() const;
+      virtual size_t getCounterBitOffset() const;
+      virtual size_t getCounterBitLength() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
       NodeDef* m_entryDef;
+      size_t m_counterBitOffset;
+      size_t m_counterBitLength;
     private:
       ListDef();
       ListDef(const ListDef& p_other);
@@ -78,6 +87,7 @@ namespace UTIL
       virtual ~StructDef();
       // takes over the ownership of p_attributeDef
       virtual void addAttributeDef(NodeDef* p_attributeDef);
+      // getter(s)
       const std::list<NodeDef*>& getAttributesDef() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
@@ -95,10 +105,30 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      FieldDef(const std::string& p_nodeName);
+      enum FieldType
+      {
+        ANY_FIELD,
+        BIT_FIELD,
+        BYTE_FIELD,
+        UNSIGNED_FIELD,
+        STRING_FIELD,
+        ABS_TIME_FIELD
+      };
+      FieldDef(const std::string& p_nodeName,
+               FieldType p_fieldType = ANY_FIELD,
+               size_t p_bitOffset = 0,
+               size_t p_bitLength = 0);
       virtual ~FieldDef();
+      // getter(s)
+      virtual FieldType getFieldType() const;
+      virtual size_t getBitOffset() const;
+      virtual size_t getBitLength() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
+    protected:
+      FieldType m_fieldType;
+      size_t m_bitOffset;
+      size_t m_bitLength;
     private:
       FieldDef();
       FieldDef(const FieldDef& p_other);
@@ -130,6 +160,9 @@ namespace UTIL
       virtual Node* popNode() throw(UTIL::Exception);
       // moves the childs from p_node to this
       virtual void moveNodes(Node& p_node) throw(UTIL::Exception);
+      // only provided by Field
+      virtual void setValue(const UTIL::Value& p_value) throw(UTIL::Exception);
+      virtual UTIL::Value getValue() const throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
@@ -206,10 +239,14 @@ namespace UTIL
     public:
       virtual ~Field();
       const FieldDef* getFieldDef() const;
+      // overloaded from Node
+      virtual void setValue(const UTIL::Value& p_value) throw(UTIL::Exception);
+      virtual UTIL::Value getValue() const throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
       Field(const FieldDef* p_fieldDef);
+      UTIL::Value m_value;
     private:
       Field();
       Field(const Field& p_other);

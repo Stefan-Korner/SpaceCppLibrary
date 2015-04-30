@@ -51,8 +51,13 @@ void UTIL::VPP::NodeDef::dump(const string& p_prefix) const
 }
 
 //-----------------------------------------------------------------------------
-UTIL::VPP::ListDef::ListDef(const string& p_nodeName):
-  UTIL::VPP::NodeDef(p_nodeName), m_entryDef(NULL)
+UTIL::VPP::ListDef::ListDef(const string& p_nodeName,
+                            size_t p_counterBitOffset,
+                            size_t p_counterBitLength):
+  UTIL::VPP::NodeDef(p_nodeName),
+  m_entryDef(NULL),
+  m_counterBitOffset(p_counterBitOffset),
+  m_counterBitLength(p_counterBitLength)
 //-----------------------------------------------------------------------------
 {}
 
@@ -86,6 +91,20 @@ const UTIL::VPP::NodeDef* UTIL::VPP::ListDef::getEntryDef() const
 }
 
 //-----------------------------------------------------------------------------
+size_t UTIL::VPP::ListDef::getCounterBitOffset() const
+//-----------------------------------------------------------------------------
+{
+  return m_counterBitOffset;
+}
+
+//-----------------------------------------------------------------------------
+size_t UTIL::VPP::ListDef::getCounterBitLength() const
+//-----------------------------------------------------------------------------
+{
+  return m_counterBitLength;
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::ListDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
@@ -93,6 +112,11 @@ void UTIL::VPP::ListDef::dump(const string& p_prefix) const
   string prefix(p_prefix);
   prefix += ".";
   prefix += getNodeName();
+  prefix += "(";
+  prefix += UTIL::STRING::str(m_counterBitOffset);
+  prefix += ",";
+  prefix += UTIL::STRING::str(m_counterBitLength);
+  prefix += ")";
   if(m_entryDef != NULL)
   {
     m_entryDef->dump(prefix);
@@ -165,8 +189,14 @@ void UTIL::VPP::StructDef::dump(const string& p_prefix) const
 }
 
 //-----------------------------------------------------------------------------
-UTIL::VPP::FieldDef::FieldDef(const string& p_nodeName):
-  UTIL::VPP::NodeDef(p_nodeName)
+UTIL::VPP::FieldDef::FieldDef(const string& p_nodeName,
+                             UTIL::VPP::FieldDef::FieldType p_fieldType,
+                             size_t p_bitOffset,
+                             size_t p_bitLength):
+  UTIL::VPP::NodeDef(p_nodeName),
+  m_fieldType(p_fieldType),
+  m_bitOffset(p_bitOffset),
+  m_bitLength(p_bitLength)
 //-----------------------------------------------------------------------------
 {}
 
@@ -176,11 +206,64 @@ UTIL::VPP::FieldDef::~FieldDef()
 {}
 
 //-----------------------------------------------------------------------------
+UTIL::VPP::FieldDef::FieldType UTIL::VPP::FieldDef::getFieldType() const
+//-----------------------------------------------------------------------------
+{
+  return m_fieldType;
+}
+
+//-----------------------------------------------------------------------------
+size_t UTIL::VPP::FieldDef::getBitOffset() const
+//-----------------------------------------------------------------------------
+{
+  return m_bitOffset;
+}
+
+//-----------------------------------------------------------------------------
+size_t UTIL::VPP::FieldDef::getBitLength() const
+//-----------------------------------------------------------------------------
+{
+  return m_bitLength;
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::FieldDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
-  cout << p_prefix << "." << getNodeName() << endl;
+  const char* fieldTypeStr = "???";
+  switch(m_fieldType)
+  {
+  case ANY_FIELD:
+    fieldTypeStr = "ANY_FIELD";
+    break;
+  case BIT_FIELD:
+    fieldTypeStr = "BIT_FIELD";
+    break;
+  case BYTE_FIELD:
+    fieldTypeStr = "BYTE_FIELD";
+    break;
+  case UNSIGNED_FIELD:
+    fieldTypeStr = "UNSIGNED_FIELD";
+    break;
+  case STRING_FIELD:
+    fieldTypeStr = "STRING_FIELD";
+    break;
+  case ABS_TIME_FIELD:
+    fieldTypeStr = "ABS_TIME_FIELD";
+    break;
+  }
+  cout << p_prefix
+       << "."
+       << getNodeName()
+       << "("
+       << fieldTypeStr
+       << ","
+       << m_bitOffset
+       << ","
+       << m_bitLength
+       << ")"
+       << endl;
 }
 
 ////////////////////
@@ -264,6 +347,23 @@ void UTIL::VPP::Node::moveNodes(UTIL::VPP::Node& p_node) throw(UTIL::Exception)
   {
     throw UTIL::Exception("Source and target Nodes have different types for move");
   }
+}
+
+//-----------------------------------------------------------------------------
+// only provided by Field
+void
+UTIL::VPP::Node::setValue(const UTIL::Value& p_value) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("This Node does support setting of a value");
+}
+
+//-----------------------------------------------------------------------------
+// only provided by Field
+UTIL::Value UTIL::VPP::Node::getValue() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("This Node does support getting of a value");
 }
 
 //-----------------------------------------------------------------------------
@@ -542,11 +642,34 @@ const UTIL::VPP::FieldDef* UTIL::VPP::Field::getFieldDef() const
 }
 
 //-----------------------------------------------------------------------------
+// only provided by Field
+void
+UTIL::VPP::Field::setValue(const UTIL::Value& p_value) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  m_value = p_value;
+}
+
+//-----------------------------------------------------------------------------
+// only provided by Field
+UTIL::Value UTIL::VPP::Field::getValue() const throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return m_value;
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::Field::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
-  cout << p_prefix << "." << getNodeName() << endl;
+  cout << p_prefix
+       << "."
+       << getNodeName()
+       << "("
+       << m_value.dumpStr()
+       << ")"
+       << endl;
 }
 
 //////////////////
