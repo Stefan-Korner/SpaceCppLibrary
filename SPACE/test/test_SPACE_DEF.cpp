@@ -17,7 +17,7 @@
 
 #include <iostream>
 #include "SCOS_ENV.hpp"
-#include "UTIL_EXCEPTION.hpp"
+#include "SPACE_DEF.hpp"
 
 using namespace std;
 
@@ -25,9 +25,11 @@ using namespace std;
 int main()
 //-----------------------------------------------------------------------------
 {
+  SCOS::ENV::Environment env("../../scosii_homedir");
+  SPACE::DEF::Definitions definitions;
   try
   {
-    SCOS::ENV::Environment env("../../scosii_homedir");
+    SPACE::DEF::Definitions::instance()->init();
   }
   catch(const UTIL::Exception& ex)
   {

@@ -35,7 +35,7 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      NodeDef(const std::string& p_nodeName);
+      NodeDef(const std::string& p_nodeName = "NodeDef");
       virtual ~NodeDef();
       // getter(s)
       virtual std::string getNodeName() const;
@@ -44,7 +44,6 @@ namespace UTIL
     protected:
       std::string m_nodeName;
     private:
-      NodeDef();
       NodeDef(const NodeDef& p_other);
       const NodeDef& operator=(const NodeDef& p_other);
     };
@@ -55,7 +54,7 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      ListDef(const std::string& p_nodeName,
+      ListDef(const std::string& p_nodeName = "ListDef",
               size_t p_counterBitOffset = 0,
               size_t p_counterBitLength = 0);
       virtual ~ListDef();
@@ -72,7 +71,6 @@ namespace UTIL
       size_t m_counterBitOffset;
       size_t m_counterBitLength;
     private:
-      ListDef();
       ListDef(const ListDef& p_other);
       const ListDef& operator=(const ListDef& p_other);
     };
@@ -83,7 +81,7 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      StructDef(const std::string& p_nodeName);
+      StructDef(const std::string& p_nodeName = "StructDef");
       virtual ~StructDef();
       // takes over the ownership of p_attributeDef
       virtual void addAttributeDef(NodeDef* p_attributeDef);
@@ -94,7 +92,6 @@ namespace UTIL
     protected:
       std::list<NodeDef*> m_attributesDef;
     private:
-      StructDef();
       StructDef(const StructDef& p_other);
       const StructDef& operator=(const StructDef& p_other);
     };
@@ -114,7 +111,7 @@ namespace UTIL
         STRING_FIELD,
         ABS_TIME_FIELD
       };
-      FieldDef(const std::string& p_nodeName,
+      FieldDef(const std::string& p_nodeName = "FieldDef",
                FieldType p_fieldType = ANY_FIELD,
                size_t p_bitOffset = 0,
                size_t p_bitLength = 0);
@@ -130,7 +127,6 @@ namespace UTIL
       size_t m_bitOffset;
       size_t m_bitLength;
     private:
-      FieldDef();
       FieldDef(const FieldDef& p_other);
       const FieldDef& operator=(const FieldDef& p_other);
     };

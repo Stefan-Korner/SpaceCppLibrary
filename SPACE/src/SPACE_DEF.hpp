@@ -16,7 +16,9 @@
 #ifndef SPACE_DEF_hpp
 #define SPACE_DEF_hpp
 
+#include <memory>
 #include "SCOS_MIB.hpp"
+#include "UTIL_VPP.hpp"
 
 namespace SPACE
 {
@@ -89,7 +91,6 @@ namespace SPACE
     //-------------------------------------------------------------------------
     {
       int pktSPID;
-      bool pktIsVP;
       std::string pktName;
       std::string pktDescr;
       int pktAPID;
@@ -109,9 +110,10 @@ namespace SPACE
       int pktSPDFsize;
       int pktSPDFdataSize;
       std::map<std::string, const TMparamToPkt*> paramLinks;
+      int pktTPSD;
+      UTIL::VPP::StructDef vppStructure;
 
       TMpktDef();
-      int compare(const TMpktDef& p_pktDef) const;
       // for debugging
       void dump(const std::string& prefix) const;
       // used to append later on links to related parameters
@@ -125,16 +127,8 @@ namespace SPACE
       TMparamExtraction
       getParamExtraction(const std::string& p_paramName) const;
       // returns all parameter extractions, ordered by packet location
-      const std::list<TMparamExtraction>& getParamExtractions() const;
+      std::list<TMparamExtraction> getParamExtractions() const;
     };
-
-    // compare operators
-    bool operator==(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
-    bool operator!=(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
-    bool operator< (const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
-    bool operator> (const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
-    bool operator<=(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
-    bool operator>=(const TMpktDef& p_pktDef1, const TMpktDef& p_pktDef2);
 
     //-------------------------------------------------------------------------
     // Contains the most important definition data of a TM parameter
@@ -187,10 +181,9 @@ namespace SPACE
       // Definitions is a singleton
       static Definitions* instance();
 
-      // creates the definition data
-      void createDefinitions();
       // initialise the definition data from file or MIB
-      void initDefinitions();
+      void init() throw(UTIL::Exception);
+/*
       // returns a TM packet definition
       const TMpktDef* getTMpktDefByIndex(int p_index) const;
       // returns a TM packet definition
@@ -201,6 +194,11 @@ namespace SPACE
       const std::list<const TMpktDef*> getTMpktDefs() const;
       // returns the TM parameter definitions
       const std::list<const TMparamDef*> getTMparamDefs() const;
+*/
+
+    protected:
+
+      std::map<int, TMpktDef*> m_pktDefs;
 
     private:
       Definitions(const Definitions& p_service);
