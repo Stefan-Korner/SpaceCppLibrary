@@ -13,8 +13,8 @@
 //*****************************************************************************
 // Utilities - Generic Value                                                  *
 //*****************************************************************************
-#ifndef UTIL_EXCEPTION_hpp
-#define UTIL_EXCEPTION_hpp
+#ifndef UTIL_VALUE_hpp
+#define UTIL_VALUE_hpp
 
 #include <stdint.h>
 #include <string>
@@ -67,7 +67,7 @@ namespace UTIL
     Value(double p_value);
     Value(const char* p_value);
     Value(const std::string& p_value);
-    Value(const uint8_t* p_buffer, size_t p_size);
+    Value(const void* p_buffer, size_t p_size);
     Value(const AbsTime& p_value);
     Value(const RelTime& p_value);
     const Value& operator=(const Value& p_value);
@@ -97,7 +97,7 @@ namespace UTIL
     void set(const void* p_buffer, size_t p_size);
     void set(const AbsTime& p_value);
     void set(const RelTime& p_value);
-    bool getBoolean() const throw(Exception);
+    bool getBoolean() const throw(UTIL::Exception);
     int8_t getInt8() const throw(Exception);
     int16_t getInt16() const throw(Exception);
     int32_t getInt32() const throw(Exception);
@@ -109,7 +109,7 @@ namespace UTIL
     float getFloat() const throw(Exception);
     double getDouble() const throw(Exception);
     std::string getAsciiString() const throw(Exception);
-    const uint8* getOctetString() const throw(Exception);
+    const uint8_t* getOctetString() const throw(Exception);
     size_t getOctetStringLength() const throw(Exception);
     AbsTime getAbsTime() const throw(Exception);
     RelTime getRelTime() const throw(Exception);

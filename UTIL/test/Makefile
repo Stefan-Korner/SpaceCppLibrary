@@ -25,6 +25,7 @@ all:	../bin/test_UTIL_CircBuffer \
 	../bin/test_UTIL_CRC \
 	../bin/test_UTIL_DU \
 	../bin/test_UTIL_STRING \
+	../bin/test_UTIL_VALUE \
 	../bin/test_UTIL_VPP
 
 clean:
@@ -32,6 +33,7 @@ clean:
 	\rm -f ../bin/test_UTIL_CRC
 	\rm -f ../bin/test_UTIL_DU
 	\rm -f ../bin/test_UTIL_STRING
+	\rm -f ../bin/test_UTIL_VALUE
 	\rm -f ../bin/test_UTIL_VPP
 	\rm -f *.o
 
@@ -46,6 +48,9 @@ tst_UTIL_DU: ../bin/test_UTIL_DU
 
 tst_UTIL_STRING: ../bin/test_UTIL_STRING
 	cd ../bin; ./test_UTIL_STRING
+
+tst_UTIL_VALUE: ../bin/test_UTIL_VALUE
+	cd ../bin; ./test_UTIL_VALUE
 
 tst_UTIL_VPP: ../bin/test_UTIL_VPP
 	cd ../bin; ./test_UTIL_VPP
@@ -74,6 +79,12 @@ tst_UTIL_VPP: ../bin/test_UTIL_VPP
 	${LIBS}
 	mv test_UTIL_STRING ../bin
 
+../bin/test_UTIL_VALUE: test_UTIL_VALUE.o
+	${LINK} -otest_UTIL_VALUE \
+	test_UTIL_VALUE.o \
+	${LIBS}
+	mv test_UTIL_VALUE ../bin
+
 ../bin/test_UTIL_VPP: test_UTIL_VPP.o
 	${LINK} -otest_UTIL_VPP \
 	test_UTIL_VPP.o \
@@ -99,6 +110,11 @@ test_UTIL_STRING.o: test_UTIL_STRING.cpp \
 	${LIB_UTIL}
 	${CPP} -otest_UTIL_STRING.o ${INCLUDES} \
 	test_UTIL_STRING.cpp
+
+test_UTIL_VALUE.o: test_UTIL_VALUE.cpp \
+	${LIB_UTIL}
+	${CPP} -otest_UTIL_VALUE.o ${INCLUDES} \
+	test_UTIL_VALUE.cpp
 
 test_UTIL_VPP.o: test_UTIL_VPP.cpp \
 	${LIB_UTIL}
