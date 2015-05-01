@@ -370,8 +370,8 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
     // fill the attributes below from environment info
     tmPktDef->pktSPsize = -1;
     tmPktDef->pktS2Ksize = -1;
-    tmPktDef->pktSPDFsize -1;
-    tmPktDef->pktSPDFdataSize -1;
+    tmPktDef->pktSPDFsize = -1;
+    tmPktDef->pktSPDFdataSize = -1;
     // fill the attibute below later on
     //std::map<std::string, const TMparamToPkt*> paramLinks;
     // fill the variable packet structure
@@ -396,11 +396,22 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
           vpdEntriesIter++)
       {
         SCOS::MIB::VPDrecord& vpdRecord = *vpdEntriesIter;
+        string paramName = vpdRecord.vpdName;
+        // take the related TM parameter definition for details
+        SCOS::MIB::PCFmap::iterator pcfIter = pcfMap.find(paramName);
+        if(pcfIter == pcfMap.end())
+        {
+          throw UTIL::Exception("missing PCF entriy for parameter " +
+                                paramName);
+        }
+        SCOS::MIB::PCFrecord& pcfRecord = pcfIter->second;
+        int bitWidth = getBitWidth(pcfRecord.pcfPtc, pcfRecord.pcfPfc);
+        int bitOffset = vpdRecord.vpdOffset;
         UTIL::VPP::FieldDef* fieldDef =
-         new UTIL::VPP::FieldDef(vpdRecord.vpdName,
-                                 UTIL::VPP::FieldDef::ANY_FIELD,
-                                 vpdRecord.vpdOffset,
-                                 0);
+          new UTIL::VPP::FieldDef(paramName,
+                                  UTIL::VPP::FieldDef::ANY_FIELD,
+                                  bitOffset,
+                                  bitWidth);
         tmPktDef->vppStructure.addAttributeDef(fieldDef);
       }
     }
