@@ -183,6 +183,17 @@ namespace SPACE
 
       // initialise the definition data from file or MIB
       void init() throw(UTIL::Exception);
+
+      bool m_initialized;
+
+      // access to MIB tables
+      const SCOS::MIB::PIDmap& getPIDmap() const;
+      const SCOS::MIB::PICmap& getPICmap() const;
+      const SCOS::MIB::TPCFmap& getTPCFmap() const;
+      const SCOS::MIB::PCFmap& getPCFmap() const;
+      const SCOS::MIB::PLFmap& getPLFmap() const;
+      const SCOS::MIB::VPDmap& getVPDmap() const;
+      void dumpMIBtables() const;
 /*
       // returns a TM packet definition
       const TMpktDef* getTMpktDefByIndex(int p_index) const;
@@ -197,7 +208,12 @@ namespace SPACE
 */
 
     protected:
-
+      SCOS::MIB::PIDmap m_pidMap;
+      SCOS::MIB::PICmap m_picMap;
+      SCOS::MIB::TPCFmap m_tpcfMap;
+      SCOS::MIB::PCFmap m_pcfMap;
+      SCOS::MIB::PLFmap m_plfMap;
+      SCOS::MIB::VPDmap m_vpdMap;
       std::map<int, TMpktDef*> m_pktDefs;
 
     private:

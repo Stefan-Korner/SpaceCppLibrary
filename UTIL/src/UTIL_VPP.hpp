@@ -35,7 +35,7 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      NodeDef(const std::string& p_nodeName = "NodeDef");
+      NodeDef(const std::string& p_nodeName = "");
       virtual ~NodeDef();
       // getter(s)
       virtual std::string getNodeName() const;
@@ -54,7 +54,7 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      ListDef(const std::string& p_nodeName = "ListDef",
+      ListDef(const std::string& p_nodeName = "",
               size_t p_counterBitOffset = 0,
               size_t p_counterBitLength = 0);
       virtual ~ListDef();
@@ -81,7 +81,7 @@ namespace UTIL
     //-------------------------------------------------------------------------
     {
     public:
-      StructDef(const std::string& p_nodeName = "StructDef");
+      StructDef(const std::string& p_nodeName = "");
       virtual ~StructDef();
       // takes over the ownership of p_attributeDef
       virtual void addAttributeDef(NodeDef* p_attributeDef);
@@ -111,7 +111,7 @@ namespace UTIL
         STRING_FIELD,
         ABS_TIME_FIELD
       };
-      FieldDef(const std::string& p_nodeName = "FieldDef",
+      FieldDef(const std::string& p_nodeName = "",
                FieldType p_fieldType = ANY_FIELD,
                size_t p_bitOffset = 0,
                size_t p_bitLength = 0);

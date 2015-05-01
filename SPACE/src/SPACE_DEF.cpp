@@ -47,8 +47,7 @@ SPACE::DEF::TMpktDef::TMpktDef():
   pktS2Ksize(-1),
   pktSPDFsize(-1),
   pktSPDFdataSize(-1),
-  pktTPSD(-1),
-  vppStructure("vppStructure")
+  pktTPSD(-1)
 //-----------------------------------------------------------------------------
 {}
 
@@ -76,7 +75,7 @@ void SPACE::DEF::TMpktDef::dump(const string& prefix) const
   cout << prefix << ".pktTPSD = " << pktTPSD << endl;
   if(pktTPSD > 0)
   {
-    vppStructure.dump(prefix);
+    vppStructure.dump(prefix + ".vppStructure");
   }
 }
 
@@ -84,7 +83,7 @@ void SPACE::DEF::TMpktDef::dump(const string& prefix) const
 SPACE::DEF::Definitions* SPACE::DEF::Definitions::s_instance = NULL;
 
 //-----------------------------------------------------------------------------
-SPACE::DEF::Definitions::Definitions()
+SPACE::DEF::Definitions::Definitions(): m_initialized(false)
 //-----------------------------------------------------------------------------
 {
   s_instance = this;
@@ -318,38 +317,171 @@ int getBitWidth(int p_ptc, int p_pfc) throw(UTIL::Exception)
   throw UTIL::Exception(errorMessage);
 }
 
+// function prototypes
+UTIL::VPP::ListDef*  createListDef(
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
+  size_t& p_groupSize)
+  throw(UTIL::Exception);
+UTIL::VPP::StructDef* createStructDef(
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
+  size_t& p_groupSize,
+  UTIL::VPP::StructDef* p_structDef = NULL)
+  throw(UTIL::Exception);
+UTIL::VPP::FieldDef* createFieldDef(
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
+  size_t& p_groupSize)
+  throw(UTIL::Exception);
+
+//-----------------------------------------------------------------------------
+UTIL::VPP::ListDef*  createListDef(
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
+  size_t& p_groupSize)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  const SCOS::MIB::VPDrecord& vpdRecord = *p_vpdEntriesIter;
+  string paramName = vpdRecord.vpdName;
+  // take the related TM parameter definition for details
+  const SCOS::MIB::PCFmap& pcfMap =
+    SPACE::DEF::Definitions::instance()->getPCFmap();
+  SCOS::MIB::PCFmap::const_iterator pcfIter = pcfMap.find(paramName);
+  if(pcfIter == pcfMap.end())
+  {
+    throw UTIL::Exception("missing PCF entriy for parameter " + paramName);
+  }
+  const SCOS::MIB::PCFrecord& pcfRecord = pcfIter->second;
+  int bitWidth = getBitWidth(pcfRecord.pcfPtc, pcfRecord.pcfPfc);
+  int bitOffset = vpdRecord.vpdOffset;
+  p_vpdEntriesIter++;
+  p_groupSize--;
+  UTIL::VPP::ListDef* listDef = new UTIL::VPP::ListDef(paramName,
+                                                       bitOffset,
+                                                       bitWidth);
+  // provide a new group size for embedded entry definition(s)
+  size_t subGroupSize = vpdRecord.vpdGrpSize;
+  p_groupSize -= subGroupSize;
+  // a subGroupSize of 0 cannot happen,
+  // because this is catched by createStructDef
+  UTIL::VPP::NodeDef* entryDef = NULL;
+  if(subGroupSize == 1)
+  {
+    // use a single field as list entry
+    entryDef = createFieldDef(p_vpdEntriesIter, p_vpdEndIter, subGroupSize);
+  }
+  else
+  {
+    // use a stuct as list entry
+    entryDef = createStructDef(p_vpdEntriesIter, p_vpdEndIter, subGroupSize);
+  }
+  listDef->setEntryDef(entryDef);
+  if(subGroupSize != 0)
+  {
+    throw UTIL::Exception("invalid group size");
+  }
+  return listDef;
+}
+
+//-----------------------------------------------------------------------------
+// re-uses existing StructDef when passes as p_structDef
+UTIL::VPP::StructDef* createStructDef(
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
+  size_t& p_groupSize,
+  UTIL::VPP::StructDef* p_structDef)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(p_structDef == NULL)
+  {
+    p_structDef = new UTIL::VPP::StructDef;
+  }
+  while(p_vpdEntriesIter != p_vpdEndIter)
+  {
+    if(p_groupSize == 0)
+    {
+      throw UTIL::Exception("invalid group size - value 0");
+    }
+    const SCOS::MIB::VPDrecord& vpdRecord = *p_vpdEntriesIter;
+    UTIL::VPP::NodeDef* attributeDef = NULL;
+    if(vpdRecord.vpdGrpSize == 0)
+    {
+      // normal attribute of the group
+      attributeDef =
+        createFieldDef(p_vpdEntriesIter, p_vpdEndIter, p_groupSize);
+    }
+    else
+    {
+      // repeated group
+      attributeDef =
+        createListDef(p_vpdEntriesIter, p_vpdEndIter, p_groupSize);
+    }
+    p_structDef->addAttributeDef(attributeDef);
+  }
+  if(p_groupSize != 0)
+  {
+    throw UTIL::Exception("invalid group size");
+  }
+  return p_structDef;
+}
+
+//-----------------------------------------------------------------------------
+UTIL::VPP::FieldDef* createFieldDef(
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
+  list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
+  size_t& p_groupSize)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  const SCOS::MIB::VPDrecord& vpdRecord = *p_vpdEntriesIter;
+  string paramName = vpdRecord.vpdName;
+  // take the related TM parameter definition for details
+  const SCOS::MIB::PCFmap& pcfMap =
+    SPACE::DEF::Definitions::instance()->getPCFmap();
+  SCOS::MIB::PCFmap::const_iterator pcfIter = pcfMap.find(paramName);
+  if(pcfIter == pcfMap.end())
+  {
+    throw UTIL::Exception("missing PCF entriy for parameter " + paramName);
+  }
+  const SCOS::MIB::PCFrecord& pcfRecord = pcfIter->second;
+  int bitWidth = getBitWidth(pcfRecord.pcfPtc, pcfRecord.pcfPfc);
+  int bitOffset = vpdRecord.vpdOffset;
+  p_vpdEntriesIter++;
+  p_groupSize--;
+  return (new UTIL::VPP::FieldDef(paramName,
+                                  UTIL::VPP::FieldDef::ANY_FIELD,
+                                  bitOffset,
+                                  bitWidth));
+}
+
 //-----------------------------------------------------------------------------
 // initialise the definition data from file or MIB
 void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  SCOS::MIB::PIDmap pidMap;
-  SCOS::MIB::PICmap picMap;
-  SCOS::MIB::TPCFmap tpcfMap;
-  SCOS::MIB::PCFmap pcfMap;
-  SCOS::MIB::PLFmap plfMap;
-  SCOS::MIB::VPDmap vpdMap;
-  SCOS::MIB::readTable(pidMap);
-  SCOS::MIB::readTable(picMap);
-  SCOS::MIB::readTable(tpcfMap);
-  SCOS::MIB::readTable(pcfMap);
-  SCOS::MIB::readTable(plfMap);
-  SCOS::MIB::readTable(vpdMap);
+  if(m_initialized)
+  {
+    throw UTIL::Exception("SPACE::DEF::Definitions already initialized");
+  }
+  SCOS::MIB::readTable(m_pidMap);
+  SCOS::MIB::readTable(m_picMap);
+  SCOS::MIB::readTable(m_tpcfMap);
+  SCOS::MIB::readTable(m_pcfMap);
+  SCOS::MIB::readTable(m_plfMap);
+  SCOS::MIB::readTable(m_vpdMap);
 #ifdef DUMP_MIB
-  SCOS::MIB::dumpTable(pidMap);
-  SCOS::MIB::dumpTable(picMap);
-  SCOS::MIB::dumpTable(tpcfMap);
-  SCOS::MIB::dumpTable(pcfMap);
-  SCOS::MIB::dumpTable(plfMap);
-  SCOS::MIB::dumpTable(vpdMap);
+  dumpMIBtables();
 #endif
   // create the packets with (optional) variable packet definition
-  for(SCOS::MIB::PIDmap::iterator pidIter = pidMap.begin();
-      pidIter != pidMap.end();
+  for(SCOS::MIB::PIDmap::const_iterator pidIter = m_pidMap.begin();
+      pidIter != m_pidMap.end();
       pidIter++)
   {
     int spid = pidIter->first;
-    SCOS::MIB::PIDrecord& pidRecord = pidIter->second;
+    const SCOS::MIB::PIDrecord& pidRecord = pidIter->second;
     SPACE::DEF::TMpktDef* tmPktDef = new SPACE::DEF::TMpktDef;
     tmPktDef->pktSPID = pidRecord.pidSPID;
     tmPktDef->pktName = "###"; // take from tpcfRecord
@@ -378,8 +510,9 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
     tmPktDef->pktTPSD = pidRecord.pidTPSD;
     if(tmPktDef->pktTPSD > 0)
     {
-      SCOS::MIB::VPDmap::iterator vpdIter = vpdMap.find(tmPktDef->pktTPSD);
-      if(vpdIter == vpdMap.end())
+      SCOS::MIB::VPDmap::const_iterator vpdIter =
+        m_vpdMap.find(tmPktDef->pktTPSD);
+      if(vpdIter == m_vpdMap.end())
       {
         string errorMessage("missing VPD entries for packet ");
         errorMessage += tmPktDef->pktName;
@@ -388,31 +521,37 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
         errorMessage += ")";
         throw UTIL::Exception(errorMessage);
       }
-      list<SCOS::MIB::VPDrecord>& vpdEntries = vpdIter->second;
-      size_t startPos = 0;
-      for(list<SCOS::MIB::VPDrecord>::iterator vpdEntriesIter =
-            vpdEntries.begin();
-          vpdEntriesIter != vpdEntries.end();
-          vpdEntriesIter++)
+      const list<SCOS::MIB::VPDrecord>& vpdEntries = vpdIter->second;
+      list<SCOS::MIB::VPDrecord>::const_iterator vpdEntriesIter =
+        vpdEntries.begin();
+      list<SCOS::MIB::VPDrecord>::const_iterator vpdEndIter =
+        vpdEntries.end();
+      size_t groupSize = vpdEntries.size();
+      try
       {
-        SCOS::MIB::VPDrecord& vpdRecord = *vpdEntriesIter;
-        string paramName = vpdRecord.vpdName;
-        // take the related TM parameter definition for details
-        SCOS::MIB::PCFmap::iterator pcfIter = pcfMap.find(paramName);
-        if(pcfIter == pcfMap.end())
+        createStructDef(vpdEntriesIter,
+                        vpdEndIter,
+                        groupSize,
+                        &(tmPktDef->vppStructure));
+        if(groupSize != 0)
         {
-          throw UTIL::Exception("missing PCF entriy for parameter " +
-                                paramName);
+          string errorMessage("invalid group size for packet ");
+          errorMessage += tmPktDef->pktName;
+          errorMessage += "(";
+          errorMessage += UTIL::STRING::str(spid);
+          errorMessage += ")";
+          throw UTIL::Exception(errorMessage);
         }
-        SCOS::MIB::PCFrecord& pcfRecord = pcfIter->second;
-        int bitWidth = getBitWidth(pcfRecord.pcfPtc, pcfRecord.pcfPfc);
-        int bitOffset = vpdRecord.vpdOffset;
-        UTIL::VPP::FieldDef* fieldDef =
-          new UTIL::VPP::FieldDef(paramName,
-                                  UTIL::VPP::FieldDef::ANY_FIELD,
-                                  bitOffset,
-                                  bitWidth);
-        tmPktDef->vppStructure.addAttributeDef(fieldDef);
+      }
+      catch(const UTIL::Exception& ex)
+      {
+        string errorMessage("error in VPD processing for packet ");
+        errorMessage += tmPktDef->pktName;
+        errorMessage += "(";
+        errorMessage += UTIL::STRING::str(spid);
+        errorMessage += "): ";
+        errorMessage += ex.what();
+        throw UTIL::Exception(errorMessage);
       }
     }
     m_pktDefs[spid] = tmPktDef;
@@ -429,4 +568,59 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
     tmPktDef->dump(prefix);
   }
 #endif
+  m_initialized = true;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PIDmap& SPACE::DEF::Definitions::getPIDmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_pidMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PICmap& SPACE::DEF::Definitions::getPICmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_picMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::TPCFmap& SPACE::DEF::Definitions::getTPCFmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_tpcfMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PCFmap& SPACE::DEF::Definitions::getPCFmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_pcfMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PLFmap& SPACE::DEF::Definitions::getPLFmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_plfMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::VPDmap& SPACE::DEF::Definitions::getVPDmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_vpdMap;
+}
+
+//-----------------------------------------------------------------------------
+void SPACE::DEF::Definitions::dumpMIBtables() const
+//-----------------------------------------------------------------------------
+{
+  SCOS::MIB::dumpTable(m_pidMap);
+  SCOS::MIB::dumpTable(m_picMap);
+  SCOS::MIB::dumpTable(m_tpcfMap);
+  SCOS::MIB::dumpTable(m_pcfMap);
+  SCOS::MIB::dumpTable(m_plfMap);
+  SCOS::MIB::dumpTable(m_vpdMap);
 }

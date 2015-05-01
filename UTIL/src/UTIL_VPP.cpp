@@ -110,9 +110,13 @@ void UTIL::VPP::ListDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   string prefix(p_prefix);
-  prefix += ".";
-  prefix += getNodeName();
+  prefix += ".LIST";
   prefix += "(";
+  if(getNodeName() != "")
+  {
+    prefix += getNodeName();
+    prefix += ",";
+  }
   prefix += UTIL::STRING::str(m_counterBitOffset);
   prefix += ",";
   prefix += UTIL::STRING::str(m_counterBitLength);
@@ -168,8 +172,13 @@ void UTIL::VPP::StructDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
   string prefix(p_prefix);
-  prefix += ".";
-  prefix += getNodeName();
+  prefix += ".STRUCT";
+  if(getNodeName() != "")
+  {
+    prefix += "(";
+    prefix += getNodeName();
+    prefix += ")";
+  }
   if(m_attributesDef.size() > 0)
   {
     size_t i = 0;
@@ -231,39 +240,38 @@ size_t UTIL::VPP::FieldDef::getBitLength() const
 void UTIL::VPP::FieldDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
 {
-  const char* fieldTypeStr = "???";
+  string prefix(p_prefix);
   switch(m_fieldType)
   {
   case ANY_FIELD:
-    fieldTypeStr = "ANY_FIELD";
+    prefix += ".ANY_FIELD(";
     break;
   case BIT_FIELD:
-    fieldTypeStr = "BIT_FIELD";
+    prefix += ".BIT_FIELD(";
     break;
   case BYTE_FIELD:
-    fieldTypeStr = "BYTE_FIELD";
+    prefix += ".BYTE_FIELD(";
     break;
   case UNSIGNED_FIELD:
-    fieldTypeStr = "UNSIGNED_FIELD";
+    prefix += ".UNSIGNED_FIELD(";
     break;
   case STRING_FIELD:
-    fieldTypeStr = "STRING_FIELD";
+    prefix += ".STRING_FIELD(";
     break;
   case ABS_TIME_FIELD:
-    fieldTypeStr = "ABS_TIME_FIELD";
+    prefix += ".ABS_TIME_FIELD(";
     break;
   }
-  cout << p_prefix
-       << "."
-       << getNodeName()
-       << "("
-       << fieldTypeStr
-       << ","
-       << m_bitOffset
-       << ","
-       << m_bitLength
-       << ")"
-       << endl;
+  if(getNodeName() != "")
+  {
+    prefix += getNodeName();
+    prefix += ",";
+  }
+  prefix += UTIL::STRING::str(m_bitOffset);
+  prefix += ",";
+  prefix += UTIL::STRING::str(m_bitLength);
+  prefix += ")";
+  cout << prefix << endl;
 }
 
 ////////////////////
