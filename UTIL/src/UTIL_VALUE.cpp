@@ -616,7 +616,7 @@ int8_t UTIL::Value::getInt8() const throw(UTIL::Exception)
 int16_t UTIL::Value::getInt16() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::INT32)
+  if((m_valueType != UTIL::INT16) && (m_valueType != UTIL::INT8))
   {
     throw UTIL::Exception("UTIL::Value does not contain an int16 number");
   }
@@ -627,7 +627,8 @@ int16_t UTIL::Value::getInt16() const throw(UTIL::Exception)
 int32_t UTIL::Value::getInt32() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::INT32)
+  if((m_valueType != UTIL::INT32) && (m_valueType != UTIL::INT16) &&
+     (m_valueType != UTIL::INT8))
   {
     throw UTIL::Exception("UTIL::Value does not contain an int32 number");
   }
@@ -638,7 +639,8 @@ int32_t UTIL::Value::getInt32() const throw(UTIL::Exception)
 int64_t UTIL::Value::getInt64() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::INT64)
+  if((m_valueType != UTIL::INT64) && (m_valueType != UTIL::INT32) &&
+     (m_valueType != UTIL::INT16) && (m_valueType != UTIL::INT8))
   {
     throw UTIL::Exception("UTIL::Value does not contain an int64 number");
   }
@@ -660,7 +662,7 @@ uint8_t UTIL::Value::getUInt8() const throw(UTIL::Exception)
 uint16_t UTIL::Value::getUInt16() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::UINT16)
+  if((m_valueType != UTIL::UINT16) && (m_valueType != UTIL::UINT8))
   {
     throw UTIL::Exception("UTIL::Value does not contain an uint16 number");
   }
@@ -671,7 +673,8 @@ uint16_t UTIL::Value::getUInt16() const throw(UTIL::Exception)
 uint32_t UTIL::Value::getUInt32() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::UINT32)
+  if((m_valueType != UTIL::UINT32) && (m_valueType != UTIL::UINT16) &&
+     (m_valueType != UTIL::UINT8))
   {
     throw UTIL::Exception("UTIL::Value does not contain an uint32 number");
   }
@@ -682,7 +685,8 @@ uint32_t UTIL::Value::getUInt32() const throw(UTIL::Exception)
 uint64_t UTIL::Value::getUInt64() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::UINT64)
+  if((m_valueType != UTIL::UINT64) && (m_valueType != UTIL::UINT32) &&
+     (m_valueType != UTIL::UINT16) && (m_valueType != UTIL::UINT8))
   {
     throw UTIL::Exception("UTIL::Value does not contain an uint64 number");
   }
@@ -704,7 +708,7 @@ float UTIL::Value::getFloat() const throw(UTIL::Exception)
 double UTIL::Value::getDouble() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  if(m_valueType != UTIL::DOUBLE)
+  if((m_valueType != UTIL::DOUBLE) && (m_valueType != UTIL::FLOAT))
   {
     throw UTIL::Exception("UTIL::Value does not contain a double number");
   }
