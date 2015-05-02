@@ -18,6 +18,7 @@
 
 #include <list>
 #include <string>
+#include "UTIL_DU.hpp"
 #include "UTIL_EXCEPTION.hpp"
 #include "UTIL_VALUE.hpp"
 
@@ -276,6 +277,21 @@ namespace UTIL
 
       static NodeFactory* s_instance;
     };
+
+    ///////////////////////////
+    // convenience functions //
+    ///////////////////////////
+
+    size_t getBinarySize(const Node* p_node) throw(UTIL::Exception);
+    size_t getBinarySize(const NodeDef* p_nodeDef,
+                         const UTIL::DU* p_du,
+                         size_t p_bitPos = 0) throw(UTIL::Exception);
+    void writeToDataUnit(const Node* p_node,
+                         UTIL::DU* p_du,
+                         size_t p_bitPos = 0) throw(UTIL::Exception);
+    void readFromDataUnit(Node* p_node,
+                          const UTIL::DU* p_du,
+                          size_t p_bitPos = 0) throw(UTIL::Exception);
   }
 }
 

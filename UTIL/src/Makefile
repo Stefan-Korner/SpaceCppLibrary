@@ -85,6 +85,9 @@ UTIL_VALUE.o: UTIL_VALUE.cpp \
 	UTIL_VALUE.cpp
 
 UTIL_VPP.o: UTIL_VPP.cpp \
-	UTIL_VPP.hpp
+	UTIL_VPP.hpp \
+	UTIL_DU.hpp \
+	UTIL_EXCEPTION.hpp \
+	UTIL_VALUE.hpp
 	${CPP} -oUTIL_VPP.o ${INCLUDES} \
 	UTIL_VPP.cpp

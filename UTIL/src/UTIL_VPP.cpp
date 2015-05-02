@@ -743,3 +743,88 @@ UTIL::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
   // no specific instance type --> create general instance type
   return new UTIL::VPP::Node(p_nodeDef);
 }
+
+///////////////////////////
+// convenience functions //
+///////////////////////////
+
+//-----------------------------------------------------------------------------
+size_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
+  throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // traverse recursive through all nodes and accumulates the node sizes
+  UTIL::VPP::Node* node = const_cast<UTIL::VPP::Node*>(p_node);
+  {
+    // *** List ***
+    UTIL::VPP::List* listNode = dynamic_cast<UTIL::VPP::List*>(node);
+    if(listNode != NULL)
+    {
+      const UTIL::VPP::ListDef* listDef = listNode->getListDef();
+      size_t retVal = listDef->getCounterBitOffset() +
+                      listDef->getCounterBitLength();
+      list<UTIL::VPP::Node*>& entries = listNode->getEntries();
+      for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
+          entryIter != entries.end();
+          entryIter++)
+      {
+        UTIL::VPP::Node* entryNode = *entryIter;
+        retVal += getBinarySize(entryNode);
+      }
+      return retVal;
+    }
+  }
+  {
+    // *** Node ***
+    UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(node);
+    if(structNode != NULL)
+    {
+
+      size_t retVal = 0;
+      list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
+      for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
+          attributeIter != attributes.end();
+          attributeIter++)
+      {
+        UTIL::VPP::Node* attributeNode = *attributeIter;
+        retVal += getBinarySize(attributeNode);
+      }
+      return retVal;
+    }
+  }
+  {
+    // *** Field ***
+    UTIL::VPP::Field* fieldNode = dynamic_cast<UTIL::VPP::Field*>(node);
+    if(fieldNode != NULL)
+    {
+      const UTIL::VPP::FieldDef* fieldDef = fieldNode->getFieldDef();
+      return (fieldDef->getBitOffset() + fieldDef->getBitLength());
+    }
+  }
+  throw UTIL::Exception("size calculation only for specific nodes supported");
+}
+
+//-----------------------------------------------------------------------------
+size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
+                                const UTIL::DU* p_du,
+                                size_t p_bitPos) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return 0;
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
+                                UTIL::DU* p_du,
+                                size_t p_bitPos) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+}
+
+//-----------------------------------------------------------------------------
+void UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
+                                 const UTIL::DU* p_du,
+                                 size_t p_bitPos) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+}

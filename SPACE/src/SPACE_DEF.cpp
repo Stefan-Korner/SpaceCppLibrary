@@ -104,7 +104,7 @@ SPACE::DEF::Definitions* SPACE::DEF::Definitions::instance()
 }
 
 //-----------------------------------------------------------------------------
-int getBitWidth(int p_ptc, int p_pfc) throw(UTIL::Exception)
+static int getBitWidth(int p_ptc, int p_pfc) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   switch(p_ptc)
@@ -318,18 +318,18 @@ int getBitWidth(int p_ptc, int p_pfc) throw(UTIL::Exception)
 }
 
 // function prototypes
-UTIL::VPP::ListDef*  createListDef(
+static UTIL::VPP::ListDef*  createListDef(
   list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
   list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
   size_t& p_groupSize)
   throw(UTIL::Exception);
-UTIL::VPP::StructDef* createStructDef(
+static UTIL::VPP::StructDef* createStructDef(
   list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
   list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
   size_t& p_groupSize,
   UTIL::VPP::StructDef* p_structDef = NULL)
   throw(UTIL::Exception);
-UTIL::VPP::FieldDef* createFieldDef(
+static UTIL::VPP::FieldDef* createFieldDef(
   list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEntriesIter,
   list<SCOS::MIB::VPDrecord>::const_iterator& p_vpdEndIter,
   size_t& p_groupSize)
