@@ -36,7 +36,7 @@ UTIL::VPP::NodeDef::~NodeDef()
 {}
 
 //-----------------------------------------------------------------------------
-std::string UTIL::VPP::NodeDef::getNodeName() const
+string UTIL::VPP::NodeDef::getNodeName() const
 //-----------------------------------------------------------------------------
 {
   return m_nodeName;
@@ -159,8 +159,7 @@ UTIL::VPP::StructDef::addAttributeDef(UTIL::VPP::NodeDef* p_attributeDef)
 }
 
 //-----------------------------------------------------------------------------
-const std::list<UTIL::VPP::NodeDef*>&
-UTIL::VPP::StructDef::getAttributesDef() const
+const list<UTIL::VPP::NodeDef*>& UTIL::VPP::StructDef::getAttributesDef() const
 //-----------------------------------------------------------------------------
 {
   return m_attributesDef;
@@ -297,7 +296,7 @@ const UTIL::VPP::NodeDef* UTIL::VPP::Node::getNodeDef() const
 }
 
 //-----------------------------------------------------------------------------
-std::string UTIL::VPP::Node::getNodeName() const
+string UTIL::VPP::Node::getNodeName() const
 //-----------------------------------------------------------------------------
 {
   return m_nodeDef->getNodeName();
@@ -556,8 +555,7 @@ const UTIL::VPP::StructDef* UTIL::VPP::Struct::getStructDef() const
 }
 
 //-----------------------------------------------------------------------------
-std::list<UTIL::VPP::Node*>&
-UTIL::VPP::Struct::getAttributes()
+list<UTIL::VPP::Node*>& UTIL::VPP::Struct::getAttributes()
 //-----------------------------------------------------------------------------
 {
   return m_attributes;
@@ -713,8 +711,8 @@ UTIL::VPP::Node*
 UTIL::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
 //-----------------------------------------------------------------------------
 {
-  // try creation of UTIL::VPP::List
   {
+    // *** List ***
     const UTIL::VPP::ListDef* listDef =
       dynamic_cast<const UTIL::VPP::ListDef*>(p_nodeDef);
     if(listDef != NULL)
@@ -722,8 +720,8 @@ UTIL::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
       return new UTIL::VPP::List(listDef);
     }
   }
-  // try creation of UTIL::VPP::Struct
   {
+    // *** Struct ***
     const UTIL::VPP::StructDef* structDef =
       dynamic_cast<const UTIL::VPP::StructDef*>(p_nodeDef);
     if(structDef != NULL)
@@ -731,8 +729,8 @@ UTIL::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
       return new UTIL::VPP::Struct(structDef);
     }
   }
-  // try creation of UTIL::VPP::Field
   {
+    // *** Field ***
     const UTIL::VPP::FieldDef* fieldDef =
       dynamic_cast<const UTIL::VPP::FieldDef*>(p_nodeDef);
     if(fieldDef != NULL)
@@ -775,11 +773,10 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
     }
   }
   {
-    // *** Node ***
+    // *** Struct ***
     UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(node);
     if(structNode != NULL)
     {
-
       size_t retVal = 0;
       list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
       for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
@@ -810,7 +807,63 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
                                 size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
+  // traverse recursive through all nodes and accumulates the node sizes
+  // only the list sizes are read from the data unit
+  {
+    // *** List ***
+    const UTIL::VPP::ListDef* listDef =
+      dynamic_cast<const UTIL::VPP::ListDef*>(p_nodeDef);
+    if(listDef != NULL)
+    {
+      // read the actual repeat counter
+      size_t counterBitOffset = listDef->getCounterBitOffset();
+      size_t getCounterBitLength = listDef->getCounterBitLength();
+      size_t counter = p_du->getBits(p_bitPos + counterBitOffset,
+                                     getCounterBitLength);
+      // calculate the size of the entries
+      size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
+      const NodeDef* entryDef = listDef->getEntryDef();
+      for(size_t i = 0; i < counter; i++)
+      {
+        cntrAndEntriesSize += getBinarySize(entryDef,
+                                            p_du,
+                                            p_bitPos + cntrAndEntriesSize);
+      }
+      return cntrAndEntriesSize;
+    }
+  }
+  {
+    // *** Struct ***
+    const UTIL::VPP::StructDef* structDef =
+      dynamic_cast<const UTIL::VPP::StructDef*>(p_nodeDef);
+    if(structDef != NULL)
+    {
+      // calculate the size of the attributes
+      size_t attributesSize = 0;
+      const list<NodeDef*>& attributesDef = structDef->getAttributesDef();
+      for(list<UTIL::VPP::NodeDef*>::const_iterator attributesDefIter =
+            attributesDef.begin();
+          attributesDefIter != attributesDef.end();
+          attributesDefIter++)
+      {
+        const UTIL::VPP::NodeDef* attributeDef = *attributesDefIter;
+        attributesSize += getBinarySize(attributeDef,
+                                        p_du,
+                                        p_bitPos + attributesSize);
+      }
+      return attributesSize;
+    }
+  }
+  {
+    // *** Field ***
+    const UTIL::VPP::FieldDef* fieldDef =
+      dynamic_cast<const UTIL::VPP::FieldDef*>(p_nodeDef);
+    if(fieldDef != NULL)
+    {
+      return (fieldDef->getBitOffset() + fieldDef->getBitLength());
+    }
+  }
+  throw UTIL::Exception("size calculation only for specific nodes supported");
 }
 
 //-----------------------------------------------------------------------------
@@ -819,6 +872,56 @@ void UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
                                 size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  // traverse recursive through all nodes and write the node date to the DU
+/*
+  UTIL::VPP::Node* node = const_cast<UTIL::VPP::Node*>(p_node);
+  {
+    // *** List ***
+    UTIL::VPP::List* listNode = dynamic_cast<UTIL::VPP::List*>(node);
+    if(listNode != NULL)
+    {
+      const UTIL::VPP::ListDef* listDef = listNode->getListDef();
+      size_t retVal = listDef->getCounterBitOffset() +
+                      listDef->getCounterBitLength();
+      list<UTIL::VPP::Node*>& entries = listNode->getEntries();
+      for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
+          entryIter != entries.end();
+          entryIter++)
+      {
+        UTIL::VPP::Node* entryNode = *entryIter;
+        retVal += getBinarySize(entryNode);
+      }
+      return retVal;
+    }
+  }
+  {
+    // *** Struct ***
+    UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(node);
+    if(structNode != NULL)
+    {
+      size_t retVal = 0;
+      list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
+      for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
+          attributeIter != attributes.end();
+          attributeIter++)
+      {
+        UTIL::VPP::Node* attributeNode = *attributeIter;
+        retVal += getBinarySize(attributeNode);
+      }
+      return retVal;
+    }
+  }
+  {
+    // *** Field ***
+    UTIL::VPP::Field* fieldNode = dynamic_cast<UTIL::VPP::Field*>(node);
+    if(fieldNode != NULL)
+    {
+      const UTIL::VPP::FieldDef* fieldDef = fieldNode->getFieldDef();
+      return (fieldDef->getBitOffset() + fieldDef->getBitLength());
+    }
+  }
+  throw UTIL::Exception("size calculation only for specific nodes supported");
+*/
 }
 
 //-----------------------------------------------------------------------------
