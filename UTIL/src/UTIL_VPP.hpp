@@ -109,24 +109,28 @@ namespace UTIL
         BIT_FIELD,
         BYTE_FIELD,
         UNSIGNED_FIELD,
+        BIG_UNSIGNED_FIELD,
         STRING_FIELD,
         ABS_TIME_FIELD
       };
       FieldDef(const std::string& p_nodeName = "",
                FieldType p_fieldType = ANY_FIELD,
                size_t p_bitOffset = 0,
-               size_t p_bitLength = 0);
+               size_t p_bitLength = 0,
+               uint32_t p_fieldTypeDetails = 0);
       virtual ~FieldDef();
       // getter(s)
       virtual FieldType getFieldType() const;
       virtual size_t getBitOffset() const;
       virtual size_t getBitLength() const;
+      virtual uint32_t getFieldTypeDetails() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
       FieldType m_fieldType;
       size_t m_bitOffset;
       size_t m_bitLength;
+      uint32_t m_fieldTypeDetails;
     private:
       FieldDef(const FieldDef& p_other);
       const FieldDef& operator=(const FieldDef& p_other);
@@ -159,7 +163,7 @@ namespace UTIL
       virtual void moveNodes(Node& p_node) throw(UTIL::Exception);
       // only provided by Field
       virtual void setValue(const UTIL::Value& p_value) throw(UTIL::Exception);
-      virtual UTIL::Value getValue() const throw(UTIL::Exception);
+      virtual const UTIL::Value& getValue() const throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
@@ -238,7 +242,7 @@ namespace UTIL
       const FieldDef* getFieldDef() const;
       // overloaded from Node
       virtual void setValue(const UTIL::Value& p_value) throw(UTIL::Exception);
-      virtual UTIL::Value getValue() const throw(UTIL::Exception);
+      virtual const UTIL::Value& getValue() const throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
@@ -286,12 +290,14 @@ namespace UTIL
     size_t getBinarySize(const NodeDef* p_nodeDef,
                          const UTIL::DU* p_du,
                          size_t p_bitPos = 0) throw(UTIL::Exception);
-    void writeToDataUnit(const Node* p_node,
-                         UTIL::DU* p_du,
-                         size_t p_bitPos = 0) throw(UTIL::Exception);
-    void readFromDataUnit(Node* p_node,
-                          const UTIL::DU* p_du,
-                          size_t p_bitPos = 0) throw(UTIL::Exception);
+    // returns the number of bits written
+    size_t writeToDataUnit(const Node* p_node,
+                           UTIL::DU* p_du,
+                           size_t p_bitPos = 0) throw(UTIL::Exception);
+    // returns the number of bits written
+    size_t readFromDataUnit(Node* p_node,
+                            const UTIL::DU* p_du,
+                            size_t p_bitPos = 0) throw(UTIL::Exception);
   }
 }
 

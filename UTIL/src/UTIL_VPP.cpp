@@ -200,11 +200,13 @@ void UTIL::VPP::StructDef::dump(const string& p_prefix) const
 UTIL::VPP::FieldDef::FieldDef(const string& p_nodeName,
                              UTIL::VPP::FieldDef::FieldType p_fieldType,
                              size_t p_bitOffset,
-                             size_t p_bitLength):
+                             size_t p_bitLength,
+                             uint32_t p_fieldTypeDetails):
   UTIL::VPP::NodeDef(p_nodeName),
   m_fieldType(p_fieldType),
   m_bitOffset(p_bitOffset),
-  m_bitLength(p_bitLength)
+  m_bitLength(p_bitLength),
+  m_fieldTypeDetails(p_fieldTypeDetails)
 //-----------------------------------------------------------------------------
 {}
 
@@ -235,6 +237,13 @@ size_t UTIL::VPP::FieldDef::getBitLength() const
 }
 
 //-----------------------------------------------------------------------------
+uint32_t UTIL::VPP::FieldDef::getFieldTypeDetails() const
+//-----------------------------------------------------------------------------
+{
+  return m_fieldTypeDetails;
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::FieldDef::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
@@ -253,6 +262,9 @@ void UTIL::VPP::FieldDef::dump(const string& p_prefix) const
     break;
   case UNSIGNED_FIELD:
     prefix += ".UNSIGNED_FIELD(";
+    break;
+  case BIG_UNSIGNED_FIELD:
+    prefix += ".BIG_UNSIGNED_FIELD(";
     break;
   case STRING_FIELD:
     prefix += ".STRING_FIELD(";
@@ -367,7 +379,7 @@ UTIL::VPP::Node::setValue(const UTIL::Value& p_value) throw(UTIL::Exception)
 
 //-----------------------------------------------------------------------------
 // only provided by Field
-UTIL::Value UTIL::VPP::Node::getValue() const throw(UTIL::Exception)
+const UTIL::Value& UTIL::VPP::Node::getValue() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   throw UTIL::Exception("This Node does support getting of a value");
@@ -658,7 +670,7 @@ UTIL::VPP::Field::setValue(const UTIL::Value& p_value) throw(UTIL::Exception)
 
 //-----------------------------------------------------------------------------
 // only provided by Field
-UTIL::Value UTIL::VPP::Field::getValue() const throw(UTIL::Exception)
+const UTIL::Value& UTIL::VPP::Field::getValue() const throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   return m_value;
@@ -867,13 +879,13 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
-                                UTIL::DU* p_du,
-                                size_t p_bitPos) throw(UTIL::Exception)
+// returns the number of bits written
+size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
+                                  UTIL::DU* p_du,
+                                  size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // traverse recursive through all nodes and write the node date to the DU
-/*
   UTIL::VPP::Node* node = const_cast<UTIL::VPP::Node*>(p_node);
   {
     // *** List ***
@@ -881,17 +893,25 @@ void UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
     if(listNode != NULL)
     {
       const UTIL::VPP::ListDef* listDef = listNode->getListDef();
-      size_t retVal = listDef->getCounterBitOffset() +
-                      listDef->getCounterBitLength();
+      // write the actual repeat counter
+      size_t counterBitOffset = listDef->getCounterBitOffset();
+      size_t getCounterBitLength = listDef->getCounterBitLength();
+      size_t counter = listNode->getEntries().size();
+      p_du->setBits(p_bitPos + counterBitOffset,
+                    getCounterBitLength,
+                    counter);
+      // calculate the size of the entries
+      size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
       list<UTIL::VPP::Node*>& entries = listNode->getEntries();
       for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
           entryIter != entries.end();
           entryIter++)
       {
         UTIL::VPP::Node* entryNode = *entryIter;
-        retVal += getBinarySize(entryNode);
+        cntrAndEntriesSize +=
+          writeToDataUnit(entryNode, p_du, p_bitPos + cntrAndEntriesSize);
       }
-      return retVal;
+      return cntrAndEntriesSize;
     }
   }
   {
@@ -899,16 +919,18 @@ void UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
     UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(node);
     if(structNode != NULL)
     {
-      size_t retVal = 0;
+      size_t attributesSize = 0;
       list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
       for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
           attributeIter != attributes.end();
           attributeIter++)
       {
         UTIL::VPP::Node* attributeNode = *attributeIter;
-        retVal += getBinarySize(attributeNode);
+        attributesSize += writeToDataUnit(attributeNode,
+                                          p_du,
+                                          p_bitPos + attributesSize);
       }
-      return retVal;
+      return attributesSize;
     }
   }
   {
@@ -917,17 +939,93 @@ void UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
     if(fieldNode != NULL)
     {
       const UTIL::VPP::FieldDef* fieldDef = fieldNode->getFieldDef();
-      return (fieldDef->getBitOffset() + fieldDef->getBitLength());
+      size_t bitOffset = fieldDef->getBitOffset();
+      size_t absoluteBitOffset = p_bitPos + bitOffset;
+      size_t bitLength = fieldDef->getBitLength();
+      UTIL::VPP::FieldDef::FieldType fieldType = fieldDef->getFieldType();
+      const UTIL::Value& fieldValue = fieldNode->getValue();
+      // special handling of bit oriented fields
+      if((fieldType == UTIL::VPP::FieldDef::ANY_FIELD) ||
+         (fieldType == UTIL::VPP::FieldDef::BIT_FIELD))
+      {
+        uint32_t bitFieldValue = fieldValue.getUInt32();
+        p_du->setBits(absoluteBitOffset, bitLength, bitFieldValue);
+      }
+      else
+      {
+        // byte oriented fields
+        if((absoluteBitOffset % 8) != 0)
+        {
+          throw UTIL::Exception("byte oriented data field not byte aligned");
+        }
+        if((bitLength % 8) != 0)
+        {
+          throw UTIL::Exception("byte oriented data field not byte sized");
+        }
+        size_t absoluteByteOffset = absoluteBitOffset / 8;
+        size_t byteLength = bitLength / 8;
+        switch(fieldType)
+        {
+        case UTIL::VPP::FieldDef::BYTE_FIELD:
+          {
+            size_t octetStringLength = fieldValue.getOctetStringLength();
+            if(octetStringLength != byteLength)
+            {
+              throw UTIL::Exception("byte field value has wrong size");
+            }
+            const uint8_t* octetString = fieldValue.getOctetString();
+            p_du->setBytes(absoluteByteOffset, byteLength, octetString);
+          }
+          break;
+        case UTIL::VPP::FieldDef::UNSIGNED_FIELD:
+          {
+            uint32_t uintFieldValue = fieldValue.getUInt32();
+            p_du->setUnsigned(absoluteByteOffset, byteLength, uintFieldValue);
+          }
+          break;
+        case UTIL::VPP::FieldDef::BIG_UNSIGNED_FIELD:
+          {
+            uint64_t bigUintFieldValue = fieldValue.getUInt64();
+            p_du->setBigUnsigned(absoluteByteOffset,
+                                 byteLength,
+                                 bigUintFieldValue);
+          }
+          break;
+        case UTIL::VPP::FieldDef::STRING_FIELD:
+          {
+            string asciiString(fieldValue.getAsciiString());
+            size_t asciiStringLength = asciiString.size();
+            if(asciiStringLength != byteLength)
+            {
+              throw UTIL::Exception("ascii field value has wrong size");
+            }
+            p_du->setString(absoluteByteOffset, byteLength, asciiString);
+          }
+          break;
+        case UTIL::VPP::FieldDef::ABS_TIME_FIELD:
+          {
+            UTIL::AbsTime absTime(fieldValue.getAbsTime());
+            uint32_t timeCode = fieldDef->getFieldTypeDetails();
+            p_du->setAbsTime(absoluteByteOffset, timeCode, absTime);
+          }
+          break;
+        default:
+          // should not happen
+          break;
+        }
+      }
+      return (bitOffset + bitLength);
     }
   }
   throw UTIL::Exception("size calculation only for specific nodes supported");
-*/
 }
 
 //-----------------------------------------------------------------------------
-void UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
-                                 const UTIL::DU* p_du,
-                                 size_t p_bitPos) throw(UTIL::Exception)
+// returns the number of bits written
+size_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
+                                   const UTIL::DU* p_du,
+                                   size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
+  return 0;
 }
