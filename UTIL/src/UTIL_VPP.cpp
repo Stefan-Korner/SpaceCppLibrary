@@ -323,6 +323,15 @@ UTIL::VPP::Node& UTIL::VPP::Node::operator[](size_t) throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+// only provided by List, creates also defaut entries
+void UTIL::VPP::Node::setListSize(size_t p_nr) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw
+  UTIL::Exception("This Node does support changing number of child nodes");
+}
+
+//-----------------------------------------------------------------------------
 // only provided by List
 UTIL::VPP::Node& UTIL::VPP::Node::addNode() throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
@@ -386,6 +395,14 @@ const UTIL::Value& UTIL::VPP::Node::getValue() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+// only provided by Field
+UTIL::Value& UTIL::VPP::Node::value() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  throw UTIL::Exception("This Node does support accessing of a value");
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::Node::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
@@ -443,6 +460,24 @@ UTIL::VPP::List::operator[](size_t p_pos) throw(UTIL::Exception)
     i++;
   }
   throw UTIL::Exception("UTIL::VPP::List::at(" + UTIL::STRING::str(i) + ") out of range");
+}
+
+//-----------------------------------------------------------------------------
+// only provided by List, creates also defaut entries
+void UTIL::VPP::List::setListSize(size_t p_nr) throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  // delete entries if the size is shrinked
+  while(m_entries.size() > p_nr)
+  {
+    delete (m_entries.back());
+    m_entries.pop_back();
+  }
+  // add entries if the size is expanded
+  while(m_entries.size() < p_nr)
+  {
+    addNode();
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -677,6 +712,14 @@ const UTIL::Value& UTIL::VPP::Field::getValue() const throw(UTIL::Exception)
 }
 
 //-----------------------------------------------------------------------------
+// only provided by Field
+UTIL::Value& UTIL::VPP::Field::value() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  return m_value;
+}
+
+//-----------------------------------------------------------------------------
 // for debugging
 void UTIL::VPP::Field::dump(const string& p_prefix) const
 //-----------------------------------------------------------------------------
@@ -885,7 +928,7 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
                                   size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  // traverse recursive through all nodes and write the node date to the DU
+  // traverse recursive through all nodes and write the node data to the DU
   UTIL::VPP::Node* node = const_cast<UTIL::VPP::Node*>(p_node);
   {
     // *** List ***
@@ -900,7 +943,7 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
       p_du->setBits(p_bitPos + counterBitOffset,
                     getCounterBitLength,
                     counter);
-      // calculate the size of the entries
+      // write the entries
       size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
       list<UTIL::VPP::Node*>& entries = listNode->getEntries();
       for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
@@ -1021,11 +1064,135 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
 }
 
 //-----------------------------------------------------------------------------
-// returns the number of bits written
+// returns the number of bits read
 size_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
                                    const UTIL::DU* p_du,
                                    size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
-  return 0;
+  // traverse recursive through all nodes and read the node data from the DU
+  {
+    // *** List ***
+    UTIL::VPP::List* listNode = dynamic_cast<UTIL::VPP::List*>(p_node);
+    if(listNode != NULL)
+    {
+      const UTIL::VPP::ListDef* listDef = listNode->getListDef();
+      // read the actual repeat counter
+      size_t counterBitOffset = listDef->getCounterBitOffset();
+      size_t getCounterBitLength = listDef->getCounterBitLength();
+      size_t counter = p_du->getBits(p_bitPos + counterBitOffset,
+                                     getCounterBitLength);
+      listNode->setListSize(counter);
+      // read the entries
+      size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
+      list<UTIL::VPP::Node*>& entries = listNode->getEntries();
+      for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
+          entryIter != entries.end();
+          entryIter++)
+      {
+        UTIL::VPP::Node* entryNode = *entryIter;
+        cntrAndEntriesSize +=
+          readFromDataUnit(entryNode, p_du, p_bitPos + cntrAndEntriesSize);
+      }
+      return cntrAndEntriesSize;
+    }
+  }
+  {
+    // *** Struct ***
+    UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(p_node);
+    if(structNode != NULL)
+    {
+      size_t attributesSize = 0;
+      list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
+      for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
+          attributeIter != attributes.end();
+          attributeIter++)
+      {
+        UTIL::VPP::Node* attributeNode = *attributeIter;
+        attributesSize += readFromDataUnit(attributeNode,
+                                           p_du,
+                                           p_bitPos + attributesSize);
+      }
+      return attributesSize;
+    }
+  }
+  {
+    // *** Field ***
+    UTIL::VPP::Field* fieldNode = dynamic_cast<UTIL::VPP::Field*>(p_node);
+    if(fieldNode != NULL)
+    {
+      const UTIL::VPP::FieldDef* fieldDef = fieldNode->getFieldDef();
+      size_t bitOffset = fieldDef->getBitOffset();
+      size_t absoluteBitOffset = p_bitPos + bitOffset;
+      size_t bitLength = fieldDef->getBitLength();
+      UTIL::VPP::FieldDef::FieldType fieldType = fieldDef->getFieldType();
+      UTIL::Value& fieldValue = fieldNode->value();
+      // special handling of bit oriented fields
+      if((fieldType == UTIL::VPP::FieldDef::ANY_FIELD) ||
+         (fieldType == UTIL::VPP::FieldDef::BIT_FIELD))
+      {
+        uint32_t bitFieldValue = p_du->getBits(absoluteBitOffset, bitLength);
+        fieldValue.set(bitFieldValue);
+      }
+      else
+      {
+        // byte oriented fields
+        if((absoluteBitOffset % 8) != 0)
+        {
+          throw UTIL::Exception("byte oriented data field not byte aligned");
+        }
+        if((bitLength % 8) != 0)
+        {
+          throw UTIL::Exception("byte oriented data field not byte sized");
+        }
+        size_t absoluteByteOffset = absoluteBitOffset / 8;
+        size_t byteLength = bitLength / 8;
+        switch(fieldType)
+        {
+        case UTIL::VPP::FieldDef::BYTE_FIELD:
+          {
+            const uint8_t* octetString =
+              p_du->getBytes(absoluteByteOffset, byteLength);
+            fieldValue.set(octetString, byteLength);
+          }
+          break;
+        case UTIL::VPP::FieldDef::UNSIGNED_FIELD:
+          {
+            uint32_t uintFieldValue =
+              p_du->getUnsigned(absoluteByteOffset, byteLength);
+            fieldValue.set(uintFieldValue);
+          }
+          break;
+        case UTIL::VPP::FieldDef::BIG_UNSIGNED_FIELD:
+          {
+            uint64_t bigUintFieldValue =
+              p_du->getBigUnsigned(absoluteByteOffset, byteLength);
+            fieldValue.set(bigUintFieldValue);
+          }
+          break;
+        case UTIL::VPP::FieldDef::STRING_FIELD:
+          {
+            string asciiString(p_du->getString(absoluteByteOffset,
+                                               byteLength));
+            fieldValue.set(asciiString);
+          }
+          break;
+        case UTIL::VPP::FieldDef::ABS_TIME_FIELD:
+          {
+            uint32_t timeCode = fieldDef->getFieldTypeDetails();
+            UTIL::AbsTime absTime(p_du->getAbsTime(absoluteByteOffset,
+                                                   timeCode));
+
+            fieldValue.set(absTime);
+          }
+          break;
+        default:
+          // should not happen
+          break;
+        }
+      }
+      return (bitOffset + bitLength);
+    }
+  }
+  throw UTIL::Exception("size calculation only for specific nodes supported");
 }

@@ -24,6 +24,3 @@ clean:
 
 tst_PUS_SERVICE1:
 	cd test; make tst_PUS_SERVICE1
-
-tst_PUS_VPP:
-	cd test; make tst_PUS_VPP

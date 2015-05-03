@@ -28,19 +28,14 @@ INCLUDES = -I. \
            -I../../CCSDS/src \
            -I../../UTIL/src
 
-all:	../bin/test_PUS_SERVICE1 \
-	../bin/test_PUS_VPP
+all:	../bin/test_PUS_SERVICE1
 
 clean:
 	\rm -f ../bin/test_PUS_SERVICE1
-	\rm -f ../bin/test_PUS_VPP
 	\rm -f *.o
 
 tst_PUS_SERVICE1: ../bin/test_PUS_SERVICE1
 	cd ../bin; ./test_PUS_SERVICE1
-
-tst_PUS_VPP: ../bin/test_PUS_VPP
-	cd ../bin; ./test_PUS_VPP
 
 ../bin/test_PUS_SERVICE1: test_PUS_SERVICE1.o
 	${LINK} -otest_PUS_SERVICE1 \
@@ -48,22 +43,9 @@ tst_PUS_VPP: ../bin/test_PUS_VPP
 	${LIBS}
 	mv test_PUS_SERVICE1 ../bin
 
-../bin/test_PUS_VPP: test_PUS_VPP.o
-	${LINK} -otest_PUS_VPP \
-	test_PUS_VPP.o \
-	${LIBS}
-	mv test_PUS_VPP ../bin
-
 test_PUS_SERVICE1.o: test_PUS_SERVICE1.cpp \
 	${LIB_PUS} \
 	${LIB_CCSDS} \
 	${LIB_UTIL}
 	${CPP} -otest_PUS_SERVICE1.o ${INCLUDES} \
 	test_PUS_SERVICE1.cpp
-
-test_PUS_VPP.o: test_PUS_VPP.cpp \
-	${LIB_PUS} \
-	${LIB_CCSDS} \
-	${LIB_UTIL}
-	${CPP} -otest_PUS_VPP.o ${INCLUDES} \
-	test_PUS_VPP.cpp

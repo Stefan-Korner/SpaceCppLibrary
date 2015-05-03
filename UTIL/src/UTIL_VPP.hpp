@@ -152,6 +152,8 @@ namespace UTIL
       virtual std::string getNodeName() const;
       // generic access to sub-nodes, only provided by List and Struct
       virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
+      // only provided by List, creates also defaut entries
+      virtual void setListSize(size_t p_nr) throw(UTIL::Exception);
       // only provided by List
       virtual Node& addNode() throw(UTIL::Exception);
       virtual void addNodes(size_t p_nr) throw(UTIL::Exception);
@@ -164,6 +166,7 @@ namespace UTIL
       // only provided by Field
       virtual void setValue(const UTIL::Value& p_value) throw(UTIL::Exception);
       virtual const UTIL::Value& getValue() const throw(UTIL::Exception);
+      virtual UTIL::Value& value() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
@@ -187,6 +190,8 @@ namespace UTIL
       std::list<Node*>& getEntries();
       // overloaded from Node
       virtual Node& operator[](size_t p_pos) throw(UTIL::Exception);
+      // overloaded from Node, creates also defaut entries
+      virtual void setListSize(size_t p_nr) throw(UTIL::Exception);
       // overloaded from Node
       virtual Node& addNode() throw(UTIL::Exception);
       // overloaded from Node, takes over the ownership of p_node
@@ -243,6 +248,7 @@ namespace UTIL
       // overloaded from Node
       virtual void setValue(const UTIL::Value& p_value) throw(UTIL::Exception);
       virtual const UTIL::Value& getValue() const throw(UTIL::Exception);
+      virtual UTIL::Value& value() throw(UTIL::Exception);
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
@@ -294,7 +300,7 @@ namespace UTIL
     size_t writeToDataUnit(const Node* p_node,
                            UTIL::DU* p_du,
                            size_t p_bitPos = 0) throw(UTIL::Exception);
-    // returns the number of bits written
+    // returns the number of bits read
     size_t readFromDataUnit(Node* p_node,
                             const UTIL::DU* p_du,
                             size_t p_bitPos = 0) throw(UTIL::Exception);

@@ -29,22 +29,18 @@ clean:
 
 ../lib/libPUS.so: \
 	PUS_PACKET.o \
-	PUS_SERVICES.o \
-	PUS_VPP.o
+	PUS_SERVICES.o
 	${LIB_DYNAMIC} -olibPUS.so \
 	PUS_PACKET.o \
-	PUS_SERVICES.o \
-	PUS_VPP.o
+	PUS_SERVICES.o
 	mv libPUS.so ../lib
 
 ../lib/libPUS.a: \
 	PUS_PACKET.o \
-	PUS_SERVICES.o \
-	PUS_VPP.o
+	PUS_SERVICES.o
 	${LIB_STATIC} libPUS.a \
 	PUS_PACKET.o \
-	PUS_SERVICES.o \
-	PUS_VPP.o
+	PUS_SERVICES.o
 	mv libPUS.a ../lib
 
 PUS_PACKET.o: PUS_PACKET.cpp \
@@ -61,11 +57,3 @@ PUS_SERVICES.o: PUS_SERVICES.cpp \
 	${LIB_UTIL}
 	${CPP} -oPUS_SERVICES.o ${INCLUDES} \
 	PUS_SERVICES.cpp
-
-PUS_VPP.o: PUS_VPP.cpp \
-	PUS_VPP.hpp \
-	PUS_PACKET.hpp \
-	${LIB_CCSDS} \
-	${LIB_UTIL}
-	${CPP} -oPUS_VPP.o ${INCLUDES} \
-	PUS_VPP.cpp

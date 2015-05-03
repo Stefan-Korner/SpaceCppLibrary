@@ -264,10 +264,10 @@ int main()
     // this code creates a memory leak (but no problem for functional tests)
     UTIL::VPP::Node& instA =
       *(UTIL::VPP::NodeFactory::instance()->createNode(struct1Def));
-    instA[2].addNodes(5);
-    instA[3][2].addNodes(3);
-    instA[3][2][0][1].addNodes(2);
-    instA[3][2][1][1].addNodes(3);
+    instA[2].setListSize(5);
+    instA[3][2].setListSize(3);
+    instA[3][2][0][1].setListSize(2);
+    instA[3][2][1][1].setListSize(3);
     instA[0].setValue(UTIL::Value(1234));
     instA[2][0].setValue(UTIL::Value(11.22));
     // dump instance tree
@@ -276,10 +276,10 @@ int main()
 
     UTIL::VPP::Node& instB =
       *(UTIL::VPP::NodeFactory::instance()->createNode(struct1Def));
-    instB[2].addNodes(5);
-    instB[3][2].addNodes(3);
-    instB[3][2][0][1].addNodes(2);
-    instB[3][2][1][1].addNodes(3);
+    instB[2].setListSize(5);
+    instB[3][2].setListSize(3);
+    instB[3][2][0][1].setListSize(2);
+    instB[3][2][1][1].setListSize(3);
     instB[1].setValue("this is a text");
     instB[2][0].setValue(UTIL::Value(33.44));
     instB[2][1].setValue(UTIL::Value("funny text"));
@@ -302,10 +302,10 @@ int main()
     cout << "--- tree with full data ---" << endl;
     UTIL::VPP::Node& instC =
       *(UTIL::VPP::NodeFactory::instance()->createNode(struct1Def));
-    instC[2].addNodes(5);
-    instC[3][2].addNodes(3);
-    instC[3][2][0][1].addNodes(2);
-    instC[3][2][1][1].addNodes(3);
+    instC[2].setListSize(5);
+    instC[3][2].setListSize(3);
+    instC[3][2][0][1].setListSize(2);
+    instC[3][2][1][1].setListSize(3);
     instC[0].setValue(UTIL::Value(uint32_t(0)));
     instC[1].setValue(UTIL::Value(uint32_t(1)));
     instC[2][0].setValue(UTIL::Value(uint32_t(20)));
@@ -339,7 +339,8 @@ int main()
            << endl;
       return -1;
     }
-    // write instance tree to data unit
+
+    cout << "--- write tree to data unit ---" << endl;
     UTIL::DU du(instCbyteSize);
     size_t writtenBits = UTIL::VPP::writeToDataUnit(&instC, &du);
     size_t writtenBytes = writtenBits / 8;
@@ -360,6 +361,22 @@ int main()
     if(du != tstDU)
     {
       cout << "Invalid data written" << endl;
+      return -1;
+    }
+
+    cout << "--- read tree from data unit ---" << endl;
+    UTIL::VPP::Node& instD =
+      *(UTIL::VPP::NodeFactory::instance()->createNode(struct1Def));
+    size_t readBits = UTIL::VPP::readFromDataUnit(&instD, &tstDU);
+    size_t readBytes = readBits / 8;
+    instD.dump("instD");
+    if(readBits != instCbitSize)
+    {
+      cout << "Invalid amount of data [bits] read: "
+           << readBits
+           << ", expected: "
+           << instCbitSize
+           << endl;
       return -1;
     }
   }
