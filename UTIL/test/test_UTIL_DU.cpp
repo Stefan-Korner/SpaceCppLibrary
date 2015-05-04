@@ -117,13 +117,13 @@ int main()
     du1.dump("du1", true);
     du1.set(BUINT_ACC4, 67305985);
     du1.dump("du1", true);
-    du1.set(BUINT_ACC5, 21542142465);
+    du1.set(BUINT_ACC5, 21542142465ULL);
     du1.dump("du1", true);
-    du1.set(BUINT_ACC6, 6618611909121);
+    du1.set(BUINT_ACC6, 6618611909121ULL);
     du1.dump("du1", true);
-    du1.set(BUINT_ACC7, 1976943448883713);
+    du1.set(BUINT_ACC7, 1976943448883713ULL);
     du1.dump("du1", true);
-    du1.set(BUINT_ACC8, 578437695752307201);
+    du1.set(BUINT_ACC8, 578437695752307201ULL);
     du1.dump("du1", true);
     // du1 = 08 07 06 05 04 03 02 01 ...
 

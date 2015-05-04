@@ -917,10 +917,10 @@ void UTIL::DU::setBigUnsigned(size_t p_bytePos,
   if(((p_byteLength == 1) && (p_value > 255)) || 
      ((p_byteLength == 2) && (p_value > 65535)) || 
      ((p_byteLength == 3) && (p_value > 16777215)) ||
-     ((p_byteLength == 4) && (p_value > 4294967295)) ||
-     ((p_byteLength == 5) && (p_value > 1099511627775)) ||
-     ((p_byteLength == 6) && (p_value > 281474976710655)) ||
-     ((p_byteLength == 7) && (p_value > 72057594037927935)))
+     ((p_byteLength == 4) && (p_value > 4294967295UL)) ||
+     ((p_byteLength == 5) && (p_value > 1099511627775ULL)) ||
+     ((p_byteLength == 6) && (p_value > 281474976710655ULL)) ||
+     ((p_byteLength == 7) && (p_value > 72057594037927935ULL)))
   {
     throw UTIL::Exception("value out of range");
   }
