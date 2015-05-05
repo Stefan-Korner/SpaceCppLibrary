@@ -16,13 +16,9 @@
 #include "SPACE_DEF.hpp"
 
 #include <iostream>
-#include "SCOS_MIB.hpp"
 #include "UTIL_STRING.hpp"
 
 using namespace std;
-
-#define DUMP_MIB
-#define DUMP_DEF
 
 /////////////////
 // Definitions //
@@ -347,7 +343,7 @@ UTIL::VPP::ListDef*  createListDef(
   string paramName = vpdRecord.vpdName;
   // take the related TM parameter definition for details
   const SCOS::MIB::PCFmap& pcfMap =
-    SPACE::DEF::Definitions::instance()->getPCFmap();
+    SCOS::MIB::Manager::instance()->getPCFmap();
   SCOS::MIB::PCFmap::const_iterator pcfIter = pcfMap.find(paramName);
   if(pcfIter == pcfMap.end())
   {
@@ -440,7 +436,7 @@ UTIL::VPP::FieldDef* createFieldDef(
   string paramName = vpdRecord.vpdName;
   // take the related TM parameter definition for details
   const SCOS::MIB::PCFmap& pcfMap =
-    SPACE::DEF::Definitions::instance()->getPCFmap();
+    SCOS::MIB::Manager::instance()->getPCFmap();
   SCOS::MIB::PCFmap::const_iterator pcfIter = pcfMap.find(paramName);
   if(pcfIter == pcfMap.end())
   {
@@ -466,18 +462,11 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
   {
     throw UTIL::Exception("SPACE::DEF::Definitions already initialized");
   }
-  SCOS::MIB::readTable(m_pidMap);
-  SCOS::MIB::readTable(m_picMap);
-  SCOS::MIB::readTable(m_tpcfMap);
-  SCOS::MIB::readTable(m_pcfMap);
-  SCOS::MIB::readTable(m_plfMap);
-  SCOS::MIB::readTable(m_vpdMap);
-#ifdef DUMP_MIB
-  dumpMIBtables();
-#endif
   // create the packets with (optional) variable packet definition
-  for(SCOS::MIB::PIDmap::const_iterator pidIter = m_pidMap.begin();
-      pidIter != m_pidMap.end();
+  const SCOS::MIB::PIDmap& pidMap = SCOS::MIB::Manager::instance()->getPIDmap();
+  const SCOS::MIB::VPDmap& vpdMap = SCOS::MIB::Manager::instance()->getVPDmap();
+  for(SCOS::MIB::PIDmap::const_iterator pidIter = pidMap.begin();
+      pidIter != pidMap.end();
       pidIter++)
   {
     int spid = pidIter->first;
@@ -511,8 +500,8 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
     if(tmPktDef->pktTPSD > 0)
     {
       SCOS::MIB::VPDmap::const_iterator vpdIter =
-        m_vpdMap.find(tmPktDef->pktTPSD);
-      if(vpdIter == m_vpdMap.end())
+        vpdMap.find(tmPktDef->pktTPSD);
+      if(vpdIter == vpdMap.end())
       {
         string errorMessage("missing VPD entries for packet ");
         errorMessage += tmPktDef->pktName;
@@ -556,8 +545,28 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
     }
     m_pktDefs[spid] = tmPktDef;
   }
-#ifdef DUMP_DEF
-  for(map<int, TMpktDef*>::iterator pktDefIter = m_pktDefs.begin();
+  m_initialized = true;
+}
+
+//-----------------------------------------------------------------------------
+// returns a TM packet definition
+const SPACE::DEF::TMpktDef*
+SPACE::DEF::Definitions::getTMpktDefBySPID(int p_spid) const
+//-----------------------------------------------------------------------------
+{
+  std::map<int, TMpktDef*>::const_iterator iter = m_pktDefs.find(p_spid);
+  if(iter == m_pktDefs.end())
+  {
+    return NULL;
+  }
+  return iter->second;
+}
+
+//-----------------------------------------------------------------------------
+void SPACE::DEF::Definitions::dumpDefinitions() const
+//-----------------------------------------------------------------------------
+{
+  for(map<int, TMpktDef*>::const_iterator pktDefIter = m_pktDefs.begin();
       pktDefIter != m_pktDefs.end();
       pktDefIter++)
   {
@@ -567,60 +576,4 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
     SPACE::DEF::TMpktDef* tmPktDef = pktDefIter->second;
     tmPktDef->dump(prefix);
   }
-#endif
-  m_initialized = true;
-}
-
-//-----------------------------------------------------------------------------
-const SCOS::MIB::PIDmap& SPACE::DEF::Definitions::getPIDmap() const
-//-----------------------------------------------------------------------------
-{
-  return m_pidMap;
-}
-
-//-----------------------------------------------------------------------------
-const SCOS::MIB::PICmap& SPACE::DEF::Definitions::getPICmap() const
-//-----------------------------------------------------------------------------
-{
-  return m_picMap;
-}
-
-//-----------------------------------------------------------------------------
-const SCOS::MIB::TPCFmap& SPACE::DEF::Definitions::getTPCFmap() const
-//-----------------------------------------------------------------------------
-{
-  return m_tpcfMap;
-}
-
-//-----------------------------------------------------------------------------
-const SCOS::MIB::PCFmap& SPACE::DEF::Definitions::getPCFmap() const
-//-----------------------------------------------------------------------------
-{
-  return m_pcfMap;
-}
-
-//-----------------------------------------------------------------------------
-const SCOS::MIB::PLFmap& SPACE::DEF::Definitions::getPLFmap() const
-//-----------------------------------------------------------------------------
-{
-  return m_plfMap;
-}
-
-//-----------------------------------------------------------------------------
-const SCOS::MIB::VPDmap& SPACE::DEF::Definitions::getVPDmap() const
-//-----------------------------------------------------------------------------
-{
-  return m_vpdMap;
-}
-
-//-----------------------------------------------------------------------------
-void SPACE::DEF::Definitions::dumpMIBtables() const
-//-----------------------------------------------------------------------------
-{
-  SCOS::MIB::dumpTable(m_pidMap);
-  SCOS::MIB::dumpTable(m_picMap);
-  SCOS::MIB::dumpTable(m_tpcfMap);
-  SCOS::MIB::dumpTable(m_pcfMap);
-  SCOS::MIB::dumpTable(m_plfMap);
-  SCOS::MIB::dumpTable(m_vpdMap);
 }

@@ -183,6 +183,48 @@ namespace SCOS
     void dumpTable(const PCFmap& p_map);
     void dumpTable(const PLFmap& p_map);
     void dumpTable(const VPDmap& p_map);
+
+    //-------------------------------------------------------------------------
+    // Manager for MIB data
+    class Manager
+    //-------------------------------------------------------------------------
+    {
+    public:
+      // an instance of this class (or a derived class) shall
+      // be created and destroyed in main()
+      Manager();
+      virtual ~Manager();
+
+      // Manager is a singleton
+      static Manager* instance();
+
+      // initialise the definition data from file or MIB
+      void init() throw(UTIL::Exception);
+
+      // access to MIB tables
+      const PIDmap& getPIDmap() const;
+      const PICmap& getPICmap() const;
+      const TPCFmap& getTPCFmap() const;
+      const PCFmap& getPCFmap() const;
+      const PLFmap& getPLFmap() const;
+      const VPDmap& getVPDmap() const;
+      void dumpMIBtables() const;
+
+    protected:
+      PIDmap m_pidMap;
+      PICmap m_picMap;
+      TPCFmap m_tpcfMap;
+      PCFmap m_pcfMap;
+      PLFmap m_plfMap;
+      VPDmap m_vpdMap;
+      bool m_initialized;
+
+    private:
+      Manager(const Manager& p_service);
+      const Manager& operator=(const Manager& p_task);
+
+      static Manager* s_instance;
+    };
   }
 }
 

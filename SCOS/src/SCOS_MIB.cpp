@@ -528,3 +528,103 @@ void SCOS::MIB::dumpTable(const SCOS::MIB::VPDmap& p_map)
 {
   dumpMultiKeyTable("VPDmap", p_map);
 }
+
+/////////////
+// Manager //
+/////////////
+
+// global variables
+SCOS::MIB::Manager* SCOS::MIB::Manager::s_instance = NULL;
+
+//-----------------------------------------------------------------------------
+SCOS::MIB::Manager::Manager(): m_initialized(false)
+//-----------------------------------------------------------------------------
+{
+  s_instance = this;
+}
+
+//-----------------------------------------------------------------------------
+SCOS::MIB::Manager::~Manager()
+//-----------------------------------------------------------------------------
+{
+  s_instance = NULL;
+}
+
+//-----------------------------------------------------------------------------
+SCOS::MIB::Manager* SCOS::MIB::Manager::instance()
+//-----------------------------------------------------------------------------
+{
+  return s_instance;
+}
+
+//-----------------------------------------------------------------------------
+// initialise the MIB tables
+void SCOS::MIB::Manager::init() throw(UTIL::Exception)
+//-----------------------------------------------------------------------------
+{
+  if(m_initialized)
+  {
+    throw UTIL::Exception("SCOS::MIB::Manager already initialized");
+  }
+  SCOS::MIB::readTable(m_pidMap);
+  SCOS::MIB::readTable(m_picMap);
+  SCOS::MIB::readTable(m_tpcfMap);
+  SCOS::MIB::readTable(m_pcfMap);
+  SCOS::MIB::readTable(m_plfMap);
+  SCOS::MIB::readTable(m_vpdMap);
+  m_initialized = true;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PIDmap& SCOS::MIB::Manager::getPIDmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_pidMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PICmap& SCOS::MIB::Manager::getPICmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_picMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::TPCFmap& SCOS::MIB::Manager::getTPCFmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_tpcfMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PCFmap& SCOS::MIB::Manager::getPCFmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_pcfMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::PLFmap& SCOS::MIB::Manager::getPLFmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_plfMap;
+}
+
+//-----------------------------------------------------------------------------
+const SCOS::MIB::VPDmap& SCOS::MIB::Manager::getVPDmap() const
+//-----------------------------------------------------------------------------
+{
+  return m_vpdMap;
+}
+
+//-----------------------------------------------------------------------------
+void SCOS::MIB::Manager::dumpMIBtables() const
+//-----------------------------------------------------------------------------
+{
+  SCOS::MIB::dumpTable(m_pidMap);
+  SCOS::MIB::dumpTable(m_picMap);
+  SCOS::MIB::dumpTable(m_tpcfMap);
+  SCOS::MIB::dumpTable(m_pcfMap);
+  SCOS::MIB::dumpTable(m_plfMap);
+  SCOS::MIB::dumpTable(m_vpdMap);
+}

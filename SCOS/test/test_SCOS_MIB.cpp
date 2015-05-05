@@ -27,24 +27,9 @@ int main()
   try
   {
     SCOS::ENV::Environment env("../../scosii_homedir");
-    SCOS::MIB::PIDmap pidMap;
-    SCOS::MIB::PICmap picMap;
-    SCOS::MIB::TPCFmap tpcfMap;
-    SCOS::MIB::PCFmap pcfMap;
-    SCOS::MIB::PLFmap plfMap;
-    SCOS::MIB::VPDmap vpdMap;
-    SCOS::MIB::readTable(pidMap);
-    SCOS::MIB::readTable(picMap);
-    SCOS::MIB::readTable(tpcfMap);
-    SCOS::MIB::readTable(pcfMap);
-    SCOS::MIB::readTable(plfMap);
-    SCOS::MIB::readTable(vpdMap);
-    SCOS::MIB::dumpTable(pidMap);
-    SCOS::MIB::dumpTable(picMap);
-    SCOS::MIB::dumpTable(tpcfMap);
-    SCOS::MIB::dumpTable(pcfMap);
-    SCOS::MIB::dumpTable(plfMap);
-    SCOS::MIB::dumpTable(vpdMap);
+    SCOS::MIB::Manager mibManager;
+    SCOS::MIB::Manager::instance()->init();
+    SCOS::MIB::Manager::instance()->dumpMIBtables();
   }
   catch(const UTIL::Exception& ex)
   {

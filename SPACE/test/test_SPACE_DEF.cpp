@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include "SCOS_ENV.hpp"
+#include "SCOS_MIB.hpp"
 #include "SPACE_DEF.hpp"
 
 using namespace std;
@@ -26,10 +27,13 @@ int main()
 //-----------------------------------------------------------------------------
 {
   SCOS::ENV::Environment env("../../scosii_homedir");
+  SCOS::MIB::Manager mibManager;
   SPACE::DEF::Definitions definitions;
   try
   {
+    SCOS::MIB::Manager::instance()->init();
     SPACE::DEF::Definitions::instance()->init();
+    SPACE::DEF::Definitions::instance()->dumpDefinitions();
   }
   catch(const UTIL::Exception& ex)
   {
