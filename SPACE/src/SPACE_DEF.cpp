@@ -20,6 +20,9 @@
 
 using namespace std;
 
+// 1...overview print, 2...detailed print
+#define LOG_DEF_PARSING 1
+
 /////////////////
 // Definitions //
 /////////////////
@@ -341,6 +344,18 @@ UTIL::VPP::ListDef*  createListDef(
 {
   const SCOS::MIB::VPDrecord& vpdRecord = *p_vpdEntriesIter;
   string paramName = vpdRecord.vpdName;
+#if LOG_DEF_PARSING == 2
+  cout << "createListDef("
+       << vpdRecord.vpdTPSD
+       << "."
+       << paramName
+       << ", "
+       << vpdRecord.vpdGrpSize
+       << " ("
+       << p_groupSize
+       << "))"
+       << endl;
+#endif
   // take the related TM parameter definition for details
   const SCOS::MIB::PCFmap& pcfMap =
     SCOS::MIB::Manager::instance()->getPCFmap();
@@ -376,7 +391,7 @@ UTIL::VPP::ListDef*  createListDef(
   listDef->setEntryDef(entryDef);
   if(subGroupSize != 0)
   {
-    throw UTIL::Exception("invalid group size");
+    throw UTIL::Exception("invalid group size of ListDef(" + paramName + ")");
   }
   return listDef;
 }
@@ -395,11 +410,22 @@ UTIL::VPP::StructDef* createStructDef(
   {
     p_structDef = new UTIL::VPP::StructDef;
   }
+#if LOG_DEF_PARSING == 2
+  else
+  {
+    cout << endl;
+  }
+  cout << "createStructDef(... ("
+       << p_groupSize
+       << "))"
+       << endl;
+#endif
   while(p_vpdEntriesIter != p_vpdEndIter)
   {
     if(p_groupSize == 0)
     {
-      throw UTIL::Exception("invalid group size - value 0");
+      // no more attributes
+      break;
     }
     const SCOS::MIB::VPDrecord& vpdRecord = *p_vpdEntriesIter;
     UTIL::VPP::NodeDef* attributeDef = NULL;
@@ -419,7 +445,7 @@ UTIL::VPP::StructDef* createStructDef(
   }
   if(p_groupSize != 0)
   {
-    throw UTIL::Exception("invalid group size");
+    throw UTIL::Exception("invalid group size of StructDef");
   }
   return p_structDef;
 }
@@ -434,6 +460,18 @@ UTIL::VPP::FieldDef* createFieldDef(
 {
   const SCOS::MIB::VPDrecord& vpdRecord = *p_vpdEntriesIter;
   string paramName = vpdRecord.vpdName;
+#if LOG_DEF_PARSING == 2
+  cout << "createFieldDef("
+       << vpdRecord.vpdTPSD
+       << "."
+       << paramName
+       << ", "
+       << vpdRecord.vpdGrpSize
+       << " ("
+       << p_groupSize
+       << "))"
+       << endl;
+#endif
   // take the related TM parameter definition for details
   const SCOS::MIB::PCFmap& pcfMap =
     SCOS::MIB::Manager::instance()->getPCFmap();
@@ -518,6 +556,14 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
       size_t groupSize = vpdEntries.size();
       try
       {
+#if LOG_DEF_PARSING == 1
+        cout << "create VPP definition for packet "
+             << tmPktDef->pktName
+             << "("
+             << spid
+             << ")"
+             << endl;
+#endif
         createStructDef(vpdEntriesIter,
                         vpdEndIter,
                         groupSize,
