@@ -28,3 +28,13 @@ YST50147	Nbytes valid			3	12				N	R		F	N	2		1
 YST50148	Info1			2	32				N	R		F	N	2		1		
 YST50149	Time			9	17				N	R		F	N	2		1		
 YST50150	Crc			3	12				N	R		F	N	2		1		
+YST50221	DataLen(12,11)			3	12				N	R		F	N	2		1		
+YST50222	PktTime(12,11)			9	17				N	R		F	N	2		1		
+YST50223	N			3	12				N	R		F	N	2		1		
+YST50224	ParameterID			2	32				N	R		F	N	2		1		
+YST50225	Mask			3	14				N	R		F	N	2		1		
+YST50226	ParamVal			3	14				N	R		F	N	2		1		
+YST50227	LimitCr			3	14				N	R		F	N	2		1		
+YST50228	PrevChkStat			2	8				S	R	1225	F	N	2		1		
+YST50229	CurrChkStat			2	8				S	R	1225	F	N	2		1		
+YST50230	TransTime			9	17				N	R		F	N	2		1		

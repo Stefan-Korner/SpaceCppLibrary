@@ -28,8 +28,11 @@ namespace UTIL
   //---------------------------------------------------------------------------
   {
     std::string str(int p_val);
+    std::string str(unsigned int p_val);
     int asInt(const char* p_string);
     int asInt(const std::string& p_string);
+    unsigned int asUInt(const char* p_string);
+    unsigned int asUInt(const std::string& p_string);
     void split(const char* p_text,
                const char* p_separator,
                std::vector<std::string>& p_tokens);

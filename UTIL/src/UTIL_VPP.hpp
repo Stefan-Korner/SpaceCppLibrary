@@ -56,20 +56,20 @@ namespace UTIL
     {
     public:
       ListDef(const std::string& p_nodeName = "",
-              size_t p_counterBitOffset = 0,
+              ssize_t p_counterBitOffset = 0,
               size_t p_counterBitLength = 0);
       virtual ~ListDef();
       // takes over the ownership of p_entryDef
       virtual void setEntryDef(NodeDef* p_entryDef);
       // getter(s)
       virtual const NodeDef* getEntryDef() const;
-      virtual size_t getCounterBitOffset() const;
+      virtual ssize_t getCounterBitOffset() const;
       virtual size_t getCounterBitLength() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
       NodeDef* m_entryDef;
-      size_t m_counterBitOffset;
+      ssize_t m_counterBitOffset;
       size_t m_counterBitLength;
     private:
       ListDef(const ListDef& p_other);
@@ -115,20 +115,20 @@ namespace UTIL
       };
       FieldDef(const std::string& p_nodeName = "",
                FieldType p_fieldType = ANY_FIELD,
-               size_t p_bitOffset = 0,
+               ssize_t p_bitOffset = 0,
                size_t p_bitLength = 0,
                uint32_t p_fieldTypeDetails = 0);
       virtual ~FieldDef();
       // getter(s)
       virtual FieldType getFieldType() const;
-      virtual size_t getBitOffset() const;
+      virtual ssize_t getBitOffset() const;
       virtual size_t getBitLength() const;
       virtual uint32_t getFieldTypeDetails() const;
       // for debugging
       virtual void dump(const std::string& p_prefix) const;
     protected:
       FieldType m_fieldType;
-      size_t m_bitOffset;
+      ssize_t m_bitOffset;
       size_t m_bitLength;
       uint32_t m_fieldTypeDetails;
     private:
@@ -292,18 +292,18 @@ namespace UTIL
     // convenience functions //
     ///////////////////////////
 
-    size_t getBinarySize(const Node* p_node) throw(UTIL::Exception);
-    size_t getBinarySize(const NodeDef* p_nodeDef,
-                         const UTIL::DU* p_du,
-                         size_t p_bitPos = 0) throw(UTIL::Exception);
+    ssize_t getBinarySize(const Node* p_node) throw(UTIL::Exception);
+    ssize_t getBinarySize(const NodeDef* p_nodeDef,
+                          const UTIL::DU* p_du,
+                          size_t p_bitPos = 0) throw(UTIL::Exception);
     // returns the number of bits written
-    size_t writeToDataUnit(const Node* p_node,
-                           UTIL::DU* p_du,
-                           size_t p_bitPos = 0) throw(UTIL::Exception);
-    // returns the number of bits read
-    size_t readFromDataUnit(Node* p_node,
-                            const UTIL::DU* p_du,
+    ssize_t writeToDataUnit(const Node* p_node,
+                            UTIL::DU* p_du,
                             size_t p_bitPos = 0) throw(UTIL::Exception);
+    // returns the number of bits read
+    ssize_t readFromDataUnit(Node* p_node,
+                             const UTIL::DU* p_du,
+                             size_t p_bitPos = 0) throw(UTIL::Exception);
   }
 }
 

@@ -52,7 +52,7 @@ void UTIL::VPP::NodeDef::dump(const string& p_prefix) const
 
 //-----------------------------------------------------------------------------
 UTIL::VPP::ListDef::ListDef(const string& p_nodeName,
-                            size_t p_counterBitOffset,
+                            ssize_t p_counterBitOffset,
                             size_t p_counterBitLength):
   UTIL::VPP::NodeDef(p_nodeName),
   m_entryDef(NULL),
@@ -91,7 +91,7 @@ const UTIL::VPP::NodeDef* UTIL::VPP::ListDef::getEntryDef() const
 }
 
 //-----------------------------------------------------------------------------
-size_t UTIL::VPP::ListDef::getCounterBitOffset() const
+ssize_t UTIL::VPP::ListDef::getCounterBitOffset() const
 //-----------------------------------------------------------------------------
 {
   return m_counterBitOffset;
@@ -198,10 +198,10 @@ void UTIL::VPP::StructDef::dump(const string& p_prefix) const
 
 //-----------------------------------------------------------------------------
 UTIL::VPP::FieldDef::FieldDef(const string& p_nodeName,
-                             UTIL::VPP::FieldDef::FieldType p_fieldType,
-                             size_t p_bitOffset,
-                             size_t p_bitLength,
-                             uint32_t p_fieldTypeDetails):
+                              UTIL::VPP::FieldDef::FieldType p_fieldType,
+                              ssize_t p_bitOffset,
+                              size_t p_bitLength,
+                              uint32_t p_fieldTypeDetails):
   UTIL::VPP::NodeDef(p_nodeName),
   m_fieldType(p_fieldType),
   m_bitOffset(p_bitOffset),
@@ -223,7 +223,7 @@ UTIL::VPP::FieldDef::FieldType UTIL::VPP::FieldDef::getFieldType() const
 }
 
 //-----------------------------------------------------------------------------
-size_t UTIL::VPP::FieldDef::getBitOffset() const
+ssize_t UTIL::VPP::FieldDef::getBitOffset() const
 //-----------------------------------------------------------------------------
 {
   return m_bitOffset;
@@ -802,7 +802,7 @@ UTIL::VPP::NodeFactory::createNode(const UTIL::VPP::NodeDef* p_nodeDef)
 ///////////////////////////
 
 //-----------------------------------------------------------------------------
-size_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
+ssize_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
   throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
@@ -814,8 +814,8 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
     if(listNode != NULL)
     {
       const UTIL::VPP::ListDef* listDef = listNode->getListDef();
-      size_t retVal = listDef->getCounterBitOffset() +
-                      listDef->getCounterBitLength();
+      ssize_t retVal = listDef->getCounterBitOffset() +
+                       listDef->getCounterBitLength();
       list<UTIL::VPP::Node*>& entries = listNode->getEntries();
       for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
           entryIter != entries.end();
@@ -832,7 +832,7 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
     UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(node);
     if(structNode != NULL)
     {
-      size_t retVal = 0;
+      ssize_t retVal = 0;
       list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
       for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
           attributeIter != attributes.end();
@@ -857,9 +857,9 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::Node* p_node)
 }
 
 //-----------------------------------------------------------------------------
-size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
-                                const UTIL::DU* p_du,
-                                size_t p_bitPos) throw(UTIL::Exception)
+ssize_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
+                                 const UTIL::DU* p_du,
+                                 size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // traverse recursive through all nodes and accumulates the node sizes
@@ -871,12 +871,12 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
     if(listDef != NULL)
     {
       // read the actual repeat counter
-      size_t counterBitOffset = listDef->getCounterBitOffset();
+      ssize_t counterBitOffset = listDef->getCounterBitOffset();
       size_t getCounterBitLength = listDef->getCounterBitLength();
       size_t counter = p_du->getBits(p_bitPos + counterBitOffset,
                                      getCounterBitLength);
       // calculate the size of the entries
-      size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
+      ssize_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
       const NodeDef* entryDef = listDef->getEntryDef();
       for(size_t i = 0; i < counter; i++)
       {
@@ -894,7 +894,7 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
     if(structDef != NULL)
     {
       // calculate the size of the attributes
-      size_t attributesSize = 0;
+      ssize_t attributesSize = 0;
       const list<NodeDef*>& attributesDef = structDef->getAttributesDef();
       for(list<UTIL::VPP::NodeDef*>::const_iterator attributesDefIter =
             attributesDef.begin();
@@ -923,9 +923,9 @@ size_t UTIL::VPP::getBinarySize(const UTIL::VPP::NodeDef* p_nodeDef,
 
 //-----------------------------------------------------------------------------
 // returns the number of bits written
-size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
-                                  UTIL::DU* p_du,
-                                  size_t p_bitPos) throw(UTIL::Exception)
+ssize_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
+                                   UTIL::DU* p_du,
+                                   size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // traverse recursive through all nodes and write the node data to the DU
@@ -937,14 +937,14 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
     {
       const UTIL::VPP::ListDef* listDef = listNode->getListDef();
       // write the actual repeat counter
-      size_t counterBitOffset = listDef->getCounterBitOffset();
+      ssize_t counterBitOffset = listDef->getCounterBitOffset();
       size_t getCounterBitLength = listDef->getCounterBitLength();
       size_t counter = listNode->getEntries().size();
       p_du->setBits(p_bitPos + counterBitOffset,
                     getCounterBitLength,
                     counter);
       // write the entries
-      size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
+      ssize_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
       list<UTIL::VPP::Node*>& entries = listNode->getEntries();
       for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
           entryIter != entries.end();
@@ -962,7 +962,7 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
     UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(node);
     if(structNode != NULL)
     {
-      size_t attributesSize = 0;
+      ssize_t attributesSize = 0;
       list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
       for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
           attributeIter != attributes.end();
@@ -982,7 +982,7 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
     if(fieldNode != NULL)
     {
       const UTIL::VPP::FieldDef* fieldDef = fieldNode->getFieldDef();
-      size_t bitOffset = fieldDef->getBitOffset();
+      ssize_t bitOffset = fieldDef->getBitOffset();
       size_t absoluteBitOffset = p_bitPos + bitOffset;
       size_t bitLength = fieldDef->getBitLength();
       UTIL::VPP::FieldDef::FieldType fieldType = fieldDef->getFieldType();
@@ -1065,9 +1065,9 @@ size_t UTIL::VPP::writeToDataUnit(const UTIL::VPP::Node* p_node,
 
 //-----------------------------------------------------------------------------
 // returns the number of bits read
-size_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
-                                   const UTIL::DU* p_du,
-                                   size_t p_bitPos) throw(UTIL::Exception)
+ssize_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
+                                    const UTIL::DU* p_du,
+                                    size_t p_bitPos) throw(UTIL::Exception)
 //-----------------------------------------------------------------------------
 {
   // traverse recursive through all nodes and read the node data from the DU
@@ -1078,13 +1078,13 @@ size_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
     {
       const UTIL::VPP::ListDef* listDef = listNode->getListDef();
       // read the actual repeat counter
-      size_t counterBitOffset = listDef->getCounterBitOffset();
+      ssize_t counterBitOffset = listDef->getCounterBitOffset();
       size_t getCounterBitLength = listDef->getCounterBitLength();
       size_t counter = p_du->getBits(p_bitPos + counterBitOffset,
                                      getCounterBitLength);
       listNode->setListSize(counter);
       // read the entries
-      size_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
+      ssize_t cntrAndEntriesSize = counterBitOffset + getCounterBitLength;
       list<UTIL::VPP::Node*>& entries = listNode->getEntries();
       for(list<UTIL::VPP::Node*>::iterator entryIter =  entries.begin();
           entryIter != entries.end();
@@ -1102,7 +1102,7 @@ size_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
     UTIL::VPP::Struct* structNode = dynamic_cast<UTIL::VPP::Struct*>(p_node);
     if(structNode != NULL)
     {
-      size_t attributesSize = 0;
+      ssize_t attributesSize = 0;
       list<UTIL::VPP::Node*>& attributes = structNode->getAttributes();
       for(list<UTIL::VPP::Node*>::iterator attributeIter =  attributes.begin();
           attributeIter != attributes.end();
@@ -1122,7 +1122,7 @@ size_t UTIL::VPP::readFromDataUnit(UTIL::VPP::Node* p_node,
     if(fieldNode != NULL)
     {
       const UTIL::VPP::FieldDef* fieldDef = fieldNode->getFieldDef();
-      size_t bitOffset = fieldDef->getBitOffset();
+      ssize_t bitOffset = fieldDef->getBitOffset();
       size_t absoluteBitOffset = p_bitPos + bitOffset;
       size_t bitLength = fieldDef->getBitLength();
       UTIL::VPP::FieldDef::FieldType fieldType = fieldDef->getFieldType();
