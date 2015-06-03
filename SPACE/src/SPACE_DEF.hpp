@@ -112,6 +112,8 @@ namespace SPACE
       std::map<std::string, const TMparamToPkt*> paramLinks;
       int pktTPSD;
       UTIL::VPP::StructDef vppStructure;
+      ssize_t vppTopLevelListBitOffset;
+      size_t vppTopLevelListBitLength;
 
       TMpktDef();
       // for debugging

@@ -46,7 +46,9 @@ SPACE::DEF::TMpktDef::TMpktDef():
   pktS2Ksize(-1),
   pktSPDFsize(-1),
   pktSPDFdataSize(-1),
-  pktTPSD(-1)
+  pktTPSD(-1),
+  vppTopLevelListBitOffset(-1),
+  vppTopLevelListBitLength(0)
 //-----------------------------------------------------------------------------
 {}
 
@@ -76,6 +78,8 @@ void SPACE::DEF::TMpktDef::dump(const string& prefix) const
   {
     vppStructure.dump(prefix + ".vppStructure");
   }
+  cout << prefix << ".vppTopLevelListBitOffset = " << vppTopLevelListBitOffset << endl;
+  cout << prefix << ".vppTopLevelListBitLength = " << vppTopLevelListBitLength << endl;
 }
 
 // global variables
@@ -587,6 +591,53 @@ void SPACE::DEF::Definitions::init() throw(UTIL::Exception)
         errorMessage += "): ";
         errorMessage += ex.what();
         throw UTIL::Exception(errorMessage);
+      }
+      // post processing to calculatee vppTopLevelListBitOffset and
+      // vppTopLevelListBitLength: this sould be an attribute def of
+      // the top level StructDef
+      const std::list<UTIL::VPP::NodeDef*>& attrsDef =
+        tmPktDef->vppStructure.getAttributesDef();
+      tmPktDef->vppTopLevelListBitOffset = tmPktDef->pktDFHsize * 8;
+      tmPktDef->vppTopLevelListBitLength = 0;
+      for(list<UTIL::VPP::NodeDef*>::const_iterator attrsDefIter =
+            attrsDef.begin();
+          attrsDefIter != attrsDef.end();
+          attrsDefIter++)
+      {
+        const UTIL::VPP::NodeDef* attrDef = *attrsDefIter;
+        {
+          // *** List ***
+          const UTIL::VPP::ListDef* listDef =
+            dynamic_cast<const UTIL::VPP::ListDef*>(attrDef);
+          if(listDef != NULL)
+          {
+            ssize_t counterBitOffset = listDef->getCounterBitOffset();
+            size_t counterBitLength = listDef->getCounterBitLength();
+            tmPktDef->vppTopLevelListBitOffset += counterBitOffset;
+            tmPktDef->vppTopLevelListBitLength = counterBitLength;
+            break;
+          }
+        }
+        {
+          // *** Field ***
+          const UTIL::VPP::FieldDef* fieldDef =
+            dynamic_cast<const UTIL::VPP::FieldDef*>(attrDef);
+          if(fieldDef != NULL)
+          {
+            ssize_t bitOffset = fieldDef->getBitOffset();
+            size_t bitLength = fieldDef->getBitLength();
+            tmPktDef->vppTopLevelListBitOffset += bitOffset;
+            tmPktDef->vppTopLevelListBitOffset += bitLength;
+            continue;
+          }
+        }
+        // unexpected NodeDef type
+        break;
+      }
+      if(tmPktDef->vppTopLevelListBitLength == 0)
+      {
+        // no list found
+        tmPktDef->vppTopLevelListBitOffset = -1;
       }
     }
     m_pktDefs[spid] = tmPktDef;
